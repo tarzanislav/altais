@@ -58,6 +58,13 @@ in one place completes it everywhere.
 - One SQLCipher database per device: objects (CRDT snapshots), outbox, sync
   cursors, blob index, link and task views, FTS5 full-text index and
   sqlite-vec vectors. The index is therefore encrypted at rest for free.
+- Search: an FTS5 index inside the encrypted database, holding no readable
+  copy of the text. Titles and bodies are folded before indexing and the
+  query the same way: lowercase, diacritics removed (also ł, đ, ø, ß), Russian
+  ё as е, and every Chinese or Japanese character as its own word, so a
+  two-character word is found inside a sentence. Words match as prefixes;
+  quoted text and Chinese words match as written; the title counts five times
+  as much as the body.
 - Attachments: content-addressed (BLAKE3), split with FastCDC, encrypted with
   a random per-file key. Originals are never modified.
 - A local edit, its encrypted envelope in the outbox and the index dirty flag
@@ -198,13 +205,13 @@ crates/
   altais-crdt-bench/ gate G0: Loro vs Yrs, not shipped   (F0, present)
   altais-storage/   SQLCipher, key protection, schema    (F1, present)
   altais-blob/      FastCDC, encrypted chunks, integrity (F1)
-  altais-index/     FTS5, sqlite-vec, query language     (F1)
+  altais-index/     sqlite-vec, query language           (F2; FTS5 search is in altais-storage)
   altais-sync/      outbox, inbox, cursors, transports   (F3)
   altais-interop/   ENEX import (F0, present); ADM/HTML/Markdown export (F2)
   altais-core/      facade: commands, queries, events    (F1)
   altais-relay/     optional self-hosted server (Axum)   (F5)
   altais-sim/       deterministic simulator              (F3)
-  altais-cli/
+  altais-cli/       `altais` tool: init, Evernote import, search (F1, present)
 apps/
   editor-spike/     ProseMirror + Loro prototype         (F0, present)
   desktop/          Tauri 2 + React                      (F1)

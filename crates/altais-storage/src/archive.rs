@@ -9,7 +9,7 @@ use chrono::{DateTime, Utc};
 use rusqlite::{Connection, OptionalExtension, params};
 
 use crate::keys::{DbKey, KeyFile, KeyStore, PASSWORD_KDF, RecoveryKey};
-use crate::{KdfParams, StorageError, schema};
+use crate::{KdfParams, StorageError, fold, schema, text};
 
 const DB_FILE: &str = "archive.db";
 const KEY_FILE: &str = "keys.json";
@@ -51,6 +51,13 @@ pub struct NoteSummary {
     pub notebook: Option<ObjectId>,
     /// Last change.
     pub updated: DateTime<Utc>,
+}
+
+/// A search result.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SearchHit {
+    /// The note.
+    pub note: NoteSummary,
 }
 
 /// An open archive.
@@ -105,8 +112,47 @@ fn open_database(path: &Path, key: &DbKey) -> Result<Connection, StorageError> {
     conn.execute_batch(
         "PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;",
     )?;
-    schema::migrate(&mut conn)?;
+    let previous = schema::migrate(&mut conn)?;
+    if previous > 0 && previous < schema::SEARCH_INDEX_VERSION {
+        reindex(&mut conn)?;
+    }
     Ok(conn)
+}
+
+/// Writes a note into the search index (replacing what was there).
+fn index_note(conn: &rusqlite::Transaction<'_>, doc: &Document) -> Result<(), StorageError> {
+    let rowid: i64 = conn.query_row(
+        "SELECT rowid FROM note WHERE id = ?1",
+        [doc.id.to_string()],
+        |r| r.get(0),
+    )?;
+    conn.execute("DELETE FROM note_fts WHERE rowid = ?1", [rowid])?;
+    conn.execute(
+        "INSERT INTO note_fts (rowid, title, body) VALUES (?1, ?2, ?3)",
+        params![
+            rowid,
+            fold::fold(doc.title.as_deref().unwrap_or_default()),
+            fold::fold(&text::body_text(doc))
+        ],
+    )?;
+    Ok(())
+}
+
+/// Rebuilds the whole search index (after a schema upgrade).
+fn reindex(conn: &mut Connection) -> Result<(), StorageError> {
+    let tx = conn.transaction()?;
+    tx.execute("DELETE FROM note_fts", [])?;
+    let docs: Vec<String> = {
+        let mut stmt = tx.prepare("SELECT adm FROM note")?;
+        stmt.query_map([], |r| r.get(0))?
+            .collect::<Result<_, _>>()?
+    };
+    for json in docs {
+        let doc = Document::from_json(&json).map_err(|e| StorageError::Data(e.to_string()))?;
+        index_note(&tx, &doc)?;
+    }
+    tx.commit()?;
+    Ok(())
 }
 
 fn parse_time(s: String) -> Result<DateTime<Utc>, StorageError> {
@@ -409,8 +455,55 @@ impl Archive {
                 params![id, bid, blob.hex(), name, mime],
             )?;
         }
+        index_note(&tx, doc)?;
         tx.commit()?;
         Ok(())
+    }
+
+    /// Finds notes. Every word must occur (as the start of a word, ignoring
+    /// case and diacritics); text in quotes and Chinese words must occur as
+    /// written. Best matches first; a match in the title counts more.
+    pub fn search(&self, query: &str, limit: usize) -> Result<Vec<SearchHit>, StorageError> {
+        let Some(fts) = fold::fts_query(query) else {
+            return Ok(Vec::new());
+        };
+        let mut stmt = self.conn.prepare(
+            "SELECT note.id, note.title, note.notebook, note.updated
+             FROM note_fts JOIN note ON note.rowid = note_fts.rowid
+             WHERE note_fts MATCH ?1 AND note.deleted IS NULL
+             ORDER BY bm25(note_fts, 5.0, 1.0)
+             LIMIT ?2",
+        )?;
+        let rows = stmt.query_map(params![fts, limit as i64], |r| {
+            Ok((
+                r.get::<_, String>(0)?,
+                r.get::<_, String>(1)?,
+                r.get::<_, Option<String>>(2)?,
+                r.get::<_, String>(3)?,
+            ))
+        })?;
+        rows.map(|row| {
+            let (id, title, notebook, updated) = row?;
+            Ok(SearchHit {
+                note: NoteSummary {
+                    id: parse_id(id)?,
+                    title,
+                    notebook: notebook.map(parse_id).transpose()?,
+                    updated: parse_time(updated)?,
+                },
+            })
+        })
+        .collect()
+    }
+
+    /// Number of notes (not counting deleted ones).
+    pub fn note_count(&self) -> Result<usize, StorageError> {
+        let n: i64 =
+            self.conn
+                .query_row("SELECT count(*) FROM note WHERE deleted IS NULL", [], |r| {
+                    r.get(0)
+                })?;
+        Ok(n as usize)
     }
 
     /// A note by its identifier.
@@ -485,5 +578,42 @@ impl Archive {
                 r.get(0)
             })
             .optional()?)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::OsKeyStore;
+
+    #[test]
+    fn an_archive_from_before_the_search_index_gets_indexed_on_open() {
+        let mut bytes = [0u8; 8];
+        getrandom::fill(&mut bytes).unwrap();
+        let suffix: String = bytes.iter().map(|b| format!("{b:02x}")).collect();
+        let dir = std::env::temp_dir().join(format!("altais-migrate-{suffix}"));
+        let keystore: Arc<dyn KeyStore> = Arc::new(OsKeyStore::mock());
+        let fast = KdfParams {
+            memory_kib: 1024,
+            iterations: 1,
+            parallelism: 1,
+        };
+        let (mut archive, _) =
+            Archive::create_with_kdf(&dir, Some(keystore.clone()), None, fast).unwrap();
+        archive
+            .put_note(&Document::new_note("Starý archív"))
+            .unwrap();
+        // Turn it into a schema-1 archive.
+        archive
+            .conn
+            .execute_batch("DROP TABLE note_fts; PRAGMA user_version = 1;")
+            .unwrap();
+        drop(archive);
+
+        let archive = Archive::open(&dir, Some(keystore), Unlock::KeyStore).unwrap();
+        let hits = archive.search("stary", 10).unwrap();
+        assert_eq!(hits.len(), 1);
+        drop(archive);
+        let _ = fs::remove_dir_all(dir);
     }
 }

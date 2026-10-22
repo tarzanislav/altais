@@ -22,9 +22,12 @@
 
 mod archive;
 mod error;
+pub mod fold;
 pub mod keys;
 mod schema;
+mod text;
 
-pub use archive::{Archive, NoteSummary, Notebook, Unlock};
+pub use archive::{Archive, NoteSummary, Notebook, SearchHit, Unlock};
 pub use error::StorageError;
 pub use keys::{DbKey, KdfParams, KeyStore, OsKeyStore, RecoveryKey};
+pub use text::body_text as note_text;

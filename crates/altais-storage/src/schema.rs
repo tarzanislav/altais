@@ -54,13 +54,26 @@ const MIGRATIONS: &[&str] = &[
         PRIMARY KEY (note, bid)
     ) STRICT, WITHOUT ROWID;
     "#,
+    // 2: full-text index of titles and bodies, folded by `fold::fold`
+    //    (contentless: the index holds no readable copy of the text).
+    r#"
+    CREATE VIRTUAL TABLE note_fts USING fts5(
+        title, body,
+        content = '', contentless_delete = 1,
+        tokenize = 'unicode61'
+    );
+    "#,
 ];
+
+/// Schema version that introduced the search index; archives migrated from
+/// an older version need their notes indexed.
+pub const SEARCH_INDEX_VERSION: i64 = 2;
 
 /// Newest schema version this build knows.
 pub const SCHEMA_VERSION: i64 = MIGRATIONS.len() as i64;
 
-/// Brings the database to the newest schema.
-pub fn migrate(conn: &mut Connection) -> Result<(), StorageError> {
+/// Brings the database to the newest schema; returns the version it had.
+pub fn migrate(conn: &mut Connection) -> Result<i64, StorageError> {
     let current: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
     if current > SCHEMA_VERSION {
         return Err(StorageError::NewerSchema {
@@ -74,5 +87,5 @@ pub fn migrate(conn: &mut Connection) -> Result<(), StorageError> {
         tx.pragma_update(None, "user_version", i as i64 + 1)?;
         tx.commit()?;
     }
-    Ok(())
+    Ok(current)
 }
