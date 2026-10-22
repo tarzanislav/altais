@@ -57,7 +57,7 @@ jobs:
           # On failure, repeat the errors as annotations (shown on the PR page).
           if ! cargo +"$msrv" check --workspace --all-targets --locked --message-format short 2> msrv.log; then
             cat msrv.log
-            grep -E "^error" msrv.log | head -20 | while IFS= read -r line; do echo "::error::$line"; done
+            grep -E "error(\[|:)" msrv.log | head -20 | while IFS= read -r line; do echo "::error::$line"; done
             exit 1
           fi
 
