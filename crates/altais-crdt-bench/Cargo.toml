@@ -8,6 +8,9 @@ license.workspace = true
 repository.workspace = true
 authors.workspace = true
 publish = false
+# Yrs 0.28 does not build with the workspace's minimum Rust version (it uses
+# `if let` guards in match arms), so CI's MSRV check skips this crate. It is a
+# benchmark and never shipped.
 
 [dependencies]
 loro = "1.17.1"

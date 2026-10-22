@@ -75,6 +75,8 @@ practice.
 - **Maintenance signals.** Loro pulls in four crates marked unmaintained by
   RustSec (`im`, `bitmaps`, `sized-chunks`, and `atomic-polyfill` via
   `postcard`); Yrs pulls in one (`smallstr`). None is a vulnerability. The
+  Yrs 0.28 also does not build with ALTAIS's minimum Rust version (1.88)
+  and does not declare which version it needs; Loro builds with it. The
   editor spike also found two bugs around Loro (cursor handling in
   loro-prosemirror 0.4, undo history erased by `importBatch` in Loro 1.17);
   y-prosemirror is older and more widely used.
