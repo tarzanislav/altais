@@ -52,6 +52,9 @@ in one place completes it everywhere.
 
 ## Storage
 
+- The archive key is random; Windows keeps it so the archive opens without
+  a password, an optional password replaces that copy, and a recovery key
+  always works ([ADR-0008](adr/0008-archive-key-protection.md)).
 - One SQLCipher database per device: objects (CRDT snapshots), outbox, sync
   cursors, blob index, link and task views, FTS5 full-text index and
   sqlite-vec vectors. The index is therefore encrypted at rest for free.
@@ -193,7 +196,7 @@ crates/
   altais-crypto/    keys, envelopes, X-Wing, HPKE        (F3)
   altais-docstore/  Loro adapter behind a DocEngine trait (F1)
   altais-crdt-bench/ gate G0: Loro vs Yrs, not shipped   (F0, present)
-  altais-storage/   SQLCipher, migrations                (F1)
+  altais-storage/   SQLCipher, key protection, schema    (F1, present)
   altais-blob/      FastCDC, encrypted chunks, integrity (F1)
   altais-index/     FTS5, sqlite-vec, query language     (F1)
   altais-sync/      outbox, inbox, cursors, transports   (F3)
