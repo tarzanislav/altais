@@ -155,3 +155,19 @@ fn updated_before_created_is_rejected() {
         Err(vec![ValidationError::UpdatedBeforeCreated])
     );
 }
+
+#[test]
+fn language_of_the_note_is_read_and_checked() {
+    let doc = Document::from_json(NOTE).unwrap();
+    assert_eq!(doc.lang.as_deref(), Some("sk"));
+
+    let mut value: Value = serde_json::from_str(NOTE).unwrap();
+    value["lang"] = json!("slovenčina");
+    let doc: Document = serde_json::from_value(value).unwrap();
+    assert_eq!(
+        validate(&doc),
+        Err(vec![ValidationError::InvalidLanguageTag(
+            "slovenčina".to_owned()
+        )])
+    );
+}

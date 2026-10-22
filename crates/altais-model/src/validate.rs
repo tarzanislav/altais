@@ -42,6 +42,9 @@ pub enum ValidationError {
         /// The block type.
         t: String,
     },
+    /// The `lang` field is not a BCP 47 language tag such as `sk` or `zh-Hans`.
+    #[error("invalid language tag {0:?}")]
+    InvalidLanguageTag(String),
 }
 
 /// Checks the rules that the JSON structure alone cannot express.
@@ -55,6 +58,9 @@ pub fn validate(doc: &Document) -> Result<(), Vec<ValidationError>> {
     }
     if doc.updated < doc.created {
         errors.push(ValidationError::UpdatedBeforeCreated);
+    }
+    if let Some(lang) = doc.lang.as_deref().filter(|l| !is_language_tag(l)) {
+        errors.push(ValidationError::InvalidLanguageTag(lang.to_owned()));
     }
 
     let mut seen = HashSet::new();
@@ -93,10 +99,46 @@ pub fn validate(doc: &Document) -> Result<(), Vec<ValidationError>> {
     }
 }
 
+/// Checks the shape of a BCP 47 tag: a 2–3 letter language subtag followed by
+/// optional subtags of 1–8 letters or digits (for example `sk`, `zh-Hans`, `pt-BR`).
+fn is_language_tag(tag: &str) -> bool {
+    let mut parts = tag.split('-');
+    let primary = parts
+        .next()
+        .is_some_and(|p| (2..=3).contains(&p.len()) && p.bytes().all(|b| b.is_ascii_alphabetic()));
+    primary
+        && parts.all(|p| (1..=8).contains(&p.len()) && p.bytes().all(|b| b.is_ascii_alphanumeric()))
+}
+
 /// An unknown block whose `t` is a known type failed to parse as that type.
 fn known_type_of_unknown(block: &Block) -> Option<String> {
     block
         .type_name()
         .filter(|t| KNOWN_BLOCK_TYPES.contains(t))
         .map(str::to_owned)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_language_tag;
+
+    #[test]
+    fn language_tags() {
+        for ok in [
+            "sk", "cs", "en", "hu", "pl", "ru", "zh-Hans", "zh-Hant", "pt-BR",
+        ] {
+            assert!(is_language_tag(ok), "{ok} should be accepted");
+        }
+        for bad in [
+            "",
+            "s",
+            "slovak",
+            "sk_SK",
+            "zh-",
+            "sk-toolongsubtag",
+            "slovenčina",
+        ] {
+            assert!(!is_language_tag(bad), "{bad} should be rejected");
+        }
+    }
 }
