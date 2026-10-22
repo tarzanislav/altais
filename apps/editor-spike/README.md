@@ -17,7 +17,7 @@ Changes never appear in the note while you are writing in it:
 2. A bar above the note says how many changes are waiting and offers
    **Update now**.
 3. Waiting changes are applied when you click **Update now**, after a pause
-   in typing (10 s in the spike, `?idle=<ms>` changes it; never while an input
+   in typing (10 s in the spike, 30 s planned for the app; `?idle=<ms>` changes it; never while an input
    method is composing text), when the program **closes**, and when it
    **opens** ("Synchronizing…").
 4. Applying keeps your cursor where it was, and the editor ignores input for

@@ -93,6 +93,11 @@ transport (see [ADR-0002](adr/0002-sync-transports.md)):
   hosted service or storage server) is decided later; the architecture keeps
   it possible from the start (ADR-0002).
 
+Changes for the note open in the editor wait in a local inbox and are applied
+on **Update now**, after a pause in typing, or when the program closes or
+opens, so text never moves under the cursor; other notes take changes
+immediately (see [ADR-0006](adr/0006-incoming-changes-wait-for-the-open-note.md)).
+
 Relays and storage providers see only metadata (IP addresses, timing, sizes),
 never content. No blockchain is used; see [ADR-0003](adr/0003-no-blockchain.md).
 
