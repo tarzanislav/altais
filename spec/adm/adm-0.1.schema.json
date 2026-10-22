@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/tarzanislav/altais/blob/main/spec/adm/adm-0.1.schema.json",
+  "title": "ALTAIS Document Model 0.1 - object",
+  "description": "One object (note, task, attachment, ...) in the ALTAIS Document Model. Readers must preserve fields, object types and block types they do not understand.",
+  "type": "object",
+  "required": ["adm", "id", "type", "created", "updated"],
+  "properties": {
+    "adm": {
+      "description": "ADM version. Readers of 0.x accept any 0.x minor version.",
+      "type": "string",
+      "pattern": "^0\\.[0-9]+$"
+    },
+    "id": { "$ref": "#/$defs/objectId" },
+    "type": {
+      "description": "Known values: note, task, attachment, web_clip, tag, saved_search. Unknown values must be preserved.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "title": { "type": "string" },
+    "created": { "type": "string", "format": "date-time" },
+    "updated": { "type": "string", "format": "date-time" },
+    "notebook": { "$ref": "#/$defs/objectId" },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "provenance": { "$ref": "#/$defs/provenance" },
+    "content": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/block" }
+    }
+  },
+  "$defs": {
+    "objectId": {
+      "description": "Lowercase UUID; new identifiers are UUIDv7.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "blockId": {
+      "description": "Stable block identifier, unique within the object.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{4,32}$"
+    },
+    "blobRef": {
+      "description": "Content address of the original attachment bytes.",
+      "type": "string",
+      "pattern": "^blake3:[0-9a-f]{64}$"
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["kind", "captured"],
+      "properties": {
+        "kind": { "enum": ["manual", "web", "email", "import", "ai", "capture"] },
+        "source": { "type": "string" },
+        "captured": { "type": "string", "format": "date-time" }
+      }
+    },
+    "mark": {
+      "oneOf": [
+        { "enum": ["bold", "italic", "underline", "strike", "code", "highlight"] },
+        {
+          "type": "object",
+          "required": ["link"],
+          "properties": { "link": { "type": "string" } },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "span": {
+      "type": "object",
+      "required": ["s"],
+      "properties": {
+        "s": { "type": "string" },
+        "marks": { "type": "array", "items": { "$ref": "#/$defs/mark" } }
+      }
+    },
+    "text": { "type": "array", "items": { "$ref": "#/$defs/span" } },
+    "block": {
+      "description": "A content block. Blocks with an unknown t must be preserved verbatim.",
+      "type": "object",
+      "required": ["t", "bid"],
+      "properties": {
+        "t": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "bid": { "$ref": "#/$defs/blockId" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "t": { "const": "paragraph" } } },
+          "then": { "properties": { "text": { "$ref": "#/$defs/text" } } }
+        },
+        {
+          "if": { "properties": { "t": { "const": "heading" } } },
+          "then": {
+            "required": ["level"],
+            "properties": {
+              "level": { "type": "integer", "minimum": 1, "maximum": 4 },
+              "text": { "$ref": "#/$defs/text" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "t": { "const": "task_ref" } } },
+          "then": {
+            "required": ["task"],
+            "properties": { "task": { "$ref": "#/$defs/objectId" } }
+          }
+        },
+        {
+          "if": { "properties": { "t": { "const": "attachment" } } },
+          "then": {
+            "required": ["blob", "name", "mime", "size"],
+            "properties": {
+              "blob": { "$ref": "#/$defs/blobRef" },
+              "name": { "type": "string" },
+              "mime": { "type": "string" },
+              "size": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
