@@ -72,6 +72,25 @@ async function clickInto(page: Page, which: Which, selector: string) {
     .toBe(true);
 }
 
+/**
+ * Clicks into an element and moves the cursor to the end of its text, then
+ * waits until the editor has registered that (it reads cursor moves made by
+ * the browser asynchronously; a shortcut pressed before that would act on
+ * the old position).
+ */
+async function clickAtEnd(page: Page, which: Which, selector: string) {
+  await clickInto(page, which, selector);
+  await page.keyboard.press("End");
+  await expect
+    .poll(() =>
+      page.evaluate((w) => {
+        const { $head, empty } = window.spike[w].editor!.view.state.selection;
+        return empty && $head.parentOffset === $head.parent.content.size;
+      }, which),
+    )
+    .toBe(true);
+}
+
 const consoleLines = new WeakMap<Page, string[]>();
 
 async function openPage(page: Page, idleMs: number) {
@@ -127,8 +146,7 @@ test.describe("with manual updates", () => {
   });
 
   test("changes from the other device wait until Update now", async ({ page }) => {
-    await clickInto(page, "a", "h1");
-    await page.keyboard.press("End");
+    await clickAtEnd(page, "a", "h1");
     await page.keyboard.type(" do Tatier");
     await expectOn(page, "a", heading, [{ s: "Výlet do Tatier" }]);
 
@@ -143,8 +161,7 @@ test.describe("with manual updates", () => {
   });
 
   test("Enter creates a new block with its own ID on both devices", async ({ page }) => {
-    await clickInto(page, "a", "h1");
-    await page.keyboard.press("End");
+    await clickAtEnd(page, "a", "h1");
     await page.keyboard.press("Enter");
     await page.keyboard.type("Nový odsek");
     await expectOn(page, "a", (blocks) => [blocks[1].t, blocks[1].text], ["paragraph", [{ s: "Nový odsek" }]]);
@@ -156,8 +173,7 @@ test.describe("with manual updates", () => {
   });
 
   test("bold shortcut produces a bold span", async ({ page }) => {
-    await clickInto(page, "a", "blockquote p");
-    await page.keyboard.press("End");
+    await clickAtEnd(page, "a", "blockquote p");
     await page.keyboard.press("ControlOrMeta+b");
     await page.keyboard.type(" Áno!");
     await expectOn(page, "a", quoteText, [{ s: "Hory volajú." }, { s: " Áno!", marks: ["bold"] }]);
@@ -182,13 +198,11 @@ test.describe("with manual updates", () => {
   test("concurrent offline edits merge when back online", async ({ page }) => {
     await page.getByLabel("Online").uncheck();
 
-    await clickInto(page, "a", "h1");
-    await page.keyboard.press("End");
+    await clickAtEnd(page, "a", "h1");
     await page.keyboard.type(" A");
     await expectOn(page, "a", heading, [{ s: "Výlet A" }]);
 
-    await clickInto(page, "b", "blockquote p");
-    await page.keyboard.press("End");
+    await clickAtEnd(page, "b", "blockquote p");
     await page.keyboard.type(" B");
     await expectOn(page, "b", quoteText, [{ s: "Hory volajú. B" }]);
 
@@ -204,14 +218,12 @@ test.describe("with manual updates", () => {
   });
 
   test("undo reverts only this device's change", async ({ page }) => {
-    await clickInto(page, "b", "blockquote p");
-    await page.keyboard.press("End");
+    await clickAtEnd(page, "b", "blockquote p");
     await page.keyboard.type(" (B)");
     await expectOn(page, "b", quoteText, [{ s: "Hory volajú. (B)" }]);
     await update(page, "a");
 
-    await clickInto(page, "a", "h1");
-    await page.keyboard.press("End");
+    await clickAtEnd(page, "a", "h1");
     await page.keyboard.type("!");
     await expectOn(page, "a", heading, [{ s: "Výlet!" }]);
     await page.keyboard.press("ControlOrMeta+z");
@@ -275,15 +287,13 @@ test.describe("with manual updates", () => {
   });
 
   test("a click right after Update stays where it was made", async ({ page }) => {
-    await clickInto(page, "a", "blockquote p");
-    await page.keyboard.press("End");
+    await clickAtEnd(page, "a", "blockquote p");
     await page.keyboard.type(" A");
     await expectOn(page, "a", quoteText, [{ s: "Hory volajú. A" }]);
 
     await page.getByTestId("syncbar-b").getByRole("button", { name: "Update now" }).click();
     // No waiting: click into the heading immediately and type.
-    await clickInto(page, "b", "h1");
-    await page.keyboard.press("End");
+    await clickAtEnd(page, "b", "h1");
     await page.keyboard.type("!");
     await expectOn(page, "b", heading, [{ s: "Výlet!" }]);
     await expectOn(page, "b", quoteText, [{ s: "Hory volajú. A" }]);
@@ -323,8 +333,7 @@ test.describe("automatic updates", () => {
 
   test("closing the app applies waiting changes; opening it synchronizes what came meanwhile", async ({ page }) => {
     await openPage(page, 600_000);
-    await clickInto(page, "a", "h1");
-    await page.keyboard.press("End");
+    await clickAtEnd(page, "a", "h1");
     await page.keyboard.type(" 1");
     await expect(page.getByTestId("syncbar-b")).toBeVisible();
 
@@ -332,8 +341,7 @@ test.describe("automatic updates", () => {
     await expect(page.getByTestId("notice-b")).toContainText("Device B is closed");
     await expectOn(page, "b", heading, [{ s: "Výlet 1" }]); // applied on close
 
-    await clickInto(page, "a", "h1");
-    await page.keyboard.press("End");
+    await clickAtEnd(page, "a", "h1");
     await page.keyboard.type("2");
     await expectOn(page, "b", heading, [{ s: "Výlet 1" }]); // B is closed; the change waits
 
