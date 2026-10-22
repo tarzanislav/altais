@@ -26,7 +26,8 @@ Add the sign-off automatically with `git commit -s`. It looks like this:
 Signed-off-by: Your Name <you@example.com>
 ```
 
-Commits without a sign-off cannot be merged.
+Commits without a sign-off cannot be merged; CI checks every commit of a pull
+request (automated updates from Dependabot are exempt).
 
 ## Licences of contributions
 
