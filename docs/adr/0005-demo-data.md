@@ -57,7 +57,10 @@ confirmation.
 
 ### Content of the demo package
 
-About 50 notes in a few notebooks that show the everyday workflow:
+The demo package and the larger test corpus cover every kind of data that
+note-taking software can hold; the full list is in the
+[demo and test data catalog](../demo-data-catalog.md). The demo package has
+about 80 notes in a few notebooks. Highlights:
 
 - notes with headings, lists, tables, links between notes and blocks;
 - tasks with due dates computed relative to the day the demo is loaded, so the
