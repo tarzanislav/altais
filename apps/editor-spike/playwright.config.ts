@@ -18,7 +18,9 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], launchOptions: { executablePath } } }],
   webServer: {
-    command: "npx vite --host 127.0.0.1 --port 5179 --strictPort",
+    // Test the production build. The dev server optimises dependencies on
+    // first use and then reloads the page, which wipes input mid-test.
+    command: "npx vite build && npx vite preview --host 127.0.0.1 --port 5179 --strictPort",
     url: "http://127.0.0.1:5179",
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,

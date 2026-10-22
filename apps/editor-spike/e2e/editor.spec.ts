@@ -41,15 +41,36 @@ async function expectOnBoth(page: Page, pick: (blocks: Block[]) => unknown, expe
   }
 }
 
+const consoleLines = new WeakMap<Page, string[]>();
+
 test.beforeEach(async ({ page }) => {
   const errors: string[] = [];
+  const lines: string[] = [];
+  consoleLines.set(page, lines);
   page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => lines.push(`${message.type()}: ${message.text()}`));
+  page.on("load", () => lines.push("page loaded"));
   await page.goto("/");
   await expect(page.getByTestId("editor-a").locator("h1")).toHaveText("Výlet");
   await expect(page.getByTestId("editor-b").locator("h1")).toHaveText("Výlet");
   await waitForSync(page);
   expect(errors).toEqual([]);
 });
+
+// On failure, print what the page logged; CI keeps only this output.
+test.afterEach(async ({ page }, testInfo) => {
+  if (testInfo.status === testInfo.expectedStatus) return;
+  const lines = consoleLines.get(page) ?? [];
+  const focus = await page.evaluate(() => document.activeElement?.closest("[data-testid]")?.getAttribute("data-testid") ?? document.activeElement?.tagName);
+  console.log(`[${testInfo.title}] focus: ${focus}; browser ${page.context().browser()?.version()}\n${lines.join("\n")}`);
+});
+
+/** Clicks into an editor and checks that it really has the keyboard focus. */
+async function clickInto(page: Page, which: "a" | "b", selector: string) {
+  const editor = page.getByTestId(`editor-${which}`);
+  await editor.locator(selector).click();
+  await expect(editor.locator(".ProseMirror")).toBeFocused();
+}
 
 test("shows every block type of the example note", async ({ page }) => {
   const editor = page.getByTestId("editor-a");
@@ -67,7 +88,7 @@ test("shows every block type of the example note", async ({ page }) => {
 });
 
 test("typing on one device appears on the other", async ({ page }) => {
-  await page.getByTestId("editor-a").locator("h1").click();
+  await clickInto(page, "a", "h1");
   await page.keyboard.press("End");
   await page.keyboard.type(" do Tatier");
   await expect(page.getByTestId("editor-b").locator("h1")).toHaveText("Výlet do Tatier");
@@ -75,7 +96,7 @@ test("typing on one device appears on the other", async ({ page }) => {
 });
 
 test("Enter creates a new block with its own ID on both devices", async ({ page }) => {
-  await page.getByTestId("editor-a").locator("h1").click();
+  await clickInto(page, "a", "h1");
   await page.keyboard.press("End");
   await page.keyboard.press("Enter");
   await page.keyboard.type("Nový odsek");
@@ -86,7 +107,7 @@ test("Enter creates a new block with its own ID on both devices", async ({ page 
 });
 
 test("bold shortcut produces a bold span", async ({ page }) => {
-  await page.getByTestId("editor-a").locator("blockquote p").click();
+  await clickInto(page, "a", "blockquote p");
   await page.keyboard.press("End");
   await page.keyboard.press("ControlOrMeta+b");
   await page.keyboard.type(" Áno!");
@@ -109,11 +130,11 @@ test("clicking a checkbox ticks the item on both devices", async ({ page }) => {
 test("concurrent offline edits merge when back online", async ({ page }) => {
   await page.getByLabel("Online").uncheck();
 
-  await page.getByTestId("editor-a").locator("h1").click();
+  await clickInto(page, "a", "h1");
   await page.keyboard.press("End");
   await page.keyboard.type(" A");
 
-  await page.getByTestId("editor-b").locator("blockquote p").click();
+  await clickInto(page, "b", "blockquote p");
   await page.keyboard.press("End");
   await page.keyboard.type(" B");
   await expect.poll(async () => quoteText(await adm(page, "b"))).toEqual([{ s: "Hory volajú. B" }]);
@@ -128,10 +149,10 @@ test("concurrent offline edits merge when back online", async ({ page }) => {
 });
 
 test("undo reverts only this device's change", async ({ page }) => {
-  await page.getByTestId("editor-b").locator("blockquote p").click();
+  await clickInto(page, "b", "blockquote p");
   await page.keyboard.press("End");
   await page.keyboard.type(" (B)");
-  await page.getByTestId("editor-a").locator("h1").click();
+  await clickInto(page, "a", "h1");
   await page.keyboard.press("End");
   await page.keyboard.type("!");
   await expectOnBoth(page, heading, [{ s: "Výlet!" }]);
@@ -173,11 +194,11 @@ test("Word paste becomes a real list and drops Office markup", async ({ page }) 
 });
 
 test("the other device keeps its cursor when the same paragraph changes", async ({ page }) => {
-  await page.getByTestId("editor-b").locator("blockquote p").click();
+  await clickInto(page, "b", "blockquote p");
   await page.keyboard.press("Home");
   for (let i = 0; i < 4; i++) await page.keyboard.press("ArrowRight"); // after "Hory"
 
-  await page.getByTestId("editor-a").locator("blockquote p").click();
+  await clickInto(page, "a", "blockquote p");
   await page.keyboard.press("End");
   await page.keyboard.type(" A");
   await expectOnBoth(page, quoteText, [{ s: "Hory volajú. A" }]);
