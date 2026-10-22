@@ -2,28 +2,49 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/tarzanislav/altais/blob/main/spec/adm/adm-0.1.schema.json",
   "title": "ALTAIS Document Model 0.1 - object",
-  "description": "One object (note, task, attachment, ...) in the ALTAIS Document Model. Readers must preserve fields, object types and block types they do not understand.",
+  "description": "One object (note, task, attachment, ...) in the ALTAIS Document Model. Readers must preserve fields, object types and block types they do not understand. Source-specific data may be stored in fields whose names start with x-.",
   "type": "object",
-  "required": ["adm", "id", "type", "created", "updated"],
+  "required": [
+    "adm",
+    "id",
+    "type",
+    "created",
+    "updated"
+  ],
   "properties": {
     "adm": {
       "description": "ADM version. Readers of 0.x accept any 0.x minor version.",
       "type": "string",
       "pattern": "^0\\.[0-9]+$"
     },
-    "id": { "$ref": "#/$defs/objectId" },
+    "id": {
+      "$ref": "#/$defs/objectId"
+    },
     "type": {
       "description": "Known values: note, task, attachment, web_clip, tag, saved_search. Unknown values must be preserved.",
       "type": "string",
       "pattern": "^[a-z][a-z0-9_]*$"
     },
-    "title": { "type": "string" },
-    "created": { "type": "string", "format": "date-time" },
-    "updated": { "type": "string", "format": "date-time" },
-    "notebook": { "$ref": "#/$defs/objectId" },
+    "title": {
+      "type": "string"
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notebook": {
+      "$ref": "#/$defs/objectId"
+    },
     "tags": {
       "type": "array",
-      "items": { "type": "string", "minLength": 1 },
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
       "uniqueItems": true
     },
     "lang": {
@@ -31,10 +52,11 @@
       "type": "string",
       "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{1,8})*$"
     },
-    "provenance": { "$ref": "#/$defs/provenance" },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    },
     "content": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/block" }
+      "$ref": "#/$defs/blocks"
     }
   },
   "$defs": {
@@ -55,76 +77,385 @@
     },
     "provenance": {
       "type": "object",
-      "required": ["kind", "captured"],
+      "required": [
+        "kind",
+        "captured"
+      ],
       "properties": {
-        "kind": { "enum": ["manual", "web", "email", "import", "ai", "capture"] },
-        "source": { "type": "string" },
-        "captured": { "type": "string", "format": "date-time" }
+        "kind": {
+          "enum": [
+            "manual",
+            "web",
+            "email",
+            "import",
+            "ai",
+            "capture"
+          ]
+        },
+        "source": {
+          "type": "string"
+        },
+        "captured": {
+          "type": "string",
+          "format": "date-time"
+        }
       }
     },
     "mark": {
       "oneOf": [
-        { "enum": ["bold", "italic", "underline", "strike", "code", "highlight"] },
+        {
+          "enum": [
+            "bold",
+            "italic",
+            "underline",
+            "strike",
+            "code",
+            "highlight",
+            "superscript",
+            "subscript"
+          ]
+        },
         {
           "type": "object",
-          "required": ["link"],
-          "properties": { "link": { "type": "string" } },
+          "required": [
+            "link"
+          ],
+          "properties": {
+            "link": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "color"
+          ],
+          "properties": {
+            "color": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "highlight"
+          ],
+          "properties": {
+            "highlight": {
+              "type": "string"
+            }
+          },
           "additionalProperties": false
         }
       ]
     },
     "span": {
       "type": "object",
-      "required": ["s"],
+      "required": [
+        "s"
+      ],
       "properties": {
-        "s": { "type": "string" },
-        "marks": { "type": "array", "items": { "$ref": "#/$defs/mark" } }
+        "s": {
+          "type": "string"
+        },
+        "marks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/mark"
+          }
+        }
       }
     },
-    "text": { "type": "array", "items": { "$ref": "#/$defs/span" } },
+    "text": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/span"
+      }
+    },
     "block": {
       "description": "A content block. Blocks with an unknown t must be preserved verbatim.",
       "type": "object",
-      "required": ["t", "bid"],
+      "required": [
+        "t",
+        "bid"
+      ],
       "properties": {
-        "t": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
-        "bid": { "$ref": "#/$defs/blockId" }
+        "t": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "bid": {
+          "$ref": "#/$defs/blockId"
+        }
       },
       "allOf": [
         {
-          "if": { "properties": { "t": { "const": "paragraph" } } },
-          "then": { "properties": { "text": { "$ref": "#/$defs/text" } } }
-        },
-        {
-          "if": { "properties": { "t": { "const": "heading" } } },
-          "then": {
-            "required": ["level"],
+          "if": {
             "properties": {
-              "level": { "type": "integer", "minimum": 1, "maximum": 4 },
-              "text": { "$ref": "#/$defs/text" }
+              "t": {
+                "const": "paragraph"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "text": {
+                "$ref": "#/$defs/text"
+              }
             }
           }
         },
         {
-          "if": { "properties": { "t": { "const": "task_ref" } } },
+          "if": {
+            "properties": {
+              "t": {
+                "const": "heading"
+              }
+            }
+          },
           "then": {
-            "required": ["task"],
-            "properties": { "task": { "$ref": "#/$defs/objectId" } }
+            "required": [
+              "level"
+            ],
+            "properties": {
+              "level": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "text": {
+                "$ref": "#/$defs/text"
+              }
+            }
           }
         },
         {
-          "if": { "properties": { "t": { "const": "attachment" } } },
-          "then": {
-            "required": ["blob", "name", "mime", "size"],
+          "if": {
             "properties": {
-              "blob": { "$ref": "#/$defs/blobRef" },
-              "name": { "type": "string" },
-              "mime": { "type": "string" },
-              "size": { "type": "integer", "minimum": 0 }
+              "t": {
+                "const": "list"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "bullet",
+                  "ordered",
+                  "check"
+                ]
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/listItem"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "t": {
+                "const": "table"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "rows": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/tableRow"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "t": {
+                "const": "quote"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "content": {
+                "$ref": "#/$defs/blocks"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "t": {
+                "const": "code"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "text"
+            ],
+            "properties": {
+              "lang": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "t": {
+                "const": "divider"
+              }
+            }
+          },
+          "then": {}
+        },
+        {
+          "if": {
+            "properties": {
+              "t": {
+                "const": "bookmark"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "url"
+            ],
+            "properties": {
+              "url": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "t": {
+                "const": "task_ref"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "task"
+            ],
+            "properties": {
+              "task": {
+                "$ref": "#/$defs/objectId"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "t": {
+                "const": "attachment"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "blob",
+              "name",
+              "mime",
+              "size"
+            ],
+            "properties": {
+              "blob": {
+                "$ref": "#/$defs/blobRef"
+              },
+              "name": {
+                "type": "string"
+              },
+              "mime": {
+                "type": "string"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 0
+              }
             }
           }
         }
       ]
+    },
+    "blocks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/block"
+      }
+    },
+    "listItem": {
+      "type": "object",
+      "required": [
+        "bid"
+      ],
+      "properties": {
+        "bid": {
+          "$ref": "#/$defs/blockId"
+        },
+        "checked": {
+          "type": "boolean"
+        },
+        "content": {
+          "$ref": "#/$defs/blocks"
+        }
+      }
+    },
+    "tableCell": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "$ref": "#/$defs/blocks"
+        },
+        "colspan": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rowspan": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "header": {
+          "type": "boolean"
+        }
+      }
+    },
+    "tableRow": {
+      "type": "object",
+      "properties": {
+        "cells": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tableCell"
+          }
+        }
+      }
     }
   }
 }

@@ -132,6 +132,12 @@ pub struct Document {
     /// Content blocks, in order.
     #[serde(default)]
     pub content: Vec<Block>,
+    /// Fields this version does not know, preserved verbatim.
+    ///
+    /// Importers may also store source-specific data here under a key that
+    /// starts with `x-`, for example `x-evernote`.
+    #[serde(flatten)]
+    pub extra: serde_json::Map<String, serde_json::Value>,
 }
 
 impl Document {
@@ -150,6 +156,7 @@ impl Document {
             lang: None,
             provenance: None,
             content: Vec::new(),
+            extra: serde_json::Map::new(),
         }
     }
 

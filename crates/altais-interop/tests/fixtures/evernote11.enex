@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE en-export SYSTEM "http://xml.evernote.com/pub/evernote-export4.dtd">
+<en-export export-date="20261022T120000Z" application="Evernote" version="11.39.2">
+  <note>
+    <title>Formátovanie</title>
+    <created>20261020T080000Z</created>
+    <updated>20261021T193000Z</updated>
+    <content><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd"><en-note><div style="display:none;--en-chs:&quot;eyJoMSI6e319&quot;"></div><div><br/></div><h1 style="--en-nodeId:11111111-2222-4333-8444-555555555555;"><span style="font-size: 25px;">Výlet&nbsp;do hôr</span></h1><div><i>kurzíva</i> a <span style="color:rgb(229, 158, 37);--inversion-type-color:simple;">farebný text</span>, <u>podčiarknuté</u>, <span style="--en-highlight:purple;background-color: #edf0ff;">zvýraznené</span>, <a href="https://example.com/trasa" rev="en_rl_none">odkaz</a>, <s>prečiarknuté</s> a <b>tučné</b>.</div><div>H<sub>2</sub>O a m<sup>2</sup></div><div style="--en-richlink:true; --en-href:https://example.com/video; --en-viewAs:youtube-video-small;"><a href="https://example.com/video" rev="en_rl_small">Video o trase</a></div><div style="--en-codeblock:true;"><div>{</div><div>  "km": 12</div><div>}</div></div></en-note>]]></content>
+  </note>
+  <note>
+    <title>Zoznamy</title>
+    <created>20261020T080000Z</created>
+    <updated>20261021T193000Z</updated>
+    <content><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd"><en-note><ul style="--en-todo:true;"><li style="--en-checked:true;"><div>Kúpiť lístky</div></li><li style="--en-checked:false;"><div>Zbaliť batoh</div></li></ul><ul style="--en-todo:true;"><ul style="--en-todo:true;"><li style="--en-checked:false;"><h3>Odsadená úloha</h3></li></ul></ul><ol><li><div>Prvý</div></li><li><div>Druhý</div><ul><li>vnorený</li></ul></li></ol></en-note>]]></content>
+  </note>
+  <note>
+    <title>Tabuľka a prílohy</title>
+    <created>20261020T080000Z</created>
+    <updated>20261021T193000Z</updated>
+    <content><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd"><en-note><table width="400px" style="border-collapse:collapse;"><colgroup><col style="width: 200px;" /><col style="width: 200px;" /></colgroup><tbody><tr><td><div>Čas</div></td><td><div><b>Miesto</b></div></td></tr><tr><td colspan="2"><div>celý deň voľno</div></td></tr></tbody></table><en-media hash="91e42db1c66c0b276abf6234dc50b2eb" type="image/png" style="--en-naturalWidth:1; --en-naturalHeight:1;" /><div>Leták: <en-media style="--en-viewAs:pdf-pageByPage;" hash="6145201ff82ea6a9a40762663aebc5d7" type="application/pdf" /> koniec.</div></en-note>]]></content>
+    <resource>
+      <data encoding="base64">
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8A
+AAAASUVORK5CYII=
+      </data>
+      <mime>image/png</mime>
+      <resource-attributes>
+        <file-name>bod.png</file-name>
+        <source-url>https://example.com/bod.png</source-url>
+        <application-data key="evernote.caption">Priehľadný bod</application-data>
+      </resource-attributes>
+    </resource>
+    <resource>
+      <data encoding="base64">
+JVBERi0xLjQKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBv
+Ymo8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PmVuZG9iagozIDAgb2JqPDwvVHlw
+ZS9QYWdlL1BhcmVudCAyIDAgUi9NZWRpYUJveFswIDAgMjAwIDIwMF0+PmVuZG9iagp0cmFpbGVy
+PDwvUm9vdCAxIDAgUj4+CiUlRU9GCg==
+      </data>
+      <mime>application/pdf</mime>
+      <resource-attributes>
+        <file-name>letak.pdf</file-name>
+      </resource-attributes>
+    </resource>
+  </note>
+</en-export>

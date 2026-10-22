@@ -18,8 +18,17 @@ Inside the application the editable source of truth is a CRDT document; the
 ADM is derived from it.
 
 - Schema: [`adm/adm-0.1.schema.json`](adm/adm-0.1.schema.json) (JSON Schema 2020-12)
-- Example: [`adm/examples/note.json`](adm/examples/note.json)
+- Examples: [`adm/examples/note.json`](adm/examples/note.json) and
+  [`adm/examples/rich-note.json`](adm/examples/rich-note.json) (every block type)
 - Reference implementation: [`crates/altais-model`](../crates/altais-model)
+
+Block types in 0.1: `paragraph`, `heading` (levels 1–4), `list` (`bullet`,
+`ordered`, `check`; items hold blocks, so lists nest), `table` (cells hold
+blocks, with `colspan`, `rowspan` and `header`), `quote`, `code`, `divider`,
+`bookmark` (a link shown as a card), `task_ref` and `attachment`. Inline marks:
+`bold`, `italic`, `underline`, `strike`, `code`, `highlight`, `superscript`,
+`subscript`, and the objects `{"link": …}`, `{"color": …}` and
+`{"highlight": …}`.
 
 Rules that every reader and writer must follow:
 
@@ -27,7 +36,8 @@ Rules that every reader and writer must follow:
    blocks use short stable IDs unique within their object. Links never rely on
    titles or file names: `altais://o/<object-id>#<block-id>`.
 2. **Preserve the unknown.** Unknown fields, object types and block types are
-   kept and written back unchanged. A reader may show an unknown block as
+   kept and written back unchanged. Importers store source-specific data in
+   fields whose names start with `x-` (for example `x-evernote`). A reader may show an unknown block as
    read-only, but must not drop it.
 3. **Attachments are immutable.** An attachment is referenced by the BLAKE3
    hash of its original bytes (`blake3:<64 hex>`). A new version of a file is
