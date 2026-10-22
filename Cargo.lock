@@ -44,6 +44,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "altais-cli"
+version = "0.1.0"
+dependencies = [
+ "altais-interop",
+ "altais-model",
+ "altais-storage",
+]
+
+[[package]]
 name = "altais-crdt-bench"
 version = "0.1.0"
 dependencies = [

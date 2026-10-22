@@ -1,0 +1,21 @@
+[package]
+name = "altais-cli"
+description = "Command-line tool for ALTAIS archives: create, import from Evernote, search"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "altais"
+path = "src/main.rs"
+
+[dependencies]
+altais-interop = { path = "../altais-interop", version = "0.1.0" }
+altais-model = { path = "../altais-model", version = "0.1.0" }
+altais-storage = { path = "../altais-storage", version = "0.1.0" }
+
+[lints]
+workspace = true
