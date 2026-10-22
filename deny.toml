@@ -7,6 +7,17 @@ all-features = true
 
 [advisories]
 yanked = "deny"
+# Unmaintained crates pulled in only by the gate G0 benchmark
+# (crates/altais-crdt-bench, not shipped). Not vulnerabilities, but a
+# supply-chain risk recorded in docs/benchmarks/crdt-g0.md; to be resolved
+# before a CRDT crate becomes a dependency of the app.
+ignore = [
+    { id = "RUSTSEC-2026-0248", reason = "im: via loro-internal; G0 benchmark only" },
+    { id = "RUSTSEC-2026-0247", reason = "bitmaps: via im (loro); G0 benchmark only" },
+    { id = "RUSTSEC-2026-0251", reason = "sized-chunks: via im (loro); G0 benchmark only" },
+    { id = "RUSTSEC-2023-0089", reason = "atomic-polyfill: via postcard/heapless (loro); G0 benchmark only" },
+    { id = "RUSTSEC-2026-0215", reason = "smallstr: via yrs; G0 benchmark only" },
+]
 
 [licenses]
 allow = [
