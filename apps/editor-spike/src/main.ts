@@ -1,11 +1,13 @@
-// Spike page: two editors, each with its own Loro document, kept in sync by
-// exchanging Loro updates. "Offline" holds the updates back until it is
-// switched off again, which shows how concurrent edits merge.
+// Spike page: two devices, each with its own Loro document. Changes travel
+// as Loro updates; on arrival they wait in the receiving device's inbox and
+// are applied when the user asks, after a pause in typing, or when the
+// program closes or opens. "Online" off holds the updates in transit.
 
 import { type Command, TextSelection } from "prosemirror-state";
 import exampleNote from "../../../spec/adm/examples/rich-note.json";
 import { type AdmBlock, docToAdmBlocks } from "./adm";
-import { type AltaisEditor, commands, createEditor, newLoroDoc, seedLoroDoc } from "./editor";
+import { Device } from "./device";
+import { commands, docFromLoro, newLoroDoc, seedLoroDoc } from "./editor";
 import "./style.css";
 
 function byId<T extends HTMLElement>(id: string): T {
@@ -14,79 +16,99 @@ function byId<T extends HTMLElement>(id: string): T {
   return el as T;
 }
 
+// ?idle=<milliseconds> changes the pause after which waiting changes apply.
+const idleMs = Number(new URLSearchParams(location.search).get("idle")) || 10_000;
+
 // Device A starts with the example note; device B receives it as a snapshot.
 const loroA = newLoroDoc(1n);
 seedLoroDoc(loroA, exampleNote.content as AdmBlock[]);
 const loroB = newLoroDoc(2n);
 loroB.import(loroA.export({ mode: "snapshot" }));
 
-const editorA = createEditor(byId("editor-a"), loroA);
-const editorB = createEditor(byId("editor-b"), loroB);
+function device(id: "a" | "b", name: string, loro: typeof loroA): Device {
+  return new Device(
+    name,
+    loro,
+    {
+      mount: byId(`editor-${id}`),
+      bar: byId(`syncbar-${id}`),
+      barText: byId(`syncbar-${id}`).querySelector(".syncbar-text") as HTMLElement,
+      applyButton: byId(`syncbar-${id}`).querySelector("button") as HTMLButtonElement,
+      powerButton: byId(`power-${id}`) as HTMLButtonElement,
+      notice: byId(`notice-${id}`),
+    },
+    idleMs,
+    () => queueMicrotask(render),
+  );
+}
 
+const deviceA = device("a", "Device A", loroA);
+const deviceB = device("b", "Device B", loroB);
+
+// Transport between the devices; when offline, updates wait in transit.
 let online = true;
-const pendingForA: Uint8Array[] = [];
-const pendingForB: Uint8Array[] = [];
-
-function connect(from: AltaisEditor, to: AltaisEditor, queue: Uint8Array[]) {
+const inTransit = new Map<Device, Uint8Array[]>([
+  [deviceA, []],
+  [deviceB, []],
+]);
+function connect(from: Device, to: Device) {
   from.loro.subscribeLocalUpdates((bytes) => {
-    if (online) to.loro.import(bytes);
-    else queue.push(bytes);
+    if (online) to.receive(bytes);
+    else inTransit.get(to)?.push(bytes);
+    render();
   });
 }
-connect(editorA, editorB, pendingForB);
-connect(editorB, editorA, pendingForA);
+connect(deviceA, deviceB);
+connect(deviceB, deviceA);
 
 const onlineBox = byId<HTMLInputElement>("online");
 onlineBox.addEventListener("change", () => {
   online = onlineBox.checked;
-  if (online) {
-    if (pendingForB.length) loroB.importBatch(pendingForB.splice(0));
-    if (pendingForA.length) loroA.importBatch(pendingForA.splice(0));
-  }
+  if (online) for (const [target, queue] of inTransit) for (const bytes of queue.splice(0)) target.receive(bytes);
   render();
 });
 
-let active: AltaisEditor = editorA;
-for (const editor of [editorA, editorB]) {
-  editor.view.dom.addEventListener("focus", () => {
-    active = editor;
-  });
-}
+let active: Device = deviceA;
+document.addEventListener("focusin", (event) => {
+  for (const d of [deviceA, deviceB]) if (d.editor?.view.dom.contains(event.target as Node)) active = d;
+});
 
 for (const button of document.querySelectorAll<HTMLButtonElement>("[data-command]")) {
   button.addEventListener("mousedown", (event) => event.preventDefault()); // keep the editor focused
   button.addEventListener("click", () => {
+    const view = active.editor?.view;
+    if (!view) return;
     const name = button.dataset.command as string;
     const command: Command | undefined = name.startsWith("heading")
       ? commands.heading(Number(name.slice(7)))
       : (commands[name as keyof typeof commands] as Command | undefined);
     if (!command) return;
-    command(active.view.state, active.view.dispatch, active.view);
-    active.view.focus();
+    command(view.state, view.dispatch, view);
+    view.focus();
   });
 }
 
-function admJson(editor: AltaisEditor): string {
-  return JSON.stringify(docToAdmBlocks(editor.view.state.doc), null, 2);
+function admOf(d: Device): AdmBlock[] {
+  // A closed device has no editor; read the note from its stored document.
+  return docToAdmBlocks(d.editor ? d.editor.view.state.doc : docFromLoro(d.loro));
 }
 
 function render() {
-  const a = admJson(editorA);
-  const b = admJson(editorB);
-  byId("adm").textContent = a;
+  const a = JSON.stringify(admOf(deviceA));
+  const b = JSON.stringify(admOf(deviceB));
+  byId("adm").textContent = JSON.stringify(admOf(deviceA), null, 2);
+  const waiting = deviceA.inbox.count + deviceB.inbox.count;
+  const transit = [...inTransit.values()].reduce((sum, q) => sum + q.length, 0);
   const status = byId("status");
-  status.textContent = a === b ? "In sync" : online ? "Syncing…" : "Offline: devices differ";
-  status.dataset.state = a === b ? "same" : "different";
-}
-
-// Render after every change in either editor (ProseMirror has no global event).
-for (const editor of [editorA, editorB]) {
-  editor.view.setProps({
-    dispatchTransaction(tr) {
-      editor.view.updateState(editor.view.state.apply(tr));
-      queueMicrotask(render);
-    },
-  });
+  const same = a === b && waiting === 0 && transit === 0;
+  status.textContent = same
+    ? "In sync"
+    : transit > 0
+      ? "Offline: changes in transit"
+      : waiting > 0
+        ? "Changes waiting on a device"
+        : "Devices differ";
+  status.dataset.state = same ? "same" : "different";
 }
 setTimeout(render, 50);
 
@@ -94,20 +116,21 @@ setTimeout(render, 50);
 declare global {
   interface Window {
     spike: {
-      a: AltaisEditor;
-      b: AltaisEditor;
+      a: Device;
+      b: Device;
       adm: (which: "a" | "b") => AdmBlock[];
       placeCursor: (which: "a" | "b", text: string, offset: number) => void;
     };
   }
 }
 window.spike = {
-  a: editorA,
-  b: editorB,
-  adm: (which) => docToAdmBlocks((which === "a" ? editorA : editorB).view.state.doc),
+  a: deviceA,
+  b: deviceB,
+  adm: (which) => admOf(which === "a" ? deviceA : deviceB),
   /** Puts the cursor `offset` characters into the first text that contains `text`. */
   placeCursor(which, text, offset) {
-    const view = (which === "a" ? editorA : editorB).view;
+    const view = (which === "a" ? deviceA : deviceB).editor?.view;
+    if (!view) throw new Error("device is closed");
     let found = -1;
     view.state.doc.descendants((node, pos) => {
       if (found < 0 && node.isText && node.text?.includes(text)) found = pos + node.text.indexOf(text) + offset;

@@ -9,7 +9,7 @@
   <body>
     <header>
       <h1>ALTAIS editor spike</h1>
-      <p>Two devices editing the same note. Each has its own copy (Loro CRDT); changes are exchanged as updates.</p>
+      <p>Two devices editing the same note. Each has its own copy (Loro CRDT). Changes from the other device wait until you apply them, until you stop typing for a while, or until the app closes or opens.</p>
       <div class="toolbar" role="toolbar" aria-label="Formatting">
         <button data-command="bold" title="Bold (Ctrl+B)"><b>B</b></button>
         <button data-command="italic" title="Italic (Ctrl+I)"><i>I</i></button>
@@ -25,16 +25,32 @@
         <button data-command="undo" title="Undo (Ctrl+Z)">Undo</button>
         <button data-command="redo" title="Redo (Ctrl+Y)">Redo</button>
         <label class="online"><input type="checkbox" id="online" checked /> Online</label>
-        <span id="status" role="status"></span>
+        <span id="status" data-testid="status" aria-live="polite"></span>
       </div>
     </header>
     <main>
-      <section>
-        <h2>Device A</h2>
+      <section class="device">
+        <div class="device-head">
+          <h2>Device A</h2>
+          <button id="power-a" data-testid="power-a">Close app</button>
+        </div>
+        <div id="syncbar-a" class="syncbar" data-testid="syncbar-a" role="status" hidden>
+          <span class="syncbar-text"></span>
+          <button type="button">Update now</button>
+        </div>
+        <p id="notice-a" class="notice" data-testid="notice-a" hidden></p>
         <div id="editor-a" class="editor" data-testid="editor-a"></div>
       </section>
-      <section>
-        <h2>Device B</h2>
+      <section class="device">
+        <div class="device-head">
+          <h2>Device B</h2>
+          <button id="power-b" data-testid="power-b">Close app</button>
+        </div>
+        <div id="syncbar-b" class="syncbar" data-testid="syncbar-b" role="status" hidden>
+          <span class="syncbar-text"></span>
+          <button type="button">Update now</button>
+        </div>
+        <p id="notice-b" class="notice" data-testid="notice-b" hidden></p>
         <div id="editor-b" class="editor" data-testid="editor-b"></div>
       </section>
       <section class="adm">

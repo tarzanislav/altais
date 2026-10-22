@@ -2,6 +2,7 @@
 
 import { LoroDoc } from "loro-crdt";
 import {
+  createNodeFromLoroObj,
   type LoroDocType,
   LoroSyncPlugin,
   LoroUndoPlugin,
@@ -13,7 +14,8 @@ import {
 import { baseKeymap, chainCommands, exitCode, setBlockType, toggleMark } from "prosemirror-commands";
 import { keymap } from "prosemirror-keymap";
 import { liftListItem, sinkListItem, splitListItem, wrapInList } from "prosemirror-schema-list";
-import { type Command, EditorState, Plugin, TextSelection } from "prosemirror-state";
+import type { Node as PMNode } from "prosemirror-model";
+import { type Command, EditorState, Plugin, type Selection, TextSelection } from "prosemirror-state";
 import { columnResizing, goToNextCell, tableEditing } from "prosemirror-tables";
 import { EditorView } from "prosemirror-view";
 import { type AdmBlock, admBlocksToDoc } from "./adm";
@@ -105,23 +107,17 @@ const checkStatePlugin = new Plugin({
 });
 
 /**
- * Keeps the cursor in place when a change arrives from another device.
- * loro-prosemirror applies a remote change by replacing the whole document,
- * which moves the cursor to the end, and then tries to restore it from a Loro
- * cursor; that lookup fails when the remote change touched the paragraph with
- * the cursor. Here the cursor is moved by comparing the old and new document:
- * before the changed range it stays, after it it shifts by the size change.
+ * Where the cursor belongs after the document changed under it: compare the
+ * old and new document; before the changed range it stays, after it it
+ * shifts by the size change, inside it it goes to the start of the change.
  */
-export const keepCursorOnRemoteChange = new Plugin({
-  appendTransaction(transactions, oldState, newState) {
-    const remote = transactions.some(
-      (tr) => (tr.getMeta(loroSyncPluginKey) as { type?: string } | undefined)?.type === "non-local-updates",
-    );
-    if (!remote || !(oldState.selection instanceof TextSelection)) return null;
-    const before = oldState.doc.content;
-    const after = newState.doc.content;
-    const start = before.findDiffStart(after);
-    if (start === null) return null;
+export function mapSelectionThroughChange(oldDoc: PMNode, selection: TextSelection, newDoc: PMNode): Selection {
+  const before = oldDoc.content;
+  const after = newDoc.content;
+  const clamp = (pos: number) => Math.max(0, Math.min(pos, newDoc.content.size));
+  const start = before.findDiffStart(after);
+  let map = (pos: number) => pos;
+  if (start !== null) {
     const end = before.findDiffEnd(after);
     let endOld = end?.a ?? before.size;
     let endNew = end?.b ?? after.size;
@@ -129,14 +125,79 @@ export const keepCursorOnRemoteChange = new Plugin({
     const overlap = Math.max(0, start - Math.min(endOld, endNew));
     endOld += overlap;
     endNew += overlap;
-    const map = (pos: number) => (pos <= start ? pos : pos >= endOld ? pos + (endNew - endOld) : start);
-    const { anchor, head } = oldState.selection;
-    const doc = newState.doc;
-    const clamp = (pos: number) => Math.max(0, Math.min(pos, doc.content.size));
-    const selection = TextSelection.between(doc.resolve(clamp(map(anchor))), doc.resolve(clamp(map(head))));
+    map = (pos) => (pos <= start ? pos : pos >= endOld ? pos + (endNew - endOld) : start);
+  }
+  return TextSelection.between(
+    newDoc.resolve(clamp(map(selection.anchor))),
+    newDoc.resolve(clamp(map(selection.head))),
+  );
+}
+
+/**
+ * Keeps the cursor in place when a change arrives from another device.
+ * loro-prosemirror applies a remote change by replacing the whole document,
+ * which moves the cursor to the end, and then tries to restore it from a Loro
+ * cursor; that lookup fails when the remote change touched the paragraph with
+ * the cursor.
+ */
+export const keepCursorOnRemoteChange = new Plugin({
+  appendTransaction(transactions, oldState, newState) {
+    const remote = transactions.some(
+      (tr) => (tr.getMeta(loroSyncPluginKey) as { type?: string } | undefined)?.type === "non-local-updates",
+    );
+    if (!remote || !(oldState.selection instanceof TextSelection)) return null;
+    const selection = mapSelectionThroughChange(oldState.doc, oldState.selection, newState.doc);
     return newState.selection.eq(selection) ? null : newState.tr.setSelection(selection).setMeta("addToHistory", false);
   },
 });
+
+/**
+ * Imports updates from other devices one by one. Loro 1.17's `importBatch`
+ * with more than one update erases the undo history of the receiving
+ * document (checked in tests/adm.test.ts), so it is not used.
+ */
+export function importUpdates(loro: LoroDocType, updates: Uint8Array[]): void {
+  for (const update of updates) loro.import(update);
+}
+
+const nextTask = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+/**
+ * Applies changes from other devices to an open note without moving the
+ * user's cursor.
+ *
+ * Loro reports the import synchronously and loro-prosemirror then restores
+ * the cursor in a timer; a click landing before that timer would be undone.
+ * So the editor ignores input until the timer has run, and the cursor is then
+ * set to where it belongs. The pause lasts a few milliseconds.
+ */
+export async function applyRemoteUpdates(
+  editor: AltaisEditor,
+  updates: Uint8Array[],
+  options: { focus?: boolean } = {},
+): Promise<void> {
+  if (!updates.length) return;
+  const { view, loro } = editor;
+  const oldDoc = view.state.doc;
+  const oldSelection = view.state.selection;
+  const hadFocus = view.hasFocus();
+  editor.setEditable(false);
+  try {
+    importUpdates(loro, updates);
+    await nextTask(); // loro-prosemirror's cursor timer runs here
+    await nextTask();
+  } finally {
+    if (!view.isDestroyed) editor.setEditable(true);
+  }
+  if (view.isDestroyed) return;
+  if (oldSelection instanceof TextSelection) {
+    const selection = mapSelectionThroughChange(oldDoc, oldSelection, view.state.doc);
+    if (!view.state.selection.eq(selection)) {
+      view.dispatch(view.state.tr.setSelection(selection).setMeta("addToHistory", false));
+    }
+  }
+  if (options.focus || hadFocus) view.focus();
+}
 
 /** Writes ADM blocks into an empty Loro document, as the starting content. */
 export function seedLoroDoc(loro: LoroDocType, blocks: AdmBlock[]): void {
@@ -144,6 +205,11 @@ export function seedLoroDoc(loro: LoroDocType, blocks: AdmBlock[]): void {
   const fixed = fixBids(state.doc, state.tr);
   if (fixed) state = state.apply(fixed);
   updateLoroToPmState(loro, new Map(), state);
+}
+
+/** The note stored in a Loro document, without an editor. */
+export function docFromLoro(loro: LoroDocType): PMNode {
+  return createNodeFromLoroObj(schema, loro.getMap("doc"), new Map());
 }
 
 /** A Loro document for one device. `peer` identifies the device in the history. */
@@ -156,9 +222,20 @@ export function newLoroDoc(peer?: bigint): LoroDocType {
 export interface AltaisEditor {
   view: EditorView;
   loro: LoroDocType;
+  /** Stops or allows editing (used for a moment while changes are applied). */
+  setEditable(editable: boolean): void;
 }
 
-export function createEditor(mount: HTMLElement, loro: LoroDocType): AltaisEditor {
+export interface EditorOptions {
+  /** Called after every change of the editor state. */
+  onUpdate?: () => void;
+}
+
+// Note: everything is passed to EditorView once. `view.setProps` makes
+// ProseMirror recreate all plugin views, which resets loro-prosemirror's undo
+// history and re-runs its initial load.
+export function createEditor(mount: HTMLElement, loro: LoroDocType, options: EditorOptions = {}): AltaisEditor {
+  let editable = true;
   const state = EditorState.create({
     schema,
     // Order matters: the plugins that complete a change (block IDs, ticks)
@@ -177,9 +254,21 @@ export function createEditor(mount: HTMLElement, loro: LoroDocType): AltaisEdito
       keepCursorOnRemoteChange,
     ],
   });
-  const view = new EditorView(mount, {
+  const view: EditorView = new EditorView(mount, {
     state,
     transformPastedHTML: cleanPastedHtml,
+    editable: () => editable,
+    dispatchTransaction(tr) {
+      view.updateState(view.state.apply(tr));
+      options.onUpdate?.();
+    },
   });
-  return { view, loro };
+  return {
+    view,
+    loro,
+    setEditable(value) {
+      editable = value;
+      view.updateState(view.state); // refreshes contenteditable
+    },
+  };
 }

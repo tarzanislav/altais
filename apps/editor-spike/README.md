@@ -6,7 +6,25 @@ from two devices and give each device its own undo?**
 
 The page shows two editors ("device A" and "device B"). Each has its own Loro
 document; they exchange Loro updates. Untick **Online** to hold the updates
-back, edit both sides, then tick it again to watch the edits merge.
+in transit, edit both sides, then tick it again to watch the edits merge.
+
+## How changes from another device arrive
+
+Changes never appear in the note while you are writing in it:
+
+1. A change from another device goes into the device's **inbox** (in the app:
+   the encrypted local database, so nothing is lost if the program stops).
+2. A bar above the note says how many changes are waiting and offers
+   **Update now**.
+3. Waiting changes are applied when you click **Update now**, after a pause
+   in typing (10 s in the spike, `?idle=<ms>` changes it; never while an input
+   method is composing text), when the program **closes**, and when it
+   **opens** ("Synchronizing…").
+4. Applying keeps your cursor where it was, and the editor ignores input for
+   the few milliseconds it takes, so a click cannot be undone by the update.
+
+In the app this applies to the note that is open in the editor. Notes that
+are not open take changes immediately, and your own changes are sent at once.
 
 ```sh
 npm ci
@@ -27,10 +45,12 @@ skips the Playwright browser download.
 | `src/adm.ts` | ADM ⇄ ProseMirror conversion |
 | `src/bids.ts` | Keeps every block ID present and unique (after Enter, paste, merge) |
 | `src/paste.ts` | Turns Microsoft Word list paragraphs into real lists and drops Office markup |
-| `src/editor.ts` | Editor setup: Loro sync and undo, shortcuts, checklist ticking, cursor kept on remote changes |
+| `src/editor.ts` | Editor setup: Loro sync and undo, shortcuts, checklist ticking; applying remote changes with the cursor kept |
+| `src/inbox.ts` | Inbox for changes from other devices and the pause rule that applies them |
+| `src/device.ts` | One simulated device: editor, inbox, sync bar, close and open |
 | `src/main.ts` | The two-device demo page |
-| `tests/` | Round trip of `spec/adm/examples/*.json`, JSON Schema validation, block IDs, Loro merge, cursor on remote changes |
-| `e2e/` | Typing, Enter, bold, checklist, offline merge, undo, Word paste, cursor stability |
+| `tests/` | Round trip of `spec/adm/examples/*.json`, JSON Schema validation, block IDs, Loro merge, cursor on remote changes, inbox and pause rule |
+| `e2e/` | Typing, Enter, bold, checklist, offline merge, undo, Word paste, waiting changes, cursor and clicks after an update, pause rule, close and open |
 
 ## Findings
 
@@ -51,12 +71,17 @@ skips the Playwright browser download.
   and new document and move the cursor by the size of the change), with unit
   and browser tests. The binding is small (about 1,000 lines, MIT), so the
   real fix belongs upstream or in our own binding behind the same interface.
-- **Known issue: a click right after a remote change can be undone.**
-  loro-prosemirror restores the cursor in a timer after each remote change;
-  if the user clicks in between, the timer moves the cursor back. With a
-  collaborator typing continuously this would be noticeable. The browser
-  tests wait for those timers before clicking. Fix: drop the timer restore
-  (our cursor plugin already covers it), which needs a change in the binding.
+- **A click right after a remote change could be undone.** loro-prosemirror
+  restores the cursor in a timer after each remote change; a click in
+  between was moved back. Fixed by the inbox: changes are applied only at
+  calm moments, the editor ignores input until that timer has run, and the
+  cursor is then set where it belongs (`applyRemoteUpdates`).
+- **Loro 1.17 `importBatch` erases the undo history** when it imports more
+  than one update. Updates are imported one by one (`importUpdates`, with a
+  test); worth reporting upstream.
+- **`view.setProps` resets loro-prosemirror.** ProseMirror then recreates all
+  plugin views, which wipes Loro's undo history and reloads the document. All
+  editor settings are passed once, when the editor is created.
 - **Browser tests run against the production build.** The Vite dev server
   optimises dependencies on first use and reloads the page, which wiped
   typed text in CI.

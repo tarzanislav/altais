@@ -151,3 +151,48 @@ th {
 .selectedCell {
   background: color-mix(in srgb, var(--accent) 15%, transparent);
 }
+
+.device-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.device-head h2 {
+  margin: 0;
+}
+.device-head button,
+.syncbar button {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--fg);
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+.syncbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+.syncbar[hidden],
+.notice[hidden] {
+  display: none;
+}
+.syncbar button {
+  border-color: var(--accent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.notice {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
