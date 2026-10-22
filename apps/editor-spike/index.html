@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws:" />
+    <title>ALTAIS editor spike</title>
+  </head>
+  <body>
+    <header>
+      <h1>ALTAIS editor spike</h1>
+      <p>Two devices editing the same note. Each has its own copy (Loro CRDT); changes are exchanged as updates.</p>
+      <div class="toolbar" role="toolbar" aria-label="Formatting">
+        <button data-command="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+        <button data-command="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+        <button data-command="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+        <button data-command="strike" title="Strikethrough"><s>S</s></button>
+        <button data-command="code" title="Code">&lt;/&gt;</button>
+        <button data-command="paragraph" title="Paragraph">¶</button>
+        <button data-command="heading1" title="Heading 1">H1</button>
+        <button data-command="heading2" title="Heading 2">H2</button>
+        <button data-command="bulletList" title="Bulleted list">• List</button>
+        <button data-command="orderedList" title="Numbered list">1. List</button>
+        <button data-command="checkList" title="Checklist">☑ List</button>
+        <button data-command="undo" title="Undo (Ctrl+Z)">Undo</button>
+        <button data-command="redo" title="Redo (Ctrl+Y)">Redo</button>
+        <label class="online"><input type="checkbox" id="online" checked /> Online</label>
+        <span id="status" role="status"></span>
+      </div>
+    </header>
+    <main>
+      <section>
+        <h2>Device A</h2>
+        <div id="editor-a" class="editor" data-testid="editor-a"></div>
+      </section>
+      <section>
+        <h2>Device B</h2>
+        <div id="editor-b" class="editor" data-testid="editor-b"></div>
+      </section>
+      <section class="adm">
+        <h2>ADM of device A</h2>
+        <pre id="adm"></pre>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

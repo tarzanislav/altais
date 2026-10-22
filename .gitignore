@@ -17,3 +17,7 @@ Thumbs.db
 *.enex
 !spec/**/*.enex
 !crates/**/tests/fixtures/*.enex
+
+# Playwright output
+test-results/
+playwright-report/
