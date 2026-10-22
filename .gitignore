@@ -16,3 +16,4 @@ Thumbs.db
 /testdata/private/
 *.enex
 !spec/**/*.enex
+!crates/**/tests/fixtures/*.enex

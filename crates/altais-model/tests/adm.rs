@@ -171,3 +171,66 @@ fn language_of_the_note_is_read_and_checked() {
         )])
     );
 }
+
+const RICH: &str = include_str!("../../../spec/adm/examples/rich-note.json");
+
+#[test]
+fn rich_note_with_every_block_type_round_trips() {
+    use altais_model::ListKind;
+
+    let doc = Document::from_json(RICH).unwrap();
+    assert_eq!(validate(&doc), Ok(()));
+
+    let types: Vec<_> = doc.content.iter().filter_map(Block::type_name).collect();
+    assert_eq!(
+        types,
+        [
+            "heading",
+            "paragraph",
+            "list",
+            "list",
+            "table",
+            "quote",
+            "code",
+            "divider",
+            "bookmark",
+            "evernote_encrypted"
+        ]
+    );
+    assert!(matches!(
+        doc.content[2],
+        Block::Known(KnownBlock::List {
+            kind: ListKind::Check,
+            ..
+        })
+    ));
+    // The encrypted block is unknown to ADM 0.1 and must survive untouched.
+    assert!(matches!(doc.content[9], Block::Unknown(_)));
+    // Source-specific fields are kept.
+    assert!(doc.extra.contains_key("x-evernote"));
+
+    let original: Value = serde_json::from_str(RICH).unwrap();
+    assert_eq!(original, serde_json::to_value(&doc).unwrap());
+}
+
+#[test]
+fn duplicate_ids_inside_nested_blocks_are_found() {
+    let json = note_with_content(json!([
+        { "bid": "list01", "t": "list", "kind": "bullet", "items": [
+            { "bid": "item01", "content": [{ "bid": "para01", "t": "paragraph", "text": [] }] },
+            { "bid": "item01", "content": [{ "bid": "para01", "t": "paragraph", "text": [] }] }
+        ]}
+    ]));
+    let doc = Document::from_json(&json).unwrap();
+    assert_eq!(
+        validate(&doc),
+        Err(vec![
+            ValidationError::DuplicateBlockId {
+                bid: "item01".to_owned()
+            },
+            ValidationError::DuplicateBlockId {
+                bid: "para01".to_owned()
+            },
+        ])
+    );
+}

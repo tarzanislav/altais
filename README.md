@@ -79,6 +79,7 @@ Slovak, Czech, English, Hungarian, Polish, Russian and Simplified Chinese.
 
 ```
 crates/altais-model/   ALTAIS Document Model: types and validation
+crates/altais-interop/ Evernote (ENEX) import into the ALTAIS Document Model
 spec/                  public specifications (CC0): ADM schema and examples
 docs/                  architecture and design documents
 ```

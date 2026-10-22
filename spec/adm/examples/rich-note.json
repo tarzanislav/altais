@@ -1,0 +1,87 @@
+{
+  "adm": "0.1",
+  "id": "0192b6e1-2d3c-7f40-8a51-6b7c8d9e0f12",
+  "type": "note",
+  "title": "Plán výletu na Štrbské Pleso",
+  "created": "2026-10-20T08:00:00Z",
+  "updated": "2026-10-21T19:30:00Z",
+  "tags": ["vylety", "leto"],
+  "lang": "sk",
+  "provenance": { "kind": "import", "source": "Evernote", "captured": "2026-10-20T08:00:00Z" },
+  "content": [
+    { "bid": "b0001", "t": "heading", "level": 1, "text": [{ "s": "Výlet" }] },
+    {
+      "bid": "b0002",
+      "t": "paragraph",
+      "text": [
+        { "s": "H" },
+        { "s": "2", "marks": ["subscript"] },
+        { "s": "O, m" },
+        { "s": "2", "marks": ["superscript"] },
+        { "s": ", " },
+        { "s": "dôležité", "marks": ["bold", { "color": "#e59e25" }] },
+        { "s": " a " },
+        { "s": "zvýraznené", "marks": [{ "highlight": "purple" }] },
+        { "s": "\nnový riadok v tom istom odseku" }
+      ]
+    },
+    {
+      "bid": "b0003",
+      "t": "list",
+      "kind": "check",
+      "items": [
+        { "bid": "b0004", "checked": true, "content": [{ "bid": "b0005", "t": "paragraph", "text": [{ "s": "Kúpiť lístky" }] }] },
+        { "bid": "b0006", "checked": false, "content": [{ "bid": "b0007", "t": "paragraph", "text": [{ "s": "Zbaliť batoh" }] }] }
+      ]
+    },
+    {
+      "bid": "b0008",
+      "t": "list",
+      "kind": "ordered",
+      "items": [
+        {
+          "bid": "b0009",
+          "content": [
+            { "bid": "b0010", "t": "paragraph", "text": [{ "s": "Ráno" }] },
+            {
+              "bid": "b0011",
+              "t": "list",
+              "kind": "bullet",
+              "items": [{ "bid": "b0012", "content": [{ "bid": "b0013", "t": "paragraph", "text": [{ "s": "raňajky" }] }] }]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bid": "b0014",
+      "t": "table",
+      "rows": [
+        {
+          "cells": [
+            { "header": true, "content": [{ "bid": "b0015", "t": "paragraph", "text": [{ "s": "Čas" }] }] },
+            { "header": true, "content": [{ "bid": "b0016", "t": "paragraph", "text": [{ "s": "Miesto" }] }] }
+          ]
+        },
+        {
+          "cells": [
+            { "colspan": 2, "content": [{ "bid": "b0017", "t": "paragraph", "text": [{ "s": "celý deň voľno" }] }] }
+          ]
+        }
+      ]
+    },
+    { "bid": "b0018", "t": "quote", "content": [{ "bid": "b0019", "t": "paragraph", "text": [{ "s": "Hory volajú." }] }] },
+    { "bid": "b0020", "t": "code", "lang": "json", "text": "{\n  \"km\": 12\n}" },
+    { "bid": "b0021", "t": "divider" },
+    { "bid": "b0022", "t": "bookmark", "url": "https://example.com/video", "title": "Video o trase" },
+    {
+      "bid": "b0023",
+      "t": "evernote_encrypted",
+      "cipher": "AES",
+      "length": 128,
+      "hint": "obvyklé",
+      "ciphertext": "RU5DMI1mnQ7fKjBk"
+    }
+  ],
+  "x-evernote": { "source-application": "Evernote 11.39.2" }
+}

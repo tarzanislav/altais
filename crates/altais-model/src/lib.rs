@@ -13,15 +13,17 @@
 //! * identities are stable IDs (UUIDv7 for objects, short IDs for blocks),
 //!   never names or file paths;
 //! * attachments are referenced by content hash and are immutable;
-//! * unknown block types are preserved verbatim, so an older reader never
-//!   silently drops content written by a newer one.
+//! * unknown fields and block types are preserved verbatim, so an older reader
+//!   never silently drops content written by a newer one.
 
 mod block;
 mod document;
 mod ids;
 mod validate;
 
-pub use block::{Block, KnownBlock, Mark, SimpleMark, Span};
+pub use block::{
+    Block, KnownBlock, ListItem, ListKind, Mark, SimpleMark, Span, TableCell, TableRow,
+};
 pub use document::{Document, ObjectType, Provenance, ProvenanceKind};
 pub use ids::{BlobRef, BlockId, IdError, ObjectId};
 pub use validate::{ValidationError, validate};

@@ -154,6 +154,22 @@ Avoided because of licences: MuPDF, Poppler and Ghostscript (AGPL/GPL),
 SingleFile (AGPL), MinIO (AGPL), Redis (RSAL/SSPL/AGPL), Sentry self-hosted
 (FSL), Tiptap Pro, CKEditor 5 and TinyMCE 7+, Llama and Gemma model weights.
 
+## Evernote import
+
+`altais-interop` streams an ENEX file note by note and converts ENML into ADM
+blocks: headings, paragraphs with inline marks, bulleted, numbered and check
+lists (Evernote 11 `--en-todo` lists and legacy `<en-todo>`), tables, quotes,
+code blocks, rich links as bookmarks, and attachments matched by their MD5 hash
+and stored under their BLAKE3 hash. Every note is accounted for in a report:
+
+- **imported**, **partial** (some content kept only in raw form, such as a
+  damaged body or a missing attachment), or the import stops with an error that
+  says after how many notes;
+- encrypted text stays locked as an `evernote_encrypted` block; Evernote tasks,
+  note attributes and resource metadata are kept under `x-evernote`;
+- presentational styles (fonts, sizes) and hidden editor settings are ignored
+  and reported; no text is dropped.
+
 ## Testing strategy
 
 - Unit and property-based tests (`proptest`).
@@ -175,7 +191,7 @@ crates/
   altais-blob/      FastCDC, encrypted chunks, integrity (F1)
   altais-index/     FTS5, sqlite-vec, query language     (F1)
   altais-sync/      outbox, inbox, cursors, transports   (F3)
-  altais-interop/   ENEX import, ADM/HTML/Markdown export (F0–F2)
+  altais-interop/   ENEX import (F0, present); ADM/HTML/Markdown export (F2)
   altais-core/      facade: commands, queries, events    (F1)
   altais-relay/     optional self-hosted server (Axum)   (F5)
   altais-sim/       deterministic simulator              (F3)

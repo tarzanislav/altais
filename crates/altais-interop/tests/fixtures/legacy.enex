@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE en-export SYSTEM "http://xml.evernote.com/pub/evernote-export4.dtd">
+<en-export export-date="20150101T000000Z" application="Evernote/Windows" version="6.x">
+  <note>
+    <title>Staršie prvky</title>
+    <created>20150101T000000Z</created>
+    <updated>20150102T000000Z</updated>
+    <tag>práca</tag>
+    <tag>projekt</tag>
+    <tag>práca</tag>
+    <note-attributes>
+      <author>Ján Vzorový</author>
+      <source-url>https://example.sk/clanok</source-url>
+      <reminder-time>20150105T090000Z</reminder-time>
+    </note-attributes>
+    <task>
+      <title>Zavolať do servisu</title>
+      <status>open</status>
+      <dueDate>20150110T090000Z</dueDate>
+    </task>
+    <content><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd"><en-note><div><en-todo checked="true"/>Hotová úloha</div><div><en-todo/>Otvorená úloha</div><blockquote><div>Citát</div></blockquote><hr/><pre>let x = 1;
+let y = 2;</pre><en-crypt cipher="AES" length="128" hint="obvyklé">RU5DMI1mnQ7fKjBkvymT8g==</en-crypt><div><font color="#FF0000">červené</font> a <a href="evernote:///view/1/s1/abc/abc/">interný odkaz</a></div><div>Neznámy znak &foo; ostane.</div><div><blink>neznámy prvok</blink></div><en-media hash="0123456789abcdef0123456789abcdef" type="image/png" /></en-note>]]></content>
+    <resource>
+      <data encoding="base64">
+VG90byBqZSB2eW15c2xlbsOhIHByw61sb2hhIHByZSB0ZXN0eSBBTFRBSVMuCg==
+      </data>
+      <mime>text/plain</mime>
+      <resource-attributes>
+        <file-name>poznamka.txt</file-name>
+      </resource-attributes>
+    </resource>
+  </note>
+</en-export>

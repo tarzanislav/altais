@@ -14,10 +14,10 @@ pub enum ValidationError {
     /// `updated` is earlier than `created`.
     #[error("updated time is earlier than created time")]
     UpdatedBeforeCreated,
-    /// A block has no `bid` field.
-    #[error("block #{index} has no block id")]
+    /// A block or list item has no `bid` field.
+    #[error("block #{index} (or a block nested in it) has no block id")]
     MissingBlockId {
-        /// Position of the block in `content`.
+        /// Position of the top-level block in `content`.
         index: usize,
     },
     /// Two blocks share the same ID.
@@ -35,9 +35,11 @@ pub enum ValidationError {
         level: u8,
     },
     /// A block has a known type but does not match that type's fields.
-    #[error("block #{index} has type {t:?} but does not match its schema")]
+    #[error(
+        "block #{index} (or a block nested in it) has type {t:?} but does not match its schema"
+    )]
     MalformedKnownBlock {
-        /// Position of the block in `content`.
+        /// Position of the top-level block in `content`.
         index: usize,
         /// The block type.
         t: String,
@@ -65,37 +67,68 @@ pub fn validate(doc: &Document) -> Result<(), Vec<ValidationError>> {
 
     let mut seen = HashSet::new();
     for (index, block) in doc.content.iter().enumerate() {
-        match block {
-            Block::Known(KnownBlock::Heading { bid, level, .. }) if !(1..=4).contains(level) => {
-                errors.push(ValidationError::InvalidHeadingLevel {
-                    bid: bid.to_string(),
-                    level: *level,
-                });
-            }
-            Block::Unknown(_) => {
-                if let Some(t) = known_type_of_unknown(block) {
-                    errors.push(ValidationError::MalformedKnownBlock { index, t });
-                }
-            }
-            Block::Known(_) => {}
-        }
-
-        match block.bid() {
-            Some(bid) => {
-                if !seen.insert(bid.to_owned()) {
-                    errors.push(ValidationError::DuplicateBlockId {
-                        bid: bid.to_owned(),
-                    });
-                }
-            }
-            None => errors.push(ValidationError::MissingBlockId { index }),
-        }
+        check_block(block, index, &mut seen, &mut errors);
     }
 
     if errors.is_empty() {
         Ok(())
     } else {
         Err(errors)
+    }
+}
+
+/// Checks one block and, recursively, the blocks nested inside it.
+///
+/// `index` is the position of the top-level block that contains `block`.
+fn check_block(
+    block: &Block,
+    index: usize,
+    seen: &mut HashSet<String>,
+    errors: &mut Vec<ValidationError>,
+) {
+    match block {
+        Block::Known(KnownBlock::Heading { bid, level, .. }) if !(1..=4).contains(level) => {
+            errors.push(ValidationError::InvalidHeadingLevel {
+                bid: bid.to_string(),
+                level: *level,
+            });
+        }
+        Block::Known(KnownBlock::List { items, .. }) => {
+            for item in items {
+                note_bid(Some(item.bid.as_str()), index, seen, errors);
+            }
+        }
+        Block::Unknown(_) => {
+            if let Some(t) = known_type_of_unknown(block) {
+                errors.push(ValidationError::MalformedKnownBlock { index, t });
+            }
+        }
+        Block::Known(_) => {}
+    }
+
+    note_bid(block.bid(), index, seen, errors);
+
+    for child in block.children() {
+        check_block(child, index, seen, errors);
+    }
+}
+
+/// Records a block ID and reports it when it is missing or repeated.
+fn note_bid(
+    bid: Option<&str>,
+    index: usize,
+    seen: &mut HashSet<String>,
+    errors: &mut Vec<ValidationError>,
+) {
+    match bid {
+        Some(bid) => {
+            if !seen.insert(bid.to_owned()) {
+                errors.push(ValidationError::DuplicateBlockId {
+                    bid: bid.to_owned(),
+                });
+            }
+        }
+        None => errors.push(ValidationError::MissingBlockId { index }),
     }
 }
 
