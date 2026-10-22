@@ -1,0 +1,218 @@
+:root {
+  color-scheme: light dark;
+  --bg: #fbfaf7;
+  --fg: #1f2328;
+  --muted: #5f6670;
+  --line: #d9d6cf;
+  --panel: #ffffff;
+  --accent: #2f5fb3;
+  --ok: #1a7f37;
+  --warn: #b35900;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16181c;
+    --fg: #e6e6e6;
+    --muted: #9aa0a8;
+    --line: #33363c;
+    --panel: #1e2126;
+    --accent: #7aa2f7;
+    --ok: #4ac26b;
+    --warn: #f0a050;
+  }
+}
+body {
+  margin: 0;
+  padding: 16px;
+  background: var(--bg);
+  color: var(--fg);
+}
+header h1 {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+}
+header p {
+  margin: 0 0 12px;
+  color: var(--muted);
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.toolbar button {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--fg);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.online {
+  margin-left: 12px;
+}
+#status {
+  margin-left: 8px;
+  font-weight: 600;
+  display: inline-block;
+  min-width: 16em; /* longer messages must not re-wrap the toolbar */
+  white-space: nowrap;
+}
+#status[data-state="same"] {
+  color: var(--ok);
+}
+#status[data-state="different"] {
+  color: var(--warn);
+}
+main {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+main h2 {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+.editor .ProseMirror {
+  min-height: 300px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 8px 16px;
+  outline: none;
+  white-space: pre-wrap;
+}
+.editor .ProseMirror:focus {
+  border-color: var(--accent);
+}
+.adm pre {
+  max-height: 600px;
+  overflow: auto;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--panel);
+}
+ul[data-kind="check"] {
+  list-style: none;
+  padding-left: 28px;
+}
+ul[data-kind="check"] > li {
+  position: relative;
+}
+ul[data-kind="check"] > li::before {
+  content: "☐";
+  position: absolute;
+  left: -24px;
+  cursor: pointer;
+}
+ul[data-kind="check"] > li[data-checked="true"]::before {
+  content: "☑";
+}
+ul[data-kind="check"] > li[data-checked="true"] > p {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+li > p {
+  margin: 2px 0;
+}
+blockquote {
+  border-left: 3px solid var(--line);
+  margin-left: 0;
+  padding-left: 12px;
+  color: var(--muted);
+}
+pre {
+  background: color-mix(in srgb, var(--line) 30%, transparent);
+  padding: 8px;
+  border-radius: 6px;
+}
+table {
+  border-collapse: collapse;
+  margin: 8px 0;
+}
+td,
+th {
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+  vertical-align: top;
+}
+.bookmark,
+.attachment,
+.unknown {
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin: 6px 0;
+  color: var(--muted);
+}
+.selectedCell {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.device-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.device-head h2 {
+  margin: 0;
+}
+.device-head button,
+.syncbar button {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--fg);
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+/* The bar floats over the bottom of the editor, so the note's text never
+   moves when it appears or disappears (a click must land where aimed). */
+.device {
+  position: relative;
+}
+.syncbar {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+}
+.editor .ProseMirror {
+  padding-bottom: 56px; /* room for the bar */
+}
+.syncbar[hidden] {
+  display: none;
+}
+.notice[hidden] {
+  display: block;
+  visibility: hidden;
+}
+.syncbar button {
+  border-color: var(--accent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.notice {
+  min-height: 1.4em; /* reserved, so showing a notice does not move the note */
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}

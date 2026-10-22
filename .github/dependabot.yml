@@ -8,3 +8,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+  - package-ecosystem: npm
+    directory: /apps/editor-spike
+    schedule:
+      interval: weekly
+    groups:
+      prosemirror:
+        patterns: ["prosemirror-*"]

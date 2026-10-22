@@ -1,0 +1,35 @@
+{
+  "name": "altais-editor-spike",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Phase F0 spike: ProseMirror editor with an ALTAIS schema, Loro CRDT sync and ADM conversion",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "licenses": "node scripts/check-licenses.mjs"
+  },
+  "dependencies": {
+    "loro-crdt": "1.17.1",
+    "loro-prosemirror": "0.4.4",
+    "prosemirror-commands": "1.7.2",
+    "prosemirror-keymap": "1.2.3",
+    "prosemirror-model": "1.25.12",
+    "prosemirror-schema-list": "1.5.1",
+    "prosemirror-state": "1.4.4",
+    "prosemirror-tables": "1.8.5",
+    "prosemirror-transform": "1.12.4",
+    "prosemirror-view": "1.42.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "ajv": "8.20.0",
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}
