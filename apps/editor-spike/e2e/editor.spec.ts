@@ -61,8 +61,17 @@ test.beforeEach(async ({ page }) => {
 test.afterEach(async ({ page }, testInfo) => {
   if (testInfo.status === testInfo.expectedStatus) return;
   const lines = consoleLines.get(page) ?? [];
-  const focus = await page.evaluate(() => document.activeElement?.closest("[data-testid]")?.getAttribute("data-testid") ?? document.activeElement?.tagName);
-  console.log(`[${testInfo.title}] focus: ${focus}; browser ${page.context().browser()?.version()}\n${lines.join("\n")}`);
+  const state = await page.evaluate(() => {
+    const focus = document.activeElement?.closest("[data-testid]")?.getAttribute("data-testid") ?? document.activeElement?.tagName;
+    const describe = (which: "a" | "b") => {
+      const view = window.spike[which].view;
+      const { from, to } = view.state.selection;
+      return `${which}: selection ${from}-${to} of ${view.state.doc.content.size}; text ${JSON.stringify(view.state.doc.textContent)}`;
+    };
+    return `focus ${focus}\n${describe("a")}\n${describe("b")}`;
+  });
+  // Thrown so that the GitHub reporter shows it as an annotation.
+  throw new Error(`Diagnostics (browser ${page.context().browser()?.version()}):\n${state}\n${lines.slice(-30).join("\n")}`);
 });
 
 /** Clicks into an editor and checks that it really has the keyboard focus. */
