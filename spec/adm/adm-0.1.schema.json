@@ -26,6 +26,11 @@
       "items": { "type": "string", "minLength": 1 },
       "uniqueItems": true
     },
+    "lang": {
+      "description": "Main language of the content as a BCP 47 tag, for example sk or zh-Hans.",
+      "type": "string",
+      "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{1,8})*$"
+    },
     "provenance": { "$ref": "#/$defs/provenance" },
     "content": {
       "type": "array",

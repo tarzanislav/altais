@@ -121,6 +121,11 @@ pub struct Document {
     /// Tags, by name.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tags: Vec<String>,
+    /// Main language of the content as a BCP 47 tag, for example `sk` or `zh-Hans`.
+    ///
+    /// Chooses search tokenization, OCR language and spell checking.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lang: Option<String>,
     /// Where the object came from.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub provenance: Option<Provenance>,
@@ -142,6 +147,7 @@ impl Document {
             updated: now,
             notebook: None,
             tags: Vec::new(),
+            lang: None,
             provenance: None,
             content: Vec::new(),
         }
