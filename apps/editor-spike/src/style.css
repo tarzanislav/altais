@@ -57,6 +57,9 @@ header p {
 #status {
   margin-left: 8px;
   font-weight: 600;
+  display: inline-block;
+  min-width: 16em; /* longer messages must not re-wrap the toolbar */
+  white-space: nowrap;
 }
 #status[data-state="same"] {
   color: var(--ok);
@@ -170,21 +173,37 @@ th {
   padding: 3px 8px;
   cursor: pointer;
 }
+/* The bar floats over the bottom of the editor, so the note's text never
+   moves when it appears or disappears (a click must land where aimed). */
+.device {
+  position: relative;
+}
 .syncbar {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 2;
   display: flex;
   gap: 8px;
   align-items: center;
   justify-content: space-between;
   border: 1px solid var(--accent);
-  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
   border-radius: 8px;
   padding: 6px 10px;
-  margin-bottom: 6px;
   font-size: 0.9rem;
 }
-.syncbar[hidden],
-.notice[hidden] {
+.editor .ProseMirror {
+  padding-bottom: 56px; /* room for the bar */
+}
+.syncbar[hidden] {
   display: none;
+}
+.notice[hidden] {
+  display: block;
+  visibility: hidden;
 }
 .syncbar button {
   border-color: var(--accent);
@@ -192,6 +211,7 @@ th {
   white-space: nowrap;
 }
 .notice {
+  min-height: 1.4em; /* reserved, so showing a notice does not move the note */
   margin: 0 0 6px;
   color: var(--muted);
   font-size: 0.9rem;

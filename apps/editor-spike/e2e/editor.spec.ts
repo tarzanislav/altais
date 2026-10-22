@@ -50,11 +50,26 @@ async function update(page: Page, which: Which) {
   await expect(bar).toBeHidden();
 }
 
-/** Clicks into an editor and checks that it really has the keyboard focus. */
+/**
+ * Clicks into the text of an element (just inside its left edge, where the
+ * text is), then checks that the editor has the focus and that the cursor
+ * really is inside that element.
+ */
 async function clickInto(page: Page, which: Which, selector: string) {
   const editor = page.getByTestId(`editor-${which}`);
-  await editor.locator(selector).click();
+  const target = editor.locator(selector).first();
+  const box = await target.boundingBox();
+  if (!box) throw new Error(`${selector} is not visible`);
+  await target.click({ position: { x: 3, y: box.height / 2 } });
   await expect(editor.locator(".ProseMirror")).toBeFocused();
+  await expect
+    .poll(() =>
+      target.evaluate((el) => {
+        const anchor = document.getSelection()?.anchorNode;
+        return !!anchor && el.contains(anchor);
+      }),
+    )
+    .toBe(true);
 }
 
 const consoleLines = new WeakMap<Page, string[]>();
@@ -278,9 +293,8 @@ test.describe("with manual updates", () => {
 test.describe("automatic updates", () => {
   test("waiting changes apply after a pause in typing, not during it", async ({ page }) => {
     await openPage(page, 2_500);
-    // B starts writing.
-    await clickInto(page, "b", "blockquote p");
-    await page.keyboard.press("End");
+    // B starts writing at the end of the quote.
+    await page.evaluate(() => window.spike.placeCursor("b", "Hory volajú.", 12));
     await page.keyboard.type("0");
 
     // Meanwhile A's user (on another computer) edits the heading. Done through
