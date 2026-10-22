@@ -21,7 +21,7 @@ core; the core returns view models and change events.
    jobs      query      plugins    ai-gateway
  ─────────────────────────────────────────────
  Workers: OCR (Tesseract) · PDF (PDFium) · local AI (llama.cpp, whisper.cpp)
- Transports: ALTAIS Relay · folder / WebDAV / S3 · LAN
+ Transports: ALTAIS Direct (iroh, default) · WebDAV / folder · ALTAIS Relay (optional)
 ```
 
 ## Processes and isolation
@@ -79,8 +79,21 @@ Attachments transfer separately in resumable chunks. Trusted devices upload
 shallow encrypted snapshots; old changes are compacted after a retention
 window.
 
-The same log works over a shared folder: every device writes only to its own
-subfolder of immutable log segments, so file conflicts cannot occur.
+The flow above is shown for a server; the same log travels over every
+transport (see [ADR-0002](adr/0002-sync-transports.md)):
+
+- **ALTAIS Direct** (default): devices connect directly by public key over the
+  internet or the local network (iroh 1.0, NAT traversal, encrypted relay
+  fallback). No account, cloud or server.
+- **Always-on node**: a home PC, NAS or Raspberry Pi acting as a sync peer.
+- **WebDAV mailbox and shared folder**: every device writes only to its own
+  subfolder of immutable log segments, so file conflicts cannot occur. Works
+  with Koofr, Nextcloud, Synology, Syncthing, OneDrive or a USB drive.
+- **ALTAIS Relay** (optional, F5): a self-hosted server for families and
+  organisations.
+
+Relays and storage providers see only metadata (IP addresses, timing, sizes),
+never content. No blockchain is used; see [ADR-0003](adr/0003-no-blockchain.md).
 
 | Situation | Resolution |
 | --- | --- |
@@ -115,7 +128,8 @@ allowed on the required path; CI enforces this with `cargo-deny`
 
 | Layer | Choice | Fallback |
 | --- | --- | --- |
-| Core and server | Rust | — |
+| Core and server | Rust ([ADR-0001](adr/0001-rust-core-with-web-ui.md)) | — |
+| Device-to-device sync | iroh 1.0 | WebDAV mailbox |
 | Desktop and mobile shell | Tauri 2 | Electron |
 | UI | React + TypeScript | SolidJS |
 | Editor | ProseMirror with an ALTAIS schema | Lexical |
@@ -152,7 +166,7 @@ crates/
   altais-sync/      outbox, inbox, cursors, transports   (F3)
   altais-interop/   ENEX import, ADM/HTML/Markdown export (F0–F2)
   altais-core/      facade: commands, queries, events    (F1)
-  altais-relay/     server (Axum)                        (F3)
+  altais-relay/     optional self-hosted server (Axum)   (F5)
   altais-sim/       deterministic simulator              (F3)
   altais-cli/
 apps/
