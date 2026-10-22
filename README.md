@@ -49,13 +49,16 @@ No existing application combines all four of these:
   for desktop and mobile; the core compiles to WebAssembly for the web client
   and the browser clipper.
 - **Sync** — an end-to-end encrypted append-only log per space plus encrypted
-  snapshots. The same log travels over the ALTAIS Relay server, a shared folder
-  (OneDrive, Syncthing, USB drive), WebDAV/S3 or the local network.
+  snapshots. By default devices sync **directly with each other** (no account,
+  no cloud, no server); the same log can also travel through a WebDAV mailbox,
+  a shared folder (Syncthing, OneDrive, USB drive) or an optional self-hosted
+  ALTAIS Relay.
 - **Cryptography** — XChaCha20-Poly1305, Ed25519 device signatures, hybrid
   post-quantum key wrapping (X25519 + ML-KEM-768), a write-only capture key for
   clippers and e-mail, BLAKE3 content addressing.
 
-More detail: [`docs/architecture.md`](docs/architecture.md).
+More detail: [`docs/architecture.md`](docs/architecture.md) and the
+architecture decision records in [`docs/adr/`](docs/adr/).
 
 ## Roadmap
 
@@ -64,9 +67,9 @@ More detail: [`docs/architecture.md`](docs/architecture.md).
 | **F0 Foundation** | Specifications, repository, CI, editor spike, Evernote ENEX parser | 20 real notes imported without loss |
 | F1 Local archive | Full ENEX import, notebooks, full-text search, OCR, attachments | Whole archive accounted for; search under 500 ms |
 | F2 Daily work | Tasks, history, trash, quick capture, export, backups | Four weeks of daily use without Evernote |
-| F3 Sync | Keys, folder sync, ALTAIS Relay, device pairing, network simulator | One million simulated steps without divergence |
+| F3 Sync | Keys, direct device-to-device sync, WebDAV and folder sync, device pairing, network simulator | One million simulated steps without divergence |
 | F4 Release 1.0 | Web clipper, capture key, archive health view, accessibility, audit | All acceptance criteria met; audit without critical findings |
-| F5 Beyond | Android, local AI with citations, shared spaces, web client, plugins | per module |
+| F5 Beyond | Android, local AI with citations, shared spaces, self-hosted Relay, web client, plugins | per module |
 
 Windows is the first platform; Linux builds run in CI from the start;
 Android follows release 1.0, iOS after it.
