@@ -110,6 +110,14 @@ fn is_language_tag(tag: &str) -> bool {
         && parts.all(|p| (1..=8).contains(&p.len()) && p.bytes().all(|b| b.is_ascii_alphanumeric()))
 }
 
+/// An unknown block whose `t` is a known type failed to parse as that type.
+fn known_type_of_unknown(block: &Block) -> Option<String> {
+    block
+        .type_name()
+        .filter(|t| KNOWN_BLOCK_TYPES.contains(t))
+        .map(str::to_owned)
+}
+
 #[cfg(test)]
 mod tests {
     use super::is_language_tag;
@@ -133,12 +141,4 @@ mod tests {
             assert!(!is_language_tag(bad), "{bad} should be rejected");
         }
     }
-}
-
-/// An unknown block whose `t` is a known type failed to parse as that type.
-fn known_type_of_unknown(block: &Block) -> Option<String> {
-    block
-        .type_name()
-        .filter(|t| KNOWN_BLOCK_TYPES.contains(t))
-        .map(str::to_owned)
 }
