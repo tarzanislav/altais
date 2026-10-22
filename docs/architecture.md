@@ -89,8 +89,9 @@ transport (see [ADR-0002](adr/0002-sync-transports.md)):
 - **WebDAV mailbox and shared folder**: every device writes only to its own
   subfolder of immutable log segments, so file conflicts cannot occur. Works
   with Koofr, Nextcloud, Synology, Syncthing, OneDrive or a USB drive.
-- **ALTAIS Relay** (optional, F5): a self-hosted server for families and
-  organisations.
+- **Server-based sync** (planned, F5): its form (self-hosted ALTAIS Relay,
+  hosted service or storage server) is decided later; the architecture keeps
+  it possible from the start (ADR-0002).
 
 Relays and storage providers see only metadata (IP addresses, timing, sizes),
 never content. No blockchain is used; see [ADR-0003](adr/0003-no-blockchain.md).
@@ -103,6 +104,16 @@ never content. No blockchain is used; see [ADR-0003](adr/0003-no-blockchain.md).
 | Delete vs concurrent edit | Object stays in trash with the edit; restorable |
 | Two versions of an attachment | Both kept as separate immutable versions |
 | Membership and permissions | Not a CRDT: a signed linear chain verified by clients and the Relay |
+
+## Languages
+
+UI languages: Slovak, Czech, English, Hungarian, Polish, Russian and
+Simplified Chinese (Traditional Chinese later), with Project Fluent messages
+and ICU4X for dates, numbers and sorting. Search folds diacritics and letters
+such as Polish `ł`, so queries without diacritics still match; Chinese is
+indexed with the FTS5 trigram tokenizer. Each note may carry a BCP 47 `lang`
+tag that selects tokenization, OCR language and spell checking. Details:
+[ADR-0004](adr/0004-languages-and-localisation.md).
 
 ## Cryptography
 

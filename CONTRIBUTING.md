@@ -8,7 +8,8 @@ changes.
 - For anything larger than a small fix, open an issue first so we can agree on
   the approach.
 - Code, comments, commit messages, issues and specifications are written in
-  English. The user interface is localised (Slovak, Czech and English first).
+  English. The user interface is localised into Slovak, Czech, English, Hungarian,
+  Polish, Russian and Simplified Chinese (see `docs/adr/0004-languages-and-localisation.md`).
 - Security problems are never reported in public issues; see
   [`SECURITY.md`](SECURITY.md).
 

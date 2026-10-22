@@ -23,7 +23,33 @@ encrypted log, so they can be combined:
 | Always-on node | A home PC, NAS or Raspberry Pi running ALTAIS as a sync peer, so devices can sync when the others are off. | F3 |
 | WebDAV mailbox | Encrypted log segments stored at any WebDAV provider (for example Koofr, Nextcloud, a Synology NAS). | F3 |
 | Shared folder | Each device writes immutable log segments into its own subfolder; works with Syncthing, OneDrive, Google Drive, Dropbox or a USB drive. | F3 |
-| ALTAIS Relay | Optional self-hosted server (Rust, Axum) for families and organisations. | F5 |
+| Server-based sync | Planned; the form (self-hosted ALTAIS Relay, hosted service, storage server) is decided later. See below. | F5 |
+
+## Server-based sync (planned; decision deferred)
+
+Server-based sync is part of the plan. How it will be provided is decided
+later, but the architecture must keep it possible from the start. Candidates:
+
+- the self-hosted ALTAIS Relay (one binary; SQLite for a household,
+  PostgreSQL for organisations);
+- hosting of that Relay by the community or third parties;
+- standard storage servers (WebDAV, S3-compatible storage, Nextcloud) used as
+  a mailbox;
+- a self-hosted iroh relay for direct sync.
+
+Requirements that apply already now, so that any of these can be added
+without changing the core:
+
+1. all sync goes through the one `Transport` interface;
+2. the protocol (envelope, CBOR messages, cursors, snapshots) is documented in
+   `spec/` and versioned;
+3. a server stays blind: it authenticates devices and stores encrypted
+   envelopes, but never needs keys or plaintext;
+4. account and membership data never live only on a server; devices keep the
+   signed membership chain.
+
+Decision criteria for later: number of users and devices, operating cost,
+who runs the service, privacy of metadata, and maintenance effort.
 
 ## Security notes
 

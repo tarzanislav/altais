@@ -72,7 +72,8 @@ architecture decision records in [`docs/adr/`](docs/adr/).
 | F5 Beyond | Android, local AI with citations, shared spaces, self-hosted Relay, web client, plugins | per module |
 
 Windows is the first platform; Linux builds run in CI from the start;
-Android follows release 1.0, iOS after it.
+Android follows release 1.0, iOS after it. The interface will be available in
+Slovak, Czech, English, Hungarian, Polish, Russian and Simplified Chinese.
 
 ## Repository layout
 
