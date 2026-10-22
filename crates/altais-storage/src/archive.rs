@@ -72,10 +72,15 @@ impl std::fmt::Debug for Archive {
 }
 
 fn write_atomically(path: &Path, contents: &str) -> Result<(), StorageError> {
+    use std::io::Write;
     let tmp = path.with_extension("json.tmp");
-    fs::write(&tmp, contents)?;
-    // Make sure the new key file is on disk before it replaces the old one.
-    fs::File::open(&tmp)?.sync_all()?;
+    // Write and flush through one writable handle (Windows refuses to flush
+    // a file opened only for reading), so the new key file is on disk before
+    // it replaces the old one.
+    let mut file = fs::File::create(&tmp)?;
+    file.write_all(contents.as_bytes())?;
+    file.sync_all()?;
+    drop(file);
     fs::rename(&tmp, path)?;
     Ok(())
 }
