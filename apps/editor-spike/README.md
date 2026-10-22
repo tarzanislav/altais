@@ -51,6 +51,12 @@ skips the Playwright browser download.
   and new document and move the cursor by the size of the change), with unit
   and browser tests. The binding is small (about 1,000 lines, MIT), so the
   real fix belongs upstream or in our own binding behind the same interface.
+- **Known issue: a click right after a remote change can be undone.**
+  loro-prosemirror restores the cursor in a timer after each remote change;
+  if the user clicks in between, the timer moves the cursor back. With a
+  collaborator typing continuously this would be noticeable. The browser
+  tests wait for those timers before clicking. Fix: drop the timer restore
+  (our cursor plugin already covers it), which needs a change in the binding.
 - **Browser tests run against the production build.** The Vite dev server
   optimises dependencies on first use and reloads the page, which wiped
   typed text in CI.

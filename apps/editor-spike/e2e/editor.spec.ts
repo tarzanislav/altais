@@ -74,8 +74,19 @@ test.afterEach(async ({ page }, testInfo) => {
   throw new Error(`Diagnostics (browser ${page.context().browser()?.version()}):\n${state}\n${lines.slice(-30).join("\n")}`);
 });
 
+/**
+ * Lets loro-prosemirror finish restoring cursors after remote changes. It
+ * restores them in a timer, and a restore that fires after a click moves the
+ * cursor away from where the user clicked (a known issue, see README). The
+ * two nested timers run after any restore timer already queued.
+ */
+async function settle(page: Page) {
+  await page.evaluate(() => new Promise<void>((resolve) => setTimeout(() => setTimeout(resolve, 0), 0)));
+}
+
 /** Clicks into an editor and checks that it really has the keyboard focus. */
 async function clickInto(page: Page, which: "a" | "b", selector: string) {
+  await settle(page);
   const editor = page.getByTestId(`editor-${which}`);
   await editor.locator(selector).click();
   await expect(editor.locator(".ProseMirror")).toBeFocused();
@@ -209,6 +220,7 @@ test("the other device keeps its cursor when the same paragraph changes", async 
   await page.evaluate(() => window.spike.placeCursor("a", "Hory volajú.", 12)); // at the end
   await page.keyboard.type(" A");
   await expectOnBoth(page, quoteText, [{ s: "Hory volajú. A" }]);
+  await settle(page);
 
   await page.getByTestId("editor-b").locator(".ProseMirror").focus();
   await page.keyboard.type("X");
