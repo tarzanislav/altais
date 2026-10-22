@@ -203,12 +203,10 @@ test("Word paste becomes a real list and drops Office markup", async ({ page }) 
 });
 
 test("the other device keeps its cursor when the same paragraph changes", async ({ page }) => {
-  await clickInto(page, "b", "blockquote p");
-  await page.keyboard.press("Home");
-  for (let i = 0; i < 4; i++) await page.keyboard.press("ArrowRight"); // after "Hory"
-
-  await clickInto(page, "a", "blockquote p");
-  await page.keyboard.press("End");
+  // The cursors are placed through the editor API: where a mouse click lands
+  // differs between Chromium versions, and this test is about merging.
+  await page.evaluate(() => window.spike.placeCursor("b", "Hory volajú.", 4)); // after "Hory"
+  await page.evaluate(() => window.spike.placeCursor("a", "Hory volajú.", 12)); // at the end
   await page.keyboard.type(" A");
   await expectOnBoth(page, quoteText, [{ s: "Hory volajú. A" }]);
 

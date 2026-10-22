@@ -27,9 +27,9 @@ skips the Playwright browser download.
 | `src/adm.ts` | ADM ⇄ ProseMirror conversion |
 | `src/bids.ts` | Keeps every block ID present and unique (after Enter, paste, merge) |
 | `src/paste.ts` | Turns Microsoft Word list paragraphs into real lists and drops Office markup |
-| `src/editor.ts` | Editor setup: Loro sync and undo, shortcuts, checklist ticking |
+| `src/editor.ts` | Editor setup: Loro sync and undo, shortcuts, checklist ticking, cursor kept on remote changes |
 | `src/main.ts` | The two-device demo page |
-| `tests/` | Round trip of `spec/adm/examples/*.json`, JSON Schema validation, block IDs, Loro merge |
+| `tests/` | Round trip of `spec/adm/examples/*.json`, JSON Schema validation, block IDs, Loro merge, cursor on remote changes |
 | `e2e/` | Typing, Enter, bold, checklist, offline merge, undo, Word paste, cursor stability |
 
 ## Findings
@@ -41,12 +41,19 @@ skips the Playwright browser download.
 - **Plugin order matters.** The block-ID plugin must run before
   `LoroSyncPlugin`; otherwise the other device receives a block without an
   ID, assigns its own, and the two devices race (this broke the cursor).
-- **`loro-prosemirror` is young (0.4.x).** It replaces the whole ProseMirror
-  document on every remote change and logs `Cannot find the loroNode` when an
-  undo touches the paragraph holding the cursor (it looks up the cursor after
-  clearing its cache). The tests show no visible effect, but the binding is
-  small (about 1,000 lines, MIT), so if it becomes a problem we can fix it
-  upstream or write our own binding behind the same interface.
+- **`loro-prosemirror` is young (0.4.x).** It applies every remote change by
+  replacing the whole ProseMirror document and then restores the cursor from
+  a Loro cursor. That lookup fails when the remote change touched the
+  paragraph holding the cursor (it clears its cache first, then looks the
+  cursor up; the console shows `Cannot find the loroNode`). In Chromium 156
+  the cursor then jumped to the start of the note. The spike fixes this on
+  our side (`keepCursorOnRemoteChange` in `src/editor.ts`: compare the old
+  and new document and move the cursor by the size of the change), with unit
+  and browser tests. The binding is small (about 1,000 lines, MIT), so the
+  real fix belongs upstream or in our own binding behind the same interface.
+- **Browser tests run against the production build.** The Vite dev server
+  optimises dependencies on first use and reloads the page, which wiped
+  typed text in CI.
 - **Size.** The browser build embeds Loro's WebAssembly as base64: 5.1 MB of
   JavaScript, 1.8 MB gzipped. Fine inside the desktop app (loaded from disk);
   the web version should load the `.wasm` file separately.

@@ -1,11 +1,19 @@
 // One editor instance: ProseMirror view + Loro document + ALTAIS plugins.
 
 import { LoroDoc } from "loro-crdt";
-import { type LoroDocType, LoroSyncPlugin, LoroUndoPlugin, redo, undo, updateLoroToPmState } from "loro-prosemirror";
+import {
+  type LoroDocType,
+  LoroSyncPlugin,
+  LoroUndoPlugin,
+  loroSyncPluginKey,
+  redo,
+  undo,
+  updateLoroToPmState,
+} from "loro-prosemirror";
 import { baseKeymap, chainCommands, exitCode, setBlockType, toggleMark } from "prosemirror-commands";
 import { keymap } from "prosemirror-keymap";
 import { liftListItem, sinkListItem, splitListItem, wrapInList } from "prosemirror-schema-list";
-import { type Command, EditorState, Plugin } from "prosemirror-state";
+import { type Command, EditorState, Plugin, TextSelection } from "prosemirror-state";
 import { columnResizing, goToNextCell, tableEditing } from "prosemirror-tables";
 import { EditorView } from "prosemirror-view";
 import { type AdmBlock, admBlocksToDoc } from "./adm";
@@ -96,6 +104,40 @@ const checkStatePlugin = new Plugin({
   },
 });
 
+/**
+ * Keeps the cursor in place when a change arrives from another device.
+ * loro-prosemirror applies a remote change by replacing the whole document,
+ * which moves the cursor to the end, and then tries to restore it from a Loro
+ * cursor; that lookup fails when the remote change touched the paragraph with
+ * the cursor. Here the cursor is moved by comparing the old and new document:
+ * before the changed range it stays, after it it shifts by the size change.
+ */
+export const keepCursorOnRemoteChange = new Plugin({
+  appendTransaction(transactions, oldState, newState) {
+    const remote = transactions.some(
+      (tr) => (tr.getMeta(loroSyncPluginKey) as { type?: string } | undefined)?.type === "non-local-updates",
+    );
+    if (!remote || !(oldState.selection instanceof TextSelection)) return null;
+    const before = oldState.doc.content;
+    const after = newState.doc.content;
+    const start = before.findDiffStart(after);
+    if (start === null) return null;
+    const end = before.findDiffEnd(after);
+    let endOld = end?.a ?? before.size;
+    let endNew = end?.b ?? after.size;
+    // When the unchanged ends overlap (e.g. repeated text), shrink them back.
+    const overlap = Math.max(0, start - Math.min(endOld, endNew));
+    endOld += overlap;
+    endNew += overlap;
+    const map = (pos: number) => (pos <= start ? pos : pos >= endOld ? pos + (endNew - endOld) : start);
+    const { anchor, head } = oldState.selection;
+    const doc = newState.doc;
+    const clamp = (pos: number) => Math.max(0, Math.min(pos, doc.content.size));
+    const selection = TextSelection.between(doc.resolve(clamp(map(anchor))), doc.resolve(clamp(map(head))));
+    return newState.selection.eq(selection) ? null : newState.tr.setSelection(selection).setMeta("addToHistory", false);
+  },
+});
+
 /** Writes ADM blocks into an empty Loro document, as the starting content. */
 export function seedLoroDoc(loro: LoroDocType, blocks: AdmBlock[]): void {
   let state = EditorState.create({ doc: admBlocksToDoc(blocks), plugins: [LoroSyncPlugin({ doc: loro })] });
@@ -132,6 +174,7 @@ export function createEditor(mount: HTMLElement, loro: LoroDocType): AltaisEdito
       columnResizing(),
       tableEditing(),
       checklistPlugin,
+      keepCursorOnRemoteChange,
     ],
   });
   const view = new EditorView(mount, {

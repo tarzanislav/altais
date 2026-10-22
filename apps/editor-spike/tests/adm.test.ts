@@ -1,11 +1,17 @@
 import Ajv2020 from "ajv/dist/2020.js";
-import { createNodeFromLoroObj, type LoroDocType, LoroSyncPlugin, updateLoroToPmState } from "loro-prosemirror";
+import {
+  createNodeFromLoroObj,
+  type LoroDocType,
+  LoroSyncPlugin,
+  loroSyncPluginKey,
+  updateLoroToPmState,
+} from "loro-prosemirror";
 import { EditorState, TextSelection } from "prosemirror-state";
 import { splitBlock } from "prosemirror-commands";
 import { describe, expect, it } from "vitest";
 import { type AdmBlock, admBlocksToDoc, docToAdmBlocks } from "../src/adm";
 import { bidsPlugin } from "../src/bids";
-import { newLoroDoc, seedLoroDoc } from "../src/editor";
+import { keepCursorOnRemoteChange, newLoroDoc, seedLoroDoc } from "../src/editor";
 import { schema } from "../src/schema";
 
 import admSchema from "../../../spec/adm/adm-0.1.schema.json";
@@ -127,5 +133,34 @@ describe("Loro sync", () => {
     const loro = newLoroDoc();
     seedLoroDoc(loro, richNote.content);
     expect(docToAdmBlocks(stateFromLoro(loro).doc)).toEqual(richNote.content);
+  });
+});
+
+describe("cursor on remote changes", () => {
+  const para = (bid: string, s: string): AdmBlock => ({ t: "paragraph", bid, text: [{ s }] });
+
+  function remoteReplace(state: EditorState, blocks: AdmBlock[]): EditorState {
+    const doc = admBlocksToDoc(blocks);
+    const tr = state.tr.replaceWith(0, state.doc.content.size, doc.content);
+    tr.setMeta(loroSyncPluginKey, { type: "non-local-updates" });
+    return state.applyTransaction(tr).state;
+  }
+
+  function stateWithCursor(blocks: AdmBlock[], pos: number): EditorState {
+    const state = EditorState.create({ doc: admBlocksToDoc(blocks), plugins: [keepCursorOnRemoteChange] });
+    return state.apply(state.tr.setSelection(TextSelection.create(state.doc, pos)));
+  }
+
+  it("keeps the cursor when text is added after it in the same paragraph", () => {
+    const state = stateWithCursor([para("p001", "Hory volajú.")], 5); // after "Hory"
+    const next = remoteReplace(state, [para("p001", "Hory volajú. A")]);
+    expect(next.selection.from).toBe(5);
+  });
+
+  it("shifts the cursor when text is added before it", () => {
+    const state = stateWithCursor([para("p001", "jedna"), para("p002", "dva")], 11); // end of "dva"
+    const next = remoteReplace(state, [para("p001", "Pozor: jedna"), para("p002", "dva")]);
+    expect(next.selection.from).toBe(11 + "Pozor: ".length);
+    expect(next.doc.textBetween(next.selection.from - 3, next.selection.from)).toBe("dva");
   });
 });

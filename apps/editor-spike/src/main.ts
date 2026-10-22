@@ -2,7 +2,7 @@
 // exchanging Loro updates. "Offline" holds the updates back until it is
 // switched off again, which shows how concurrent edits merge.
 
-import type { Command } from "prosemirror-state";
+import { type Command, TextSelection } from "prosemirror-state";
 import exampleNote from "../../../spec/adm/examples/rich-note.json";
 import { type AdmBlock, docToAdmBlocks } from "./adm";
 import { type AltaisEditor, commands, createEditor, newLoroDoc, seedLoroDoc } from "./editor";
@@ -93,11 +93,28 @@ setTimeout(render, 50);
 // Used by the end-to-end tests.
 declare global {
   interface Window {
-    spike: { a: AltaisEditor; b: AltaisEditor; adm: (which: "a" | "b") => AdmBlock[] };
+    spike: {
+      a: AltaisEditor;
+      b: AltaisEditor;
+      adm: (which: "a" | "b") => AdmBlock[];
+      placeCursor: (which: "a" | "b", text: string, offset: number) => void;
+    };
   }
 }
 window.spike = {
   a: editorA,
   b: editorB,
   adm: (which) => docToAdmBlocks((which === "a" ? editorA : editorB).view.state.doc),
+  /** Puts the cursor `offset` characters into the first text that contains `text`. */
+  placeCursor(which, text, offset) {
+    const view = (which === "a" ? editorA : editorB).view;
+    let found = -1;
+    view.state.doc.descendants((node, pos) => {
+      if (found < 0 && node.isText && node.text?.includes(text)) found = pos + node.text.indexOf(text) + offset;
+      return found < 0;
+    });
+    if (found < 0) throw new Error(`text not found: ${text}`);
+    view.focus();
+    view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, found)));
+  },
 };
