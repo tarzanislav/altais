@@ -14,8 +14,8 @@ Changes never appear in the note while you are writing in it:
 
 1. A change from another device goes into the device's **inbox** (in the app:
    the encrypted local database, so nothing is lost if the program stops).
-2. A bar above the note says how many changes are waiting and offers
-   **Update now**.
+2. A bar floating over the bottom of the note says how many changes are
+   waiting and offers **Update now** (it never moves the text).
 3. Waiting changes are applied when you click **Update now**, after a pause
    in typing (10 s in the spike, 30 s planned for the app; `?idle=<ms>` changes it; never while an input
    method is composing text), when the program **closes**, and when it

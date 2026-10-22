@@ -1,0 +1,27 @@
+[package]
+name = "altais-crdt-bench"
+description = "Gate G0: compares the Loro and Yrs CRDTs on ALTAIS-like notes (speed, size, merging)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish = false
+# Yrs 0.28 does not build with the workspace's minimum Rust version (it uses
+# `if let` guards in match arms), so CI's MSRV check skips this crate. It is a
+# benchmark and never shipped.
+
+[dependencies]
+loro = "1.17.1"
+yrs = "0.28.0"
+
+[dev-dependencies]
+criterion = { version = "0.8.2", default-features = false, features = ["cargo_bench_support"] }
+
+[[bench]]
+name = "crdt"
+harness = false
+
+[lints]
+workspace = true

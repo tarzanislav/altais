@@ -149,7 +149,7 @@ allowed on the required path; CI enforces this with `cargo-deny`
 | Desktop and mobile shell | Tauri 2 | Electron |
 | UI | React + TypeScript | SolidJS |
 | Editor | ProseMirror with an ALTAIS schema | Lexical |
-| CRDT | Loro *(spike)* | Yrs |
+| CRDT | Loro (gate G0 passed, [ADR-0007](adr/0007-crdt-engine-loro.md)) | Yrs |
 | Local database | SQLite + SQLCipher, FTS5, sqlite-vec | Tantivy for search |
 | Wire format | CBOR (RFC 8949) with a CDDL schema | Protocol Buffers |
 | PDF / OCR | PDF.js, PDFium, Tesseract 5 | ONNX Runtime + PaddleOCR models |
@@ -191,7 +191,8 @@ and stored under their BLAKE3 hash. Every note is accounted for in a report:
 crates/
   altais-model/     ADM types and validation            (F0, present)
   altais-crypto/    keys, envelopes, X-Wing, HPKE        (F3)
-  altais-docstore/  Loro adapter behind a DocEngine trait (F0 spike, F1)
+  altais-docstore/  Loro adapter behind a DocEngine trait (F1)
+  altais-crdt-bench/ gate G0: Loro vs Yrs, not shipped   (F0, present)
   altais-storage/   SQLCipher, migrations                (F1)
   altais-blob/      FastCDC, encrypted chunks, integrity (F1)
   altais-index/     FTS5, sqlite-vec, query language     (F1)
@@ -202,6 +203,7 @@ crates/
   altais-sim/       deterministic simulator              (F3)
   altais-cli/
 apps/
-  desktop/          Tauri 2 + React                      (F0 spike, F1)
+  editor-spike/     ProseMirror + Loro prototype         (F0, present)
+  desktop/          Tauri 2 + React                      (F1)
   clipper/          browser extension, core in WASM      (F4)
 ```

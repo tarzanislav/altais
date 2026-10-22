@@ -54,7 +54,15 @@ jobs:
           msrv=$(sed -n 's/^rust-version = "\(.*\)"/\1/p' Cargo.toml)
           echo "Minimum supported Rust version: $msrv"
           rustup toolchain install "$msrv" --profile minimal
-          cargo +"$msrv" check --workspace --all-targets --locked
+          # On failure, repeat the errors as annotations (shown on the PR page).
+          # altais-crdt-bench is not shipped, and Yrs 0.28 (benchmarked there)
+          # needs a newer compiler than the workspace minimum (ADR-0007).
+          if ! cargo +"$msrv" check --workspace --exclude altais-crdt-bench --all-targets --locked \
+              --message-format short --color never 2> msrv.log; then
+            cat msrv.log
+            grep -E "error(\[|:)" msrv.log | head -20 | while IFS= read -r line; do echo "::error::$line"; done
+            exit 1
+          fi
 
   licenses:
     name: Licences and advisories
