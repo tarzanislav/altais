@@ -208,12 +208,12 @@ crates/
   altais-index/     sqlite-vec, query language           (F2; FTS5 search is in altais-storage)
   altais-sync/      outbox, inbox, cursors, transports   (F3)
   altais-interop/   ENEX import (F0, present); ADM/HTML/Markdown export (F2)
-  altais-core/      facade: commands, queries, events    (F1)
+  altais-core/      facade used by the app and the CLI   (F1, present)
   altais-relay/     optional self-hosted server (Axum)   (F5)
   altais-sim/       deterministic simulator              (F3)
   altais-cli/       `altais` tool: init, Evernote import, search (F1, present)
 apps/
   editor-spike/     ProseMirror + Loro prototype         (F0, present)
-  desktop/          Tauri 2 + React                      (F1)
+  desktop/          Tauri 2 + React, Windows installer   (F1, present)
   clipper/          browser extension, core in WASM      (F4)
 ```

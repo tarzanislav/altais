@@ -1,0 +1,24 @@
+[package]
+name = "altais-core"
+description = "ALTAIS application core: the operations the desktop app and the command line use"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+altais-interop = { path = "../altais-interop", version = "0.1.0" }
+altais-model = { path = "../altais-model", version = "0.1.0" }
+altais-storage = { path = "../altais-storage", version = "0.1.0" }
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+getrandom = "0.4.3"
+
+[lints]
+workspace = true

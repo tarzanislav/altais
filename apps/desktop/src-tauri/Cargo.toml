@@ -1,0 +1,34 @@
+[package]
+name = "altais-desktop"
+description = "ALTAIS desktop application"
+version = "0.1.0"
+edition = "2024"
+# Tauri 2 needs a newer compiler than the core crates' minimum (1.88).
+rust-version = "1.90"
+license = "Apache-2.0"
+repository = "https://github.com/tarzanislav/altais"
+authors = ["The ALTAIS contributors"]
+publish = false
+
+# A separate workspace: the desktop shell needs the system WebView libraries
+# and a newer Rust, which the core crates must not depend on.
+[workspace]
+
+[build-dependencies]
+tauri-build = { version = "2.7.4", features = [] }
+
+[dependencies]
+altais-core = { path = "../../../crates/altais-core", version = "0.1.0" }
+altais-storage = { path = "../../../crates/altais-storage", version = "0.1.0" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2.12.5", features = [] }
+tauri-plugin-dialog = "2.8.3"
+
+[profile.release]
+codegen-units = 1
+lto = true
+strip = true
+
+[lints.rust]
+unsafe_code = "forbid"

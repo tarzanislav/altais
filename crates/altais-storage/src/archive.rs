@@ -393,7 +393,50 @@ impl Archive {
         .collect()
     }
 
+    /// Number of notes in each notebook (notebooks without notes are missing).
+    pub fn notebook_note_counts(
+        &self,
+    ) -> Result<std::collections::HashMap<ObjectId, usize>, StorageError> {
+        let mut stmt = self.conn.prepare(
+            "SELECT notebook, count(*) FROM note WHERE deleted IS NULL AND notebook IS NOT NULL GROUP BY notebook",
+        )?;
+        let rows = stmt.query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, i64>(1)?)))?;
+        rows.map(|row| {
+            let (id, n) = row?;
+            Ok((parse_id(id)?, n as usize))
+        })
+        .collect()
+    }
+
+    /// Renames a notebook.
+    pub fn rename_notebook(&self, id: ObjectId, name: &str) -> Result<(), StorageError> {
+        self.conn.execute(
+            "UPDATE notebook SET name = ?2, updated = ?3 WHERE id = ?1",
+            params![id.to_string(), name, Utc::now().to_rfc3339()],
+        )?;
+        Ok(())
+    }
+
     // ---------------- Notes ----------------
+
+    /// Moves a note to the trash: it disappears from lists and search but is
+    /// kept, so it can be restored.
+    pub fn trash_note(&self, id: ObjectId) -> Result<(), StorageError> {
+        self.conn.execute(
+            "UPDATE note SET deleted = ?2 WHERE id = ?1 AND deleted IS NULL",
+            params![id.to_string(), Utc::now().to_rfc3339()],
+        )?;
+        Ok(())
+    }
+
+    /// Takes a note back out of the trash.
+    pub fn restore_note(&self, id: ObjectId) -> Result<(), StorageError> {
+        self.conn.execute(
+            "UPDATE note SET deleted = NULL WHERE id = ?1",
+            [id.to_string()],
+        )?;
+        Ok(())
+    }
 
     /// Stores a note (new or changed). Its tags and attachments are indexed;
     /// the content of every attachment must already be stored with

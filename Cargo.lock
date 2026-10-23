@@ -47,9 +47,23 @@ dependencies = [
 name = "altais-cli"
 version = "0.1.0"
 dependencies = [
+ "altais-core",
+ "altais-model",
+ "altais-storage",
+]
+
+[[package]]
+name = "altais-core"
+version = "0.1.0"
+dependencies = [
  "altais-interop",
  "altais-model",
  "altais-storage",
+ "chrono",
+ "getrandom 0.4.3",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
 ]
 
 [[package]]

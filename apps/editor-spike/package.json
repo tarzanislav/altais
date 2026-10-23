@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "licenses": "node scripts/check-licenses.mjs"
+    "licenses": "node ../../scripts/check-npm-licenses.mjs"
   },
   "dependencies": {
     "loro-crdt": "1.17.1",

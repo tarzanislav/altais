@@ -2,7 +2,8 @@
 // allowlist (the same list as deny.toml for Rust). Runtime packages are also
 // listed, because they ship inside the app.
 //
-// Usage: node scripts/check-licenses.mjs
+// Usage: node scripts/check-npm-licenses.mjs [path/to/package-lock.json]
+// (default: package-lock.json in the current folder)
 
 import { readFileSync } from "node:fs";
 
@@ -27,7 +28,8 @@ function isAllowed(expression) {
   return options.some((option) => ALLOWED.has(option.trim()));
 }
 
-const lock = JSON.parse(readFileSync(new URL("../package-lock.json", import.meta.url), "utf8"));
+const lockPath = process.argv[2] ?? "package-lock.json";
+const lock = JSON.parse(readFileSync(lockPath, "utf8"));
 const problems = [];
 const runtime = [];
 
