@@ -271,3 +271,27 @@ fn an_evernote_export_is_stored_completely() {
         );
     }
 }
+
+#[test]
+fn counts_rename_and_trash() {
+    let dir = TempDir::new("trash");
+    let (mut archive, _) = create(dir.path(), Some(store()), None);
+    let nb = archive.create_notebook("Pracovné", None).unwrap();
+    let mut doc = note("Porada");
+    doc.notebook = Some(nb.id);
+    archive.put_note(&doc).unwrap();
+    assert_eq!(
+        archive.notebook_note_counts().unwrap().get(&nb.id),
+        Some(&1)
+    );
+    archive.rename_notebook(nb.id, "Práca").unwrap();
+    assert_eq!(archive.notebooks().unwrap()[0].name, "Práca");
+
+    archive.trash_note(doc.id).unwrap();
+    assert!(archive.notes(None).unwrap().is_empty());
+    assert!(archive.search("porada", 10).unwrap().is_empty());
+    assert_eq!(archive.notebook_note_counts().unwrap().get(&nb.id), None);
+    assert!(archive.note(doc.id).unwrap().is_some(), "kept in the trash");
+    archive.restore_note(doc.id).unwrap();
+    assert_eq!(archive.search("porada", 10).unwrap().len(), 1);
+}

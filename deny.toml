@@ -17,6 +17,9 @@ ignore = [
     { id = "RUSTSEC-2026-0251", reason = "sized-chunks: via im (loro); G0 benchmark only" },
     { id = "RUSTSEC-2023-0089", reason = "atomic-polyfill: via postcard/heapless (loro); G0 benchmark only" },
     { id = "RUSTSEC-2026-0215", reason = "smallstr: via yrs; G0 benchmark only" },
+    # Desktop app (apps/desktop/src-tauri) on Linux only: Tauri's GTK 3
+    # bindings use this build-time macro crate. Not part of the Windows build.
+    { id = "RUSTSEC-2024-0370", reason = "proc-macro-error: via glib-macros (Tauri on Linux); build-time only" },
 ]
 
 [licenses]

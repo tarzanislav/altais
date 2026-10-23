@@ -10,8 +10,6 @@ use std::sync::Arc;
 use altais_model::ObjectId;
 use altais_storage::{Archive, KeyStore, OsKeyStore, RecoveryKey, StorageError, Unlock};
 
-mod import;
-
 const HELP: &str = "\
 altais — ALTAIS archive tool
 
@@ -131,8 +129,9 @@ fn run(args: &[String]) -> Result<(), Box<dyn std::error::Error>> {
                         .unwrap_or_else(|| "Evernote".into())
                 });
                 let reader = BufReader::new(std::fs::File::open(path)?);
-                let outcome = import::import_enex(&mut archive, reader, &name)?;
-                outcome.print(path);
+                let mut outcome = altais_core::import::import_enex(&mut archive, reader, &name)?;
+                outcome.file = path.display().to_string();
+                print!("{}", outcome.report());
             }
             Ok(())
         }
