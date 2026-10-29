@@ -96,6 +96,30 @@ fn import_enex(state: State<'_, AppState>, paths: Vec<PathBuf>) -> Reply<Vec<Imp
     state.core().import_enex(&paths)
 }
 
+/// Loads the demo package for the interface language ("sk" or "en") into
+/// the separate demo archive.
+#[tauri::command(async)]
+fn load_demo(app: tauri::AppHandle, state: State<'_, AppState>, lang: String) -> Reply<Status> {
+    let lang = if lang == "sk" { "sk" } else { "en" };
+    let package = app
+        .path()
+        .resource_dir()
+        .map_err(|e| CoreError::new_public("missing_demo_package", e.to_string()))?
+        .join("demo")
+        .join(format!("altais-demo-{lang}.json"));
+    state.core().load_demo(&package)
+}
+
+#[tauri::command(async)]
+fn open_demo(state: State<'_, AppState>) -> Reply<Status> {
+    state.core().open_demo()
+}
+
+#[tauri::command(async)]
+fn remove_demo(state: State<'_, AppState>) -> Reply<Status> {
+    state.core().remove_demo()
+}
+
 #[tauri::command(async)]
 fn set_password(state: State<'_, AppState>, password: String) -> Reply<Status> {
     state.core().set_password(password)
@@ -158,7 +182,10 @@ fn main() {
             add_attachment,
             set_password,
             remove_password,
-            new_recovery_key
+            new_recovery_key,
+            load_demo,
+            open_demo,
+            remove_demo
         ])
         .run(tauri::generate_context!())
         .expect("ALTAIS could not start");

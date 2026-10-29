@@ -11,6 +11,9 @@ export interface Status {
   unlocked: boolean;
   hasKeystore: boolean;
   hasPassword: boolean;
+  /** The open archive is the demo. */
+  demo: boolean;
+  demoExists: boolean;
 }
 
 export type Secret = { kind: "keyStore" } | { kind: "password"; value: string } | { kind: "recovery"; value: string };
@@ -81,6 +84,11 @@ export interface Backend {
   saveAttachment(blob: string, name: string): Promise<boolean>;
   /** Asks for a file and stores it as an attachment; null if cancelled. */
   addAttachment(): Promise<AttachmentInfo | null>;
+  /** Loads the demo package ("sk" or "en") into the separate demo archive and opens it. */
+  loadDemo(lang: string): Promise<Status>;
+  openDemo(): Promise<Status>;
+  /** Removes the demo completely; the user's own archive is not touched. */
+  removeDemo(): Promise<Status>;
   setPassword(password: string): Promise<Status>;
   removePassword(): Promise<Status>;
   newRecoveryKey(): Promise<string>;
@@ -96,6 +104,9 @@ async function tauriBackend(): Promise<Backend> {
     create: (password) => invoke("create_archive", { password }),
     unlock: (secret) => invoke("unlock", { secret }),
     lock: () => invoke("lock"),
+    loadDemo: (lang) => invoke("load_demo", { lang }),
+    openDemo: () => invoke("open_demo"),
+    removeDemo: () => invoke("remove_demo"),
     setPassword: (password) => invoke("set_password", { password }),
     removePassword: () => invoke("remove_password"),
     newRecoveryKey: () => invoke("new_recovery_key"),
@@ -146,8 +157,11 @@ export function memoryBackend(): Backend {
   let unlocked = false;
   let password: string | null = null;
   let recovery = "";
-  const notebooks = new Map<string, string>();
-  const notes = new Map<string, NoteData & { trashed: boolean }>();
+  let notebooks = new Map<string, string>();
+  let notes = new Map<string, NoteData & { trashed: boolean }>();
+  // While the demo is open, the own archive's data waits here.
+  let own: { notebooks: typeof notebooks; notes: typeof notes } | null = null;
+  let demoExists = false;
   const blobs = new Map<string, Uint8Array>();
   const saved: string[] = [];
   let counter = 0;
@@ -165,7 +179,9 @@ export function memoryBackend(): Backend {
     needsPassword: exists && password !== null,
     unlocked,
     hasKeystore: true,
-    hasPassword: password !== null,
+    hasPassword: own === null && password !== null,
+    demo: unlocked && own !== null,
+    demoExists,
   });
   const add = (title: string, notebook: string | null, content: AdmBlock[]) => {
     const n = { id: id(), title, notebook, tags: [], created: now(), updated: now(), content, trashed: false };
@@ -191,6 +207,52 @@ export function memoryBackend(): Backend {
     },
     async lock() {
       unlocked = false;
+      if (own) {
+        notebooks = own.notebooks;
+        notes = own.notes;
+        own = null;
+      }
+    },
+    async loadDemo(lang) {
+      const pack = (lang === "sk"
+        ? await import("../../../resources/demo/altais-demo-sk.json")
+        : await import("../../../resources/demo/altais-demo-en.json")
+      ).default as {
+        notebooks: { key: string; name: string }[];
+        notes: { notebook: string; title: string; tags: string[]; ageDays: number; content: AdmBlock[] }[];
+        blobs: Record<string, string>;
+      };
+      own = { notebooks, notes };
+      notebooks = new Map();
+      notes = new Map();
+      const keys = new Map<string, string>();
+      for (const nb of pack.notebooks) {
+        const nid = id();
+        keys.set(nb.key, nid);
+        notebooks.set(nid, nb.name);
+      }
+      for (const [address, data] of Object.entries(pack.blobs)) {
+        blobs.set(address, Uint8Array.from(atob(data), (c) => c.charCodeAt(0)));
+      }
+      for (const note of pack.notes) add(note.title, keys.get(note.notebook) ?? null, note.content);
+      demoExists = true;
+      unlocked = true;
+      return status();
+    },
+    async openDemo() {
+      if (!demoExists) throw err("not_an_archive", "no demo");
+      unlocked = true;
+      return status();
+    },
+    async removeDemo() {
+      if (own) {
+        notebooks = own.notebooks;
+        notes = own.notes;
+        own = null;
+        unlocked = false;
+      }
+      demoExists = false;
+      return status();
     },
     async setPassword(pw) {
       guard();

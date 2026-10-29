@@ -12,6 +12,7 @@ authors.workspace = true
 altais-interop = { path = "../altais-interop", version = "0.1.0" }
 altais-model = { path = "../altais-model", version = "0.1.0" }
 altais-storage = { path = "../altais-storage", version = "0.1.0" }
+base64 = "0.23.1"
 chrono.workspace = true
 serde.workspace = true
 serde_json.workspace = true

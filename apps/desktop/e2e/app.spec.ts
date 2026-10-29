@@ -140,3 +140,33 @@ test("settings: set, change and remove the password; replace the recovery key", 
   await dialog.getByRole("button", { name: "Zrušiť heslo" }).click();
   await expect(dialog.getByTestId("password-state")).toContainText("Heslo nie je nastavené");
 });
+
+test("demo data: try ALTAIS, then remove the demo completely and start", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("try-demo").click();
+  await expect(page.getByTestId("demo-banner")).toContainText("Ukážkové dáta");
+  const sidebar = page.getByTestId("sidebar");
+  for (const name of ["Začíname s ALTAIS", "Cestovanie", "Recepty", "Práca", "Jazyky"]) {
+    await expect(sidebar.getByRole("button", { name: new RegExp(name) })).toBeVisible();
+  }
+  // Own data and key settings are not offered in the demo.
+  await expect(page.getByTestId("import")).toHaveCount(0);
+  await expect(page.getByTestId("settings")).toHaveCount(0);
+
+  await page.getByTestId("search").fill("笔记");
+  await expect(page.getByTestId("note-list").getByRole("button", { name: /中文/ })).toBeVisible();
+  await page.getByTestId("search").fill("strbske");
+  await page.getByTestId("note-list").getByRole("button", { name: /Štrbské Pleso/ }).click();
+  await expect.poll(() => page.getByTestId("editor").locator(".attachment-image img").evaluate((i: HTMLImageElement) => i.naturalWidth)).toBe(320);
+
+  await page.getByTestId("remove-demo").click();
+  await page.getByTestId("confirm-remove-demo").getByRole("button", { name: "Odstrániť ukážku" }).click();
+  await expect(page.getByTestId("welcome")).toBeVisible();
+
+  // The own archive starts empty: nothing of the demo is left.
+  await page.getByRole("button", { name: "Vytvoriť archív" }).click();
+  await page.getByLabel("Záchranný kľúč mám bezpečne uložený").check();
+  await page.getByRole("button", { name: "Pokračovať" }).click();
+  await expect(page.getByTestId("note-list")).toContainText("Žiadne poznámky");
+  await expect(sidebar.getByRole("button", { name: /Cestovanie/ })).toHaveCount(0);
+});

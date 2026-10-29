@@ -6,7 +6,8 @@ only shows and edits.
 
 What it does now:
 
-- first run: creates the encrypted archive (key kept by Windows, optional
+- first run: try ALTAIS with demo data (kept apart, removable without a
+  trace), or create the encrypted archive (key kept by Windows, optional
   password) and shows the recovery key, which must be confirmed as saved;
 - opens the archive (automatically, or with the password / recovery key);
 - notebooks with note counts, all notes, new notebooks;

@@ -11,6 +11,7 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+mod demo;
 pub mod import;
 
 pub use import::ImportOutcome;
@@ -32,6 +33,11 @@ impl CoreError {
             code,
             message: message.into(),
         }
+    }
+
+    /// An error from outside the core (for example the desktop shell).
+    pub fn new_public(code: &'static str, message: impl Into<String>) -> Self {
+        Self::new(code, message)
     }
 
     fn locked() -> Self {
@@ -79,6 +85,10 @@ pub struct Status {
     pub has_keystore: bool,
     /// Whether a password is set (only known while open).
     pub has_password: bool,
+    /// Whether the open archive is the demo archive.
+    pub demo: bool,
+    /// Whether a demo archive exists.
+    pub demo_exists: bool,
 }
 
 /// How the user unlocks the archive.
@@ -240,6 +250,8 @@ pub struct Core {
     dir: PathBuf,
     keystore: Option<Arc<dyn KeyStore>>,
     archive: Option<Archive>,
+    /// Whether `archive` is the demo archive.
+    demo: bool,
 }
 
 impl Core {
@@ -249,7 +261,20 @@ impl Core {
             dir,
             keystore,
             archive: None,
+            demo: false,
         }
+    }
+
+    /// Folder of the demo archive: next to the user's archive, never inside it.
+    pub fn demo_dir(&self) -> PathBuf {
+        self.dir.with_file_name("demo")
+    }
+
+    fn not_demo(&self) -> Result<()> {
+        if self.demo {
+            return Err(CoreError::new("demo_only", "not available in the demo"));
+        }
+        Ok(())
     }
 
     fn archive(&self) -> Result<&Archive> {
@@ -274,8 +299,69 @@ impl Core {
             needs_password: exists && Archive::needs_password(&self.dir).unwrap_or(true),
             unlocked: self.archive.is_some(),
             has_keystore: self.keystore.is_some(),
-            has_password: self.archive.as_ref().is_some_and(Archive::has_password),
+            has_password: !self.demo && self.archive.as_ref().is_some_and(Archive::has_password),
+            demo: self.archive.is_some() && self.demo,
+            demo_exists: Archive::exists(&self.demo_dir()),
         }
+    }
+
+    /// Creates the demo archive from a package and opens it.
+    pub fn load_demo(&mut self, package: &Path) -> Result<Status> {
+        let dir = self.demo_dir();
+        if Archive::exists(&dir) {
+            return self.open_demo();
+        }
+        let result = (|| {
+            let (mut archive, _) =
+                Archive::create_with_kdf(&dir, None, Some(demo::DEMO_PASSWORD), demo::DEMO_KDF)?;
+            demo::load_package(&mut archive, package)?;
+            Ok::<_, CoreError>(archive)
+        })();
+        match result {
+            Ok(archive) => {
+                self.archive = Some(archive);
+                self.demo = true;
+                Ok(self.status())
+            }
+            Err(e) => {
+                // A half-filled demo must not stay behind.
+                let _ = std::fs::remove_dir_all(&dir);
+                Err(e)
+            }
+        }
+    }
+
+    /// Opens the existing demo archive.
+    pub fn open_demo(&mut self) -> Result<Status> {
+        let archive = Archive::open(
+            &self.demo_dir(),
+            None,
+            Unlock::Password(demo::DEMO_PASSWORD),
+        )?;
+        self.archive = Some(archive);
+        self.demo = true;
+        Ok(self.status())
+    }
+
+    /// Removes the demo archive completely and checks that nothing is left.
+    /// The user's own archive is never touched.
+    pub fn remove_demo(&mut self) -> Result<Status> {
+        if self.demo {
+            self.lock();
+        }
+        let dir = self.demo_dir();
+        if dir.exists() {
+            std::fs::remove_dir_all(&dir).map_err(|e| {
+                CoreError::new("cannot_remove_demo", format!("{}: {e}", dir.display()))
+            })?;
+        }
+        if dir.exists() {
+            return Err(CoreError::new(
+                "cannot_remove_demo",
+                "the demo folder is still there",
+            ));
+        }
+        Ok(self.status())
     }
 
     /// Creates the archive; returns the recovery key to show once.
@@ -284,6 +370,7 @@ impl Core {
         let (archive, recovery) =
             Archive::create(&self.dir, self.keystore.clone(), password.as_deref())?;
         self.archive = Some(archive);
+        self.demo = false;
         Ok(recovery.display().to_string())
     }
 
@@ -300,28 +387,33 @@ impl Core {
             }
         };
         self.archive = Some(archive);
+        self.demo = false;
         Ok(self.status())
     }
 
     /// Closes the archive.
     pub fn lock(&mut self) {
         self.archive = None;
+        self.demo = false;
     }
 
     /// Sets or changes the password.
     pub fn set_password(&mut self, password: String) -> Result<Status> {
+        self.not_demo()?;
         self.archive_mut()?.set_password(&password)?;
         Ok(self.status())
     }
 
     /// Removes the password (the system keeps the key again).
     pub fn remove_password(&mut self) -> Result<Status> {
+        self.not_demo()?;
         self.archive_mut()?.remove_password()?;
         Ok(self.status())
     }
 
     /// Replaces the recovery key; returns the new one.
     pub fn new_recovery_key(&mut self) -> Result<String> {
+        self.not_demo()?;
         Ok(self
             .archive_mut()?
             .new_recovery_key()?
@@ -474,6 +566,8 @@ impl Core {
 
     /// Imports Evernote exports, one notebook per file (named after the file).
     pub fn import_enex(&mut self, paths: &[PathBuf]) -> Result<Vec<ImportOutcome>> {
+        // Own notes go into the own archive, never into the demo.
+        self.not_demo()?;
         let archive = self.archive_mut()?;
         let mut outcomes = Vec::new();
         for path in paths {
