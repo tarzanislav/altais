@@ -77,6 +77,13 @@ export interface Backend {
   newNote(notebook: string | null): Promise<NoteData>;
   saveNote(id: string, title: string, content: AdmBlock[]): Promise<NoteInfo>;
   trashNote(id: string): Promise<void>;
+  /** Notes in the trash, most recently trashed first. */
+  trash(): Promise<NoteInfo[]>;
+  restoreNote(id: string): Promise<void>;
+  /** Deletes a note in the trash for good. */
+  deleteNote(id: string): Promise<void>;
+  /** Deletes every note in the trash for good; returns how many. */
+  emptyTrash(): Promise<number>;
   /** Asks the user for ENEX files and imports them; null if cancelled. */
   importEnex(): Promise<ImportOutcome[] | null>;
   /** The content of an attachment. */
@@ -121,6 +128,10 @@ async function tauriBackend(): Promise<Backend> {
     newNote: (notebook) => invoke("new_note", { notebook }),
     saveNote: (id, title, content) => invoke("save_note", { edit: { id, title, content } }),
     trashNote: (id) => invoke("trash_note", { id }),
+    trash: () => invoke("trash"),
+    restoreNote: (id) => invoke("restore_note", { id }),
+    deleteNote: (id) => invoke("delete_note", { id }),
+    emptyTrash: () => invoke("empty_trash"),
     async importEnex() {
       const picked = await open({
         multiple: true,
@@ -164,7 +175,8 @@ export function memoryBackend(): Backend {
   let password: string | null = null;
   let recovery = "";
   let notebooks = new Map<string, string>();
-  let notes = new Map<string, NoteData & { trashed: boolean }>();
+  let notes = new Map<string, NoteData & { trashed: boolean; trashedAt?: number }>();
+  let trashCounter = 0;
   // While the demo is open, the own archive's data waits here.
   let own: { notebooks: typeof notebooks; notes: typeof notes } | null = null;
   let demoExists = false;
@@ -330,7 +342,33 @@ export function memoryBackend(): Backend {
     async trashNote(nid) {
       guard();
       const n = notes.get(nid);
-      if (n) n.trashed = true;
+      if (n) {
+        n.trashed = true;
+        n.trashedAt = ++trashCounter;
+      }
+    },
+    async trash() {
+      guard();
+      return [...notes.values()]
+        .filter((n) => n.trashed)
+        .sort((a, b) => (b.trashedAt ?? 0) - (a.trashedAt ?? 0))
+        .map(info);
+    },
+    async restoreNote(nid) {
+      guard();
+      const n = notes.get(nid);
+      if (n) n.trashed = false;
+    },
+    async deleteNote(nid) {
+      guard();
+      if (!notes.get(nid)?.trashed) throw err("not_in_trash", "only notes in the trash can be deleted");
+      notes.delete(nid);
+    },
+    async emptyTrash() {
+      guard();
+      const gone = [...notes.values()].filter((n) => n.trashed);
+      for (const n of gone) notes.delete(n.id);
+      return gone.length;
     },
     async importEnex() {
       guard();

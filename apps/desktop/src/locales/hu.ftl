@@ -78,6 +78,16 @@ cannotLoadAttachment = A mellékletet nem sikerült betölteni.
 language = Nyelv
 languageAuto = A rendszer szerint
 languageHint = A változás az ALTAIS következő indításakor lép érvénybe.
+trashTitle = Kuka
+trashEmpty = A kuka üres
+emptyTrash = Kuka ürítése
+emptyTrashTitle = Kiüríted a kukát?
+emptyTrashText = { $count } jegyzet véglegesen törlődik azokkal a mellékletekkel együtt, amelyeket más jegyzet nem használ. Ez nem vonható vissza.
+inTrash = Ez a jegyzet a kukában van.
+restore = Visszaállítás
+deleteForever = Végleges törlés
+deleteForeverTitle = Véglegesen törlöd a jegyzetet?
+deleteForeverText = A jegyzet törlődik azokkal a mellékletekkel együtt, amelyeket más jegyzet nem használ. Ez nem vonható vissza.
 
 ## tools
 
@@ -118,4 +128,5 @@ error-damaged-attachment = A melléklet fájlja hiányzik vagy sérült.
 error-unsafe-to-open = Ez a fájl programként futna, ezért az ALTAIS nem nyitja meg. Elmentheted.
 error-cannot-open-file = A fájlt nem sikerült megnyitni.
 error-invalid-note = A jegyzet érvénytelen adatokat tartalmaz.
+error-not-in-trash = Véglegesen csak a kukában lévő jegyzetek törölhetők.
 error-unknown = Valami hiba történt.

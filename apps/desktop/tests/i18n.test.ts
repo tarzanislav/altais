@@ -26,7 +26,7 @@ describe("interface texts", () => {
       for (const id of ids(SOURCES.sk)) {
         const message = own.getMessage(id);
         expect(message?.value, `${code} ${id}`).toBeTruthy();
-        expect(own.formatPattern(message!.value!, { notes: 2, attachments: 2, notebook: "X" }).trim(), `${code} ${id}`).not.toBe("");
+        expect(own.formatPattern(message!.value!, { notes: 2, attachments: 2, notebook: "X", count: 2 }).trim(), `${code} ${id}`).not.toBe("");
       }
       const t = makeTexts(code);
       expect(t.errors.wrong_password, code).toBeTruthy();
@@ -42,6 +42,8 @@ describe("interface texts", () => {
     expect(makeTexts("pl").importSummary(22, 5, "C")).toBe("22 notatki i 5 załączników do notesu „C”");
     expect(makeTexts("ru").importSummary(21, 3, "D")).toBe("21 заметка и 3 вложения в блокнот «D»");
     expect(makeTexts("en").importSummary(1, 1, "E")).toBe("1 note and 1 attachment into “E”");
+    expect(makeTexts("sk").emptyTrashText(3)).toMatch(/^3 poznámky sa zmažú/);
+    expect(makeTexts("pl").emptyTrashText(5)).toMatch(/^5 notatek zostanie/);
   });
 
   it("the system language picks the interface language", () => {

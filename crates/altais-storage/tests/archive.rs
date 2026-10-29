@@ -295,3 +295,91 @@ fn counts_rename_and_trash() {
     archive.restore_note(doc.id).unwrap();
     assert_eq!(archive.search("porada", 10).unwrap().len(), 1);
 }
+
+fn with_attachment(
+    archive: &Archive,
+    title: &str,
+    data: &[u8],
+) -> (Document, altais_model::BlobRef) {
+    let blob = archive.put_blob(data).unwrap();
+    let mut doc = note(title);
+    let json = serde_json::json!({
+        "bid": "a001", "t": "attachment", "blob": blob.to_string(),
+        "name": "subor.pdf", "mime": "application/pdf", "size": data.len()
+    });
+    doc.content.push(serde_json::from_value(json).unwrap());
+    (doc, blob)
+}
+
+fn files_in(dir: &Path) -> usize {
+    let mut n = 0;
+    if let Ok(entries) = fs::read_dir(dir) {
+        for e in entries.flatten() {
+            if e.path().is_dir() {
+                n += files_in(&e.path());
+            } else {
+                n += 1;
+            }
+        }
+    }
+    n
+}
+
+#[test]
+fn trash_restore_and_delete_for_good() {
+    let dir = TempDir::new("trash");
+    let keystore = store();
+    let (mut archive, _) = create(dir.path(), Some(keystore.clone()), None);
+    let (a, blob_a) = with_attachment(&archive, "Zmluva Bratislava", b"PDF A");
+    let (b, blob_shared) = with_attachment(&archive, "Faktúra", b"PDF SHARED");
+    let (c, _) = with_attachment(&archive, "Kópia", b"PDF SHARED");
+    for doc in [&a, &b, &c] {
+        archive.put_note(doc).unwrap();
+    }
+    drop(archive); // nothing "fresh" any more after reopening
+    let mut archive = Archive::open(dir.path(), Some(keystore), Unlock::KeyStore).unwrap();
+
+    archive.trash_note(a.id).unwrap();
+    archive.trash_note(b.id).unwrap();
+    assert_eq!(archive.trashed_notes().unwrap().len(), 2);
+    assert_eq!(archive.notes(None).unwrap().len(), 1);
+    assert!(archive.search("bratislava", 10).unwrap().is_empty());
+
+    archive.restore_note(b.id).unwrap();
+    assert_eq!(archive.trashed_notes().unwrap().len(), 1);
+    assert_eq!(archive.notes(None).unwrap().len(), 2);
+
+    // A note outside the trash cannot be deleted for good.
+    assert!(!archive.delete_note(b.id).unwrap());
+    assert!(archive.note(b.id).unwrap().is_some());
+
+    // Trash still keeps its attachment.
+    assert_eq!(archive.collect_garbage().unwrap(), 0);
+    assert!(archive.blob(&blob_a).unwrap().is_some());
+
+    assert!(archive.delete_note(a.id).unwrap());
+    assert!(archive.note(a.id).unwrap().is_none());
+    assert!(archive.blob(&blob_a).unwrap().is_none());
+    assert_eq!(files_in(&dir.path().join("blobs")), 1); // the shared one only
+
+    // Content used by another note stays.
+    archive.trash_note(b.id).unwrap();
+    assert_eq!(archive.empty_trash().unwrap(), 1);
+    assert!(archive.blob(&blob_shared).unwrap().is_some());
+    archive.trash_note(c.id).unwrap();
+    assert_eq!(archive.empty_trash().unwrap(), 1);
+    assert!(archive.blob(&blob_shared).unwrap().is_none());
+    assert_eq!(files_in(&dir.path().join("blobs")), 0);
+    assert_eq!(archive.note_count().unwrap(), 0);
+    assert!(archive.search("faktura", 10).unwrap().is_empty());
+}
+
+#[test]
+fn content_stored_in_this_session_is_not_collected() {
+    let dir = TempDir::new("fresh");
+    let (archive, _) = create(dir.path(), Some(store()), None);
+    // Added to a note the editor has not saved yet.
+    let blob = archive.put_blob(b"new picture").unwrap();
+    assert_eq!(archive.collect_garbage().unwrap(), 0);
+    assert!(archive.blob(&blob).unwrap().is_some());
+}

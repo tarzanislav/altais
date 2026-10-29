@@ -134,6 +134,15 @@ impl BlobStore {
         Ok(())
     }
 
+    /// Deletes the file of the content with this hash (nothing if it has none).
+    pub fn remove(&self, hash: &[u8; 32]) -> Result<(), StorageError> {
+        match fs::remove_file(self.path_of(hash)) {
+            Ok(()) => Ok(()),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+            Err(e) => Err(e.into()),
+        }
+    }
+
     /// The content with this hash: `None` if it has no file, an error if
     /// the file is damaged or does not belong to this archive.
     pub fn get(&self, hash: &[u8; 32]) -> Result<Option<Vec<u8>>, StorageError> {

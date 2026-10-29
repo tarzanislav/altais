@@ -93,6 +93,26 @@ fn trash_note(state: State<'_, AppState>, id: String) -> Reply<()> {
 }
 
 #[tauri::command(async)]
+fn trash(state: State<'_, AppState>) -> Reply<Vec<NoteInfo>> {
+    state.core().trash()
+}
+
+#[tauri::command(async)]
+fn restore_note(state: State<'_, AppState>, id: String) -> Reply<()> {
+    state.core().restore_note(&id)
+}
+
+#[tauri::command(async)]
+fn delete_note(state: State<'_, AppState>, id: String) -> Reply<()> {
+    state.core().delete_note(&id)
+}
+
+#[tauri::command(async)]
+fn empty_trash(state: State<'_, AppState>) -> Reply<usize> {
+    state.core().empty_trash()
+}
+
+#[tauri::command(async)]
 fn import_enex(state: State<'_, AppState>, paths: Vec<PathBuf>) -> Reply<Vec<ImportOutcome>> {
     state.core().import_enex(&paths)
 }
@@ -196,6 +216,10 @@ fn main() {
             new_note,
             save_note,
             trash_note,
+            trash,
+            restore_note,
+            delete_note,
+            empty_trash,
             import_enex,
             attachment,
             save_attachment,

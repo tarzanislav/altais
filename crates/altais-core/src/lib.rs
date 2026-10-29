@@ -569,6 +569,39 @@ impl Core {
         Ok(self.archive()?.trash_note(parse_id(id)?)?)
     }
 
+    /// Notes in the trash, most recently trashed first.
+    pub fn trash(&self) -> Result<Vec<NoteInfo>> {
+        Ok(self
+            .archive()?
+            .trashed_notes()?
+            .into_iter()
+            .map(note_info)
+            .collect())
+    }
+
+    /// Takes a note back out of the trash.
+    pub fn restore_note(&self, id: &str) -> Result<()> {
+        Ok(self.archive()?.restore_note(parse_id(id)?)?)
+    }
+
+    /// Deletes a note in the trash for good, with attachments no other note uses.
+    pub fn delete_note(&mut self, id: &str) -> Result<()> {
+        let id = parse_id(id)?;
+        if self.archive_mut()?.delete_note(id)? {
+            Ok(())
+        } else {
+            Err(CoreError::new(
+                "not_in_trash",
+                "only notes in the trash can be deleted",
+            ))
+        }
+    }
+
+    /// Deletes every note in the trash for good; returns how many.
+    pub fn empty_trash(&mut self) -> Result<usize> {
+        Ok(self.archive_mut()?.empty_trash()?)
+    }
+
     /// The content of an attachment.
     pub fn attachment(&self, blob: &str) -> Result<Vec<u8>> {
         let blob: BlobRef = blob

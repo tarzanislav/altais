@@ -283,6 +283,9 @@ function Main({
   const [error, setError] = useState("");
   const [reload, setReload] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
+  const [inTrash, setInTrash] = useState(false);
+  const [trashCount, setTrashCount] = useState(0);
+  const [confirmEmpty, setConfirmEmpty] = useState(false);
 
   const refreshNotebooks = useCallback(() => api.notebooks().then(setNotebooks), [api]);
   useEffect(() => {
@@ -290,23 +293,28 @@ function Main({
   }, [refreshNotebooks, reload]);
 
   useEffect(() => {
+    void api.trash().then((items) => setTrashCount(items.length));
+  }, [api, reload]);
+
+  useEffect(() => {
     let cancelled = false;
     const timer = setTimeout(
       async () => {
-        const result = query.trim() ? await api.search(query) : await api.notes(notebook);
+        const result = inTrash ? await api.trash() : query.trim() ? await api.search(query) : await api.notes(notebook);
         if (!cancelled) setList(result);
       },
-      query.trim() ? 200 : 0,
+      query.trim() && !inTrash ? 200 : 0,
     );
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [api, notebook, query, reload]);
+  }, [api, notebook, query, reload, inTrash]);
 
   async function newNote() {
     const note = await api.newNote(notebook);
     setQuery("");
+    setInTrash(false);
     setReload((r) => r + 1);
     setNoteId(note.id);
   }
@@ -343,10 +351,11 @@ function Main({
         </button>
         <nav>
           <button
-            className={notebook === null && !query ? "nav active" : "nav"}
+            className={notebook === null && !query && !inTrash ? "nav active" : "nav"}
             onClick={() => {
               setNotebook(null);
               setQuery("");
+              setInTrash(false);
             }}
           >
             {t.allNotes}
@@ -355,10 +364,11 @@ function Main({
           {notebooks.map((nb) => (
             <button
               key={nb.id}
-              className={notebook === nb.id && !query ? "nav active" : "nav"}
+              className={notebook === nb.id && !query && !inTrash ? "nav active" : "nav"}
               onClick={() => {
                 setNotebook(nb.id);
                 setQuery("");
+                setInTrash(false);
               }}
             >
               <span>{nb.name}</span>
@@ -380,6 +390,18 @@ function Main({
               + {t.newNotebook}
             </button>
           )}
+          <button
+            className={inTrash ? "nav active trash-nav" : "nav trash-nav"}
+            onClick={() => {
+              setInTrash(true);
+              setQuery("");
+              setNoteId(null);
+            }}
+            data-testid="trash"
+          >
+            <span>🗑 {t.trashTitle}</span>
+            {trashCount > 0 && <span className="count">{trashCount}</span>}
+          </button>
         </nav>
         <div className="sidebar-bottom">
           {demo ? (
@@ -408,15 +430,28 @@ function Main({
       </aside>
 
       <section className="list" data-testid="note-list">
-        <input
-          className="search"
-          type="search"
-          placeholder={t.search}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          data-testid="search"
-        />
-        {list.length === 0 && <p className="muted center-text">{query ? t.noResults : t.noNotes}</p>}
+        {inTrash ? (
+          <div className="trash-head">
+            <strong>{t.trashTitle}</strong>
+            {list.length > 0 && (
+              <button className="danger" onClick={() => setConfirmEmpty(true)} data-testid="empty-trash">
+                {t.emptyTrash}
+              </button>
+            )}
+          </div>
+        ) : (
+          <input
+            className="search"
+            type="search"
+            placeholder={t.search}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            data-testid="search"
+          />
+        )}
+        {list.length === 0 && (
+          <p className="muted center-text">{inTrash ? t.trashEmpty : query ? t.noResults : t.noNotes}</p>
+        )}
         <ul>
           {list.map((n) => (
             <li key={n.id}>
@@ -435,6 +470,7 @@ function Main({
             key={noteId}
             api={api}
             noteId={noteId}
+            trashed={inTrash}
             onSaved={onSaved}
             onTrashed={() => {
               setNoteId(null);
@@ -448,6 +484,32 @@ function Main({
 
       {outcomes && <ImportReport outcomes={outcomes} onClose={() => setOutcomes(null)} />}
       {showSettings && <Settings api={api} onClose={() => setShowSettings(false)} />}
+      {confirmEmpty && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" data-testid="confirm-empty-trash">
+          <div className="modal">
+            <h2>{t.emptyTrashTitle}</h2>
+            <p>{t.emptyTrashText(list.length)}</p>
+            <div className="row">
+              <button
+                className="danger"
+                onClick={async () => {
+                  setConfirmEmpty(false);
+                  try {
+                    await api.emptyTrash();
+                    setNoteId(null);
+                    setReload((r) => r + 1);
+                  } catch (e) {
+                    setError(errorText(e));
+                  }
+                }}
+              >
+                {t.emptyTrash}
+              </button>
+              <button onClick={() => setConfirmEmpty(false)}>{t.cancel}</button>
+            </div>
+          </div>
+        </div>
+      )}
       {confirmRemove && (
         <div className="modal-backdrop" role="dialog" aria-modal="true" data-testid="confirm-remove-demo">
           <div className="modal">
@@ -723,14 +785,17 @@ const SAVE_DELAY_MS = 600;
 function NoteView({
   api,
   noteId,
+  trashed,
   onSaved,
   onTrashed,
 }: {
   api: Backend;
   noteId: string;
+  trashed: boolean;
   onSaved: (info: NoteInfo) => void;
   onTrashed: () => void;
 }) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const mount = useRef<HTMLDivElement>(null);
   const editor = useRef<NoteEditor | null>(null);
   const title = useRef("");
@@ -770,7 +835,7 @@ function NoteView({
         open: (blob, name) => api.openAttachment(blob, name),
         describeError: errorText,
         labels: { saveAs: t.saveAs, open: t.openAttachment, cannotLoad: t.cannotLoadAttachment },
-      });
+      }, trashed);
       setLoaded(true);
     });
     return () => {
@@ -780,12 +845,29 @@ function NoteView({
       editor.current?.destroy();
       editor.current = null;
     };
-  }, [api, noteId, onSaved]);
+  }, [api, noteId, onSaved, trashed]);
 
   const status = { saved: t.saved, pending: "", saving: t.saving, error: t.saveFailed }[saveState];
 
   return (
     <div className="note-view" data-testid="note-view">
+      {trashed ? (
+        <div className="trash-banner" data-testid="trash-banner">
+          <span>{t.inTrash}</span>
+          <button
+            className="primary"
+            onClick={async () => {
+              await api.restoreNote(noteId);
+              onTrashed();
+            }}
+          >
+            {t.restore}
+          </button>
+          <button className="danger" onClick={() => setConfirmDelete(true)}>
+            {t.deleteForever}
+          </button>
+        </div>
+      ) : (
       <div className="note-toolbar">
         <div className="tools" role="toolbar">
           {TOOLS.map((tool) => (
@@ -827,11 +909,13 @@ function NoteView({
           {t.trash}
         </button>
       </div>
+      )}
       <input
         className="note-title-input"
         placeholder={t.titlePlaceholder}
         value={titleValue}
         disabled={!loaded}
+        readOnly={trashed}
         data-testid="title"
         onChange={(e) => {
           title.current = e.target.value;
@@ -848,6 +932,27 @@ function NoteView({
         }}
       />
       <div className="note-body" ref={mount} data-testid="editor" />
+      {confirmDelete && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" data-testid="confirm-delete">
+          <div className="modal">
+            <h2>{t.deleteForeverTitle}</h2>
+            <p>{t.deleteForeverText}</p>
+            <div className="row">
+              <button
+                className="danger"
+                onClick={async () => {
+                  setConfirmDelete(false);
+                  await api.deleteNote(noteId);
+                  onTrashed();
+                }}
+              >
+                {t.deleteForever}
+              </button>
+              <button onClick={() => setConfirmDelete(false)}>{t.cancel}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

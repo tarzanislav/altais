@@ -84,6 +84,19 @@ cannotLoadAttachment = The attachment could not be loaded.
 language = Language
 languageAuto = As in the system
 languageHint = The change applies when ALTAIS starts again.
+trashTitle = Trash
+trashEmpty = The trash is empty
+emptyTrash = Empty trash
+emptyTrashTitle = Empty the trash?
+emptyTrashText = { $count ->
+        [one] { $count } note is deleted for good, with attachments no other note uses. This cannot be undone.
+       *[other] { $count } notes are deleted for good, with attachments no other note uses. This cannot be undone.
+    }
+inTrash = This note is in the trash.
+restore = Restore
+deleteForever = Delete for good
+deleteForeverTitle = Delete the note for good?
+deleteForeverText = The note is deleted with attachments no other note uses. This cannot be undone.
 
 ## tools
 
@@ -124,5 +137,6 @@ error-damaged-attachment = The attachment's file is missing or damaged.
 error-unsafe-to-open = This file would run as a program, so ALTAIS does not open it. You can save it.
 error-cannot-open-file = The file could not be opened.
 error-invalid-note = The note contains invalid data.
+error-not-in-trash = Only notes in the trash can be deleted for good.
 error-unknown = Something went wrong.
 

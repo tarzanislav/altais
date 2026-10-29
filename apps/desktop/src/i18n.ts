@@ -51,13 +51,15 @@ const MESSAGES = [
   "newRecoveryKeyTitle", "newRecoveryKeyText", "recoveryReplaced", "or", "tryDemo", "tryDemoHint",
   "demoTitle", "demoText", "removeDemo", "removeDemoTitle", "removeDemoText", "removeDemoConfirm", "lock",
   "saveAs", "openAttachment", "addAttachment", "cannotLoadAttachment", "language", "languageAuto",
-  "languageHint",
+  "languageHint", "trashTitle", "trashEmpty", "emptyTrash", "emptyTrashTitle", "inTrash", "restore",
+  "deleteForever", "deleteForeverTitle", "deleteForeverText",
 ] as const;
 
 export type Message = (typeof MESSAGES)[number];
 
 export type Texts = Record<Message, string> & {
   importSummary(notes: number, attachments: number, notebook: string): string;
+  emptyTrashText(count: number): string;
   /** Editor toolbar, by tool name. */
   tools: Record<string, string>;
   /** Error messages, by error code from the core. */
@@ -121,6 +123,7 @@ export function makeTexts(lang: string): Texts {
   for (const id of MESSAGES) texts[id] = format(bundles, id) ?? id;
   texts.importSummary = (notes: number, attachments: number, notebook: string) =>
     format(bundles, "importSummary", { notes, attachments, notebook }) ?? "";
+  texts.emptyTrashText = (count: number) => format(bundles, "emptyTrashText", { count }) ?? "";
   const lookup = (prefix: string) =>
     new Proxy({} as Record<string, string>, {
       get: (_, key) => (typeof key === "string" ? format(bundles, `${prefix}-${key.replace(/_/g, "-")}`) : undefined),
