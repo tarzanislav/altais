@@ -22,7 +22,7 @@ test("first run, Evernote import, editing, search and trash", async ({ page }) =
 
   await page.getByTestId("import").click();
   const report = page.getByTestId("import-report");
-  await expect(report).toContainText("3 poznámok a 1 príloh do zošita „Ukážka z Evernote“");
+  await expect(report).toContainText("3 poznámky a 1 príloha do zošita „Ukážka z Evernote“");
   await report.getByRole("button", { name: "Zavrieť" }).click();
 
   const sidebar = page.getByTestId("sidebar");
@@ -177,4 +177,23 @@ test("demo data: try ALTAIS, then remove the demo completely and start", async (
   await page.getByRole("button", { name: "Pokračovať" }).click();
   await expect(page.getByTestId("note-list")).toContainText("Žiadne poznámky");
   await expect(sidebar.getByRole("button", { name: /Cestovanie/ })).toHaveCount(0);
+});
+
+test("the interface language can be chosen in Settings", async ({ page }) => {
+  await createArchive(page);
+  await page.getByTestId("settings").click();
+  const dialog = page.getByTestId("settings-dialog");
+  await dialog.getByTestId("language").selectOption("hu");
+  await expect(dialog.getByTestId("settings-message")).toHaveText("Zmena sa prejaví po opätovnom spustení ALTAIS.");
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Üdvözöl az ALTAIS" })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "hu");
+});
+
+test.describe("system language", () => {
+  test.use({ locale: "ru-RU" });
+  test("follows the system language", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: "Добро пожаловать в ALTAIS" })).toBeVisible();
+  });
 });
