@@ -444,3 +444,39 @@ nav {
   color: var(--error);
   margin-bottom: 6px;
 }
+
+/* Settings */
+.modal h3 {
+  margin: 10px 0 0;
+  font-size: 1rem;
+}
+.modal p {
+  margin: 0;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.stack label,
+.modal label.check {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.modal label.check {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+.modal label.check input {
+  width: auto;
+}
+.ok {
+  color: #1a7f37;
+}
+@media (prefers-color-scheme: dark) {
+  .ok {
+    color: #4ac26b;
+  }
+}

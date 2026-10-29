@@ -81,6 +81,9 @@ export interface Backend {
   saveAttachment(blob: string, name: string): Promise<boolean>;
   /** Asks for a file and stores it as an attachment; null if cancelled. */
   addAttachment(): Promise<AttachmentInfo | null>;
+  setPassword(password: string): Promise<Status>;
+  removePassword(): Promise<Status>;
+  newRecoveryKey(): Promise<string>;
 }
 
 // ---------------- Tauri ----------------
@@ -93,6 +96,9 @@ async function tauriBackend(): Promise<Backend> {
     create: (password) => invoke("create_archive", { password }),
     unlock: (secret) => invoke("unlock", { secret }),
     lock: () => invoke("lock"),
+    setPassword: (password) => invoke("set_password", { password }),
+    removePassword: () => invoke("remove_password"),
+    newRecoveryKey: () => invoke("new_recovery_key"),
     notebooks: () => invoke("notebooks"),
     createNotebook: (name) => invoke("create_notebook", { name }),
     notes: (notebook) => invoke("notes", { notebook }),
@@ -185,6 +191,22 @@ export function memoryBackend(): Backend {
     },
     async lock() {
       unlocked = false;
+    },
+    async setPassword(pw) {
+      guard();
+      if (!pw) throw err("empty_password", "the password must not be empty");
+      password = pw;
+      return status();
+    },
+    async removePassword() {
+      guard();
+      password = null;
+      return status();
+    },
+    async newRecoveryKey() {
+      guard();
+      recovery = "ALTAIS-ZYXWVT-SRQPNM-KJHGFE-DCBA98-765432-10ZYXW-VTSRQP-NMKJHG-FE9876";
+      return recovery;
     },
     async notebooks() {
       guard();
