@@ -134,3 +134,48 @@ fn deserializes_what_the_interface_sends() {
     let secret: Secret = serde_json::from_value(json!({"kind": "keyStore"})).unwrap();
     assert!(matches!(secret, Secret::KeyStore));
 }
+
+#[test]
+fn attachments_can_be_added_read_and_saved() {
+    let dir = TempDir::new("attachments");
+    let keystore: Arc<dyn KeyStore> = Arc::new(OsKeyStore::mock());
+    let mut core = Core::new(dir.0.join("archive"), Some(keystore));
+    core.create(None).unwrap();
+
+    let file = dir.0.join("Mapa Tatier.PNG");
+    fs::write(&file, b"\x89PNG fake image").unwrap();
+    let info = core.add_attachment(&file).unwrap();
+    assert_eq!(info.name, "Mapa Tatier.PNG");
+    assert_eq!(info.mime, "image/png");
+    assert_eq!(info.size, 15);
+    assert!(info.blob.starts_with("blake3:"));
+
+    // The editor inserts it into a note, which saves with it.
+    let note = core.new_note(None).unwrap();
+    core.save_note(NoteEdit {
+        id: note.id.clone(),
+        title: "Výlet".into(),
+        content: vec![json!({"t": "attachment", "bid": "a0001", "blob": info.blob, "name": info.name, "mime": info.mime, "size": info.size})],
+    })
+    .unwrap();
+    assert_eq!(core.attachment(&info.blob).unwrap(), b"\x89PNG fake image");
+
+    let copy = dir.0.join("kopia.png");
+    core.save_attachment(&info.blob, &copy).unwrap();
+    assert_eq!(fs::read(&copy).unwrap(), b"\x89PNG fake image");
+
+    let missing = "blake3:0000000000000000000000000000000000000000000000000000000000000000";
+    assert_eq!(
+        core.attachment(missing).unwrap_err().code,
+        "missing_attachment"
+    );
+    assert_eq!(core.attachment("nonsense").unwrap_err().code, "bad_id");
+    assert_eq!(
+        altais_core::mime_for("správa.docx"),
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    );
+    assert_eq!(
+        altais_core::mime_for("bez-pripony"),
+        "application/octet-stream"
+    );
+}

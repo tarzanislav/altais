@@ -22,11 +22,11 @@ test("first run, Evernote import, editing, search and trash", async ({ page }) =
 
   await page.getByTestId("import").click();
   const report = page.getByTestId("import-report");
-  await expect(report).toContainText("2 poznámok a 0 príloh do zošita „Ukážka z Evernote“");
+  await expect(report).toContainText("3 poznámok a 1 príloh do zošita „Ukážka z Evernote“");
   await report.getByRole("button", { name: "Zavrieť" }).click();
 
   const sidebar = page.getByTestId("sidebar");
-  await sidebar.getByRole("button", { name: /Ukážka z Evernote\s*2/ }).click();
+  await sidebar.getByRole("button", { name: /Ukážka z Evernote\s*3/ }).click();
   await page.getByTestId("note-list").getByRole("button", { name: /Plán výletu na Štrbské Pleso/ }).click();
   const editor = page.getByTestId("editor");
   await expect(editor.locator("h1")).toHaveText("Výlet");
@@ -51,7 +51,7 @@ test("first run, Evernote import, editing, search and trash", async ({ page }) =
   await page.keyboard.press("Enter");
   await page.keyboard.type("mlieko, chlieb");
   await expect(page.getByTestId("save-state")).toHaveText("Uložené");
-  await expect(sidebar.getByRole("button", { name: /Ukážka z Evernote\s*3/ })).toBeVisible();
+  await expect(sidebar.getByRole("button", { name: /Ukážka z Evernote\s*4/ })).toBeVisible();
 
   // Switching notes right after typing still saves the text.
   await page.keyboard.type(", syr");
@@ -81,4 +81,27 @@ test("notebooks can be created", async ({ page }) => {
   await page.getByPlaceholder("Názov zošita").fill("Recepty");
   await page.getByRole("button", { name: "Vytvoriť", exact: true }).click();
   await expect(page.getByTestId("sidebar").getByRole("button", { name: /Recepty\s*0/ })).toBeVisible();
+});
+
+test("pictures show in the note; attachments can be saved and added", async ({ page }) => {
+  await createArchive(page);
+  await page.getByTestId("import").click();
+  await page.getByTestId("import-report").getByRole("button", { name: "Zavrieť" }).click();
+  await page.getByTestId("note-list").getByRole("button", { name: /Fotka z výletu/ }).click();
+
+  const editor = page.getByTestId("editor");
+  const img = editor.locator(".attachment-image img");
+  await expect(img).toHaveAttribute("alt", "rysy.png");
+  await expect.poll(() => img.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBe(40);
+  await expect(editor.locator(".attachment-file")).toContainText("trasa.gpx");
+
+  await editor.locator(".attachment-file").getByRole("button", { name: "Uložiť ako…" }).click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { savedAttachments?: string[] }).savedAttachments?.[0] ?? "")).toContain("trasa.gpx");
+
+  // Add a file at the end of the note; it saves with the note.
+  await editor.locator("p").first().click();
+  await page.keyboard.press("End");
+  await page.getByTestId("add-attachment").click();
+  await expect(editor.locator(".attachment-file", { hasText: "zoznam.txt" })).toBeVisible();
+  await expect(page.getByTestId("save-state")).toHaveText("Uložené");
 });
