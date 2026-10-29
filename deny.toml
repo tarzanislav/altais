@@ -20,6 +20,13 @@ ignore = [
     # Desktop app (apps/desktop/src-tauri) on Linux only: Tauri's GTK 3
     # bindings use this build-time macro crate. Not part of the Windows build.
     { id = "RUSTSEC-2024-0370", reason = "proc-macro-error: via glib-macros (Tauri on Linux); build-time only" },
+    # tauri-plugin-opener on Linux only: zbus 5 helper crates, merged into
+    # zbus 6 and therefore marked unmaintained (not a vulnerability). Not part
+    # of the Windows build. Remove when the plugin moves to zbus 6.
+    # Approved by the author on 2026-10-29.
+    { id = "RUSTSEC-2026-0370", reason = "zvariant: via zbus 5 (tauri-plugin-opener on Linux)" },
+    { id = "RUSTSEC-2026-0371", reason = "zbus_names: via zbus 5 (tauri-plugin-opener on Linux)" },
+    { id = "RUSTSEC-2026-0372", reason = "zvariant_derive: via zbus 5 (tauri-plugin-opener on Linux)" },
 ]
 
 [licenses]
