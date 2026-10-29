@@ -12,7 +12,8 @@ use altais_core::{
     Secret, Status,
 };
 use altais_storage::{KeyStore, OsKeyStore};
-use tauri::{Manager, State};
+use tauri::{Manager, RunEvent, State};
+use tauri_plugin_opener::OpenerExt;
 
 struct AppState(Mutex<Core>);
 
@@ -146,6 +147,22 @@ fn save_attachment(state: State<'_, AppState>, blob: String, path: PathBuf) -> R
     state.core().save_attachment(&blob, &path)
 }
 
+/// Opens an attachment in its default program, from a temporary decrypted
+/// copy that is deleted when the archive locks or ALTAIS closes. Only the
+/// application can open files this way; the window has no permission to.
+#[tauri::command(async)]
+fn open_attachment(
+    app: tauri::AppHandle,
+    state: State<'_, AppState>,
+    blob: String,
+    name: String,
+) -> Reply<()> {
+    let path = state.core().open_copy(&blob, &name)?;
+    app.opener()
+        .open_path(path.to_string_lossy(), None::<&str>)
+        .map_err(|e| CoreError::new_public("cannot_open_file", e.to_string()))
+}
+
 #[tauri::command(async)]
 fn add_attachment(state: State<'_, AppState>, path: PathBuf) -> Reply<AttachmentInfo> {
     state.core().add_attachment(&path)
@@ -154,13 +171,16 @@ fn add_attachment(state: State<'_, AppState>, path: PathBuf) -> Reply<Attachment
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             // %APPDATA%\io.github.tarzanislav.altais\archive on Windows.
             let dir = app.path().app_data_dir()?.join("archive");
             let keystore = OsKeyStore::system()
                 .ok()
                 .map(|s| Arc::new(s) as Arc<dyn KeyStore>);
-            app.manage(AppState(Mutex::new(Core::new(dir, keystore))));
+            let mut core = Core::new(dir, keystore);
+            core.set_open_copy_dir(std::env::temp_dir().join("ALTAIS-open"));
+            app.manage(AppState(Mutex::new(core)));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -179,6 +199,7 @@ fn main() {
             import_enex,
             attachment,
             save_attachment,
+            open_attachment,
             add_attachment,
             set_password,
             remove_password,
@@ -187,6 +208,11 @@ fn main() {
             open_demo,
             remove_demo
         ])
-        .run(tauri::generate_context!())
-        .expect("ALTAIS could not start");
+        .build(tauri::generate_context!())
+        .expect("ALTAIS could not start")
+        .run(|app, event| {
+            if let RunEvent::Exit = event {
+                app.state::<AppState>().core().clear_open_copies();
+            }
+        });
 }

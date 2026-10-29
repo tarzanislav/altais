@@ -93,10 +93,18 @@ test("pictures show in the note; attachments can be saved and added", async ({ p
   const img = editor.locator(".attachment-image img");
   await expect(img).toHaveAttribute("alt", "rysy.png");
   await expect.poll(() => img.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBe(40);
-  await expect(editor.locator(".attachment-file")).toContainText("trasa.gpx");
+  const gpx = editor.locator(".attachment-file", { hasText: "trasa.gpx" });
+  await expect(gpx).toBeVisible();
 
-  await editor.locator(".attachment-file").getByRole("button", { name: "Uložiť ako…" }).click();
+  await gpx.getByRole("button", { name: "Uložiť ako…" }).click();
   await expect.poll(() => page.evaluate(() => (window as unknown as { savedAttachments?: string[] }).savedAttachments?.[0] ?? "")).toContain("trasa.gpx");
+
+  // Opening in the default program; programs can only be saved.
+  await gpx.getByRole("button", { name: "Otvoriť" }).click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { openedAttachments?: string[] }).openedAttachments?.[0] ?? "")).toBe("trasa.gpx");
+  const exe = editor.locator(".attachment-file", { hasText: "instalacia.exe" });
+  await expect(exe.getByRole("button", { name: "Uložiť ako…" })).toBeVisible();
+  await expect(exe.getByRole("button", { name: "Otvoriť" })).toHaveCount(0);
 
   // Add a file at the end of the note; it saves with the note.
   await editor.locator("p").first().click();

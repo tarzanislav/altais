@@ -164,6 +164,23 @@ fn attachments_can_be_added_read_and_saved() {
     core.save_attachment(&info.blob, &copy).unwrap();
     assert_eq!(fs::read(&copy).unwrap(), b"\x89PNG fake image");
 
+    // Opening in the default program: a temporary copy, gone after locking.
+    let copies = dir.0.join("open");
+    core.set_open_copy_dir(copies.clone());
+    let opened = core.open_copy(&info.blob, "..\\Mapa Tatier.PNG").unwrap();
+    assert!(opened.starts_with(&copies));
+    assert_eq!(opened.file_name().unwrap(), "Mapa Tatier.PNG");
+    assert_eq!(fs::read(&opened).unwrap(), b"\x89PNG fake image");
+    assert_eq!(
+        core.open_copy(&info.blob, "faktura.pdf.exe")
+            .unwrap_err()
+            .code,
+        "unsafe_to_open"
+    );
+    core.lock();
+    assert!(!copies.exists());
+    core.unlock(Secret::KeyStore).unwrap();
+
     let missing = "blake3:0000000000000000000000000000000000000000000000000000000000000000";
     assert_eq!(
         core.attachment(missing).unwrap_err().code,
