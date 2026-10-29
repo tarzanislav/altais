@@ -179,3 +179,108 @@ fn attachments_can_be_added_read_and_saved() {
         "application/octet-stream"
     );
 }
+
+fn demo_package(lang: &str) -> PathBuf {
+    PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../resources/demo"))
+        .join(format!("altais-demo-{lang}.json"))
+}
+
+fn files_under(dir: &std::path::Path) -> Vec<PathBuf> {
+    let mut out = Vec::new();
+    if let Ok(entries) = fs::read_dir(dir) {
+        for e in entries.flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                out.extend(files_under(&p));
+            } else {
+                out.push(p);
+            }
+        }
+    }
+    out
+}
+
+#[test]
+fn demo_loads_works_and_is_removed_without_a_trace() {
+    let dir = TempDir::new("demo");
+    let keystore: Arc<dyn KeyStore> = Arc::new(OsKeyStore::mock());
+    let mut core = Core::new(dir.0.join("archive"), Some(keystore.clone()));
+
+    for lang in ["sk", "en"] {
+        let status = core.load_demo(&demo_package(lang)).unwrap();
+        assert!(status.demo && status.demo_exists && status.unlocked && !status.exists);
+        let notebooks = core.notebooks().unwrap();
+        assert_eq!(notebooks.len(), 5);
+        assert_eq!(core.notes(None).unwrap().len(), 20);
+        // Every note is valid and opens; the picture is stored and found by its address.
+        let photo = core
+            .notes(None)
+            .unwrap()
+            .into_iter()
+            .find(|n| n.title.contains("Štrbské") || n.title.contains("lake"))
+            .unwrap();
+        let note = core.note(&photo.id).unwrap();
+        let blob = note
+            .content
+            .iter()
+            .find(|b| b["t"] == "attachment")
+            .unwrap()["blob"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+        assert!(core.attachment(&blob).unwrap().starts_with(b"\x89PNG"));
+        // Search works in the demo, including Chinese.
+        assert_eq!(core.search("笔记").unwrap().len(), 1);
+        // Using it: edit a note.
+        core.save_note(NoteEdit {
+            id: photo.id.clone(),
+            title: "Upravené".into(),
+            content: note.content.clone(),
+        })
+        .unwrap();
+        // Own data never goes into the demo; key settings are not offered.
+        assert_eq!(
+            core.import_enex(&[fixture("evernote11.enex")])
+                .unwrap_err()
+                .code,
+            "demo_only"
+        );
+        assert_eq!(core.set_password("x".into()).unwrap_err().code, "demo_only");
+
+        let status = core.remove_demo().unwrap();
+        assert!(!status.demo && !status.demo_exists && !status.unlocked);
+        assert!(!core.demo_dir().exists(), "no demo file may remain");
+    }
+
+    // The user's own archive is untouched by loading and removing the demo.
+    core.create(None).unwrap();
+    let own = core.new_note(None).unwrap();
+    core.lock();
+    core.load_demo(&demo_package("sk")).unwrap();
+    core.remove_demo().unwrap();
+    core.unlock(Secret::KeyStore).unwrap();
+    assert_eq!(core.note(&own.id).unwrap().id, own.id);
+    assert!(
+        files_under(&dir.0)
+            .iter()
+            .all(|p| !p.starts_with(dir.0.join("demo")))
+    );
+}
+
+#[test]
+fn a_damaged_demo_package_leaves_nothing_behind() {
+    let dir = TempDir::new("demo-damaged");
+    fs::create_dir_all(&dir.0).unwrap();
+    let bad = dir.0.join("bad.json");
+    let text = fs::read_to_string(demo_package("en")).unwrap();
+    // Corrupt one attachment: its content no longer matches its address.
+    let corrupted = text.replacen("\"iVBOR", "\"AAAA", 1);
+    assert_ne!(text, corrupted);
+    fs::write(&bad, corrupted).unwrap();
+    let mut core = Core::new(dir.0.join("archive"), None);
+    assert_eq!(
+        core.load_demo(&bad).unwrap_err().code,
+        "damaged_demo_package"
+    );
+    assert!(!core.demo_dir().exists());
+}

@@ -1,0 +1,1807 @@
+{
+ "format": "altais-demo",
+ "version": 1,
+ "lang": "en",
+ "licence": "CC0-1.0",
+ "notebooks": [
+  {
+   "key": "start",
+   "name": "Getting started"
+  },
+  {
+   "key": "travel",
+   "name": "Travel"
+  },
+  {
+   "key": "food",
+   "name": "Recipes"
+  },
+  {
+   "key": "work",
+   "name": "Work"
+  },
+  {
+   "key": "langs",
+   "name": "Languages"
+  }
+ ],
+ "notes": [
+  {
+   "notebook": "start",
+   "title": "Welcome to ALTAIS",
+   "tags": [
+    "guide"
+   ],
+   "ageDays": 0,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "heading",
+     "level": 1,
+     "text": [
+      {
+       "s": "Welcome!"
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "These are "
+      },
+      {
+       "s": "demo notes",
+       "marks": [
+        "bold"
+       ]
+      },
+      {
+       "s": ". Edit them, search them and try everything ALTAIS can do."
+      }
+     ]
+    },
+    {
+     "bid": "d0003",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "When you are ready, choose "
+      },
+      {
+       "s": "Remove demo",
+       "marks": [
+        "italic"
+       ]
+      },
+      {
+       "s": " at the bottom left and start with your own notes. Nothing of the demo stays in the app."
+      }
+     ]
+    },
+    {
+     "bid": "d0004",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Things to try"
+      }
+     ]
+    },
+    {
+     "bid": "d0013",
+     "t": "list",
+     "kind": "check",
+     "items": [
+      {
+       "bid": "d0005",
+       "checked": true,
+       "content": [
+        {
+         "bid": "d0006",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Open a note and edit it"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0007",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0008",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Search for a word, for example “lake”"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0009",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0010",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Create a new notebook"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0011",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0012",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Add an attachment with the 📎 button"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0014",
+     "t": "quote",
+     "content": [
+      {
+       "bid": "d0015",
+       "t": "paragraph",
+       "text": [
+        {
+         "s": "Notes are stored encrypted on your computer."
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "start",
+   "title": "Text formatting",
+   "tags": [
+    "guide"
+   ],
+   "ageDays": 0,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "heading",
+     "level": 1,
+     "text": [
+      {
+       "s": "Heading 1"
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Heading 2"
+      }
+     ]
+    },
+    {
+     "bid": "d0003",
+     "t": "heading",
+     "level": 3,
+     "text": [
+      {
+       "s": "Heading 3"
+      }
+     ]
+    },
+    {
+     "bid": "d0004",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Text can be "
+      },
+      {
+       "s": "bold",
+       "marks": [
+        "bold"
+       ]
+      },
+      {
+       "s": ", "
+      },
+      {
+       "s": "italic",
+       "marks": [
+        "italic"
+       ]
+      },
+      {
+       "s": ", "
+      },
+      {
+       "s": "highlighted",
+       "marks": [
+        "highlight"
+       ]
+      },
+      {
+       "s": " or "
+      },
+      {
+       "s": "code",
+       "marks": [
+        "code"
+       ]
+      },
+      {
+       "s": "."
+      }
+     ]
+    },
+    {
+     "bid": "d0005",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Shortcuts: Ctrl+B bold, Ctrl+I italic, Ctrl+U underline, Ctrl+Z undo."
+      }
+     ]
+    },
+    {
+     "bid": "d0006",
+     "t": "divider"
+    },
+    {
+     "bid": "d0007",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Emoji and symbols work too: ☀️ 🏔️ ✓ € § ©"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "start",
+   "title": "Lists and tasks",
+   "tags": [
+    "guide"
+   ],
+   "ageDays": 1,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Bullets with nesting:"
+      }
+     ]
+    },
+    {
+     "bid": "d0011",
+     "t": "list",
+     "kind": "bullet",
+     "items": [
+      {
+       "bid": "d0002",
+       "content": [
+        {
+         "bid": "d0003",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Fruit"
+          }
+         ]
+        },
+        {
+         "bid": "d0008",
+         "t": "list",
+         "kind": "bullet",
+         "items": [
+          {
+           "bid": "d0004",
+           "content": [
+            {
+             "bid": "d0005",
+             "t": "paragraph",
+             "text": [
+              {
+               "s": "apples"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "bid": "d0006",
+           "content": [
+            {
+             "bid": "d0007",
+             "t": "paragraph",
+             "text": [
+              {
+               "s": "pears"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0009",
+       "content": [
+        {
+         "bid": "d0010",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Vegetables"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0012",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Numbered list:"
+      }
+     ]
+    },
+    {
+     "bid": "d0019",
+     "t": "list",
+     "kind": "ordered",
+     "items": [
+      {
+       "bid": "d0013",
+       "content": [
+        {
+         "bid": "d0014",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "First step"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0015",
+       "content": [
+        {
+         "bid": "d0016",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Second step"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0017",
+       "content": [
+        {
+         "bid": "d0018",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Third step"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0020",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Checklist – click the box:"
+      }
+     ]
+    },
+    {
+     "bid": "d0025",
+     "t": "list",
+     "kind": "check",
+     "items": [
+      {
+       "bid": "d0021",
+       "checked": true,
+       "content": [
+        {
+         "bid": "d0022",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Done task"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0023",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0024",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Task for later"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "start",
+   "title": "Tables and code",
+   "tags": [
+    "guide"
+   ],
+   "ageDays": 1,
+   "content": [
+    {
+     "bid": "d0010",
+     "t": "table",
+     "rows": [
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0001",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Day"
+            }
+           ]
+          }
+         ],
+         "header": true
+        },
+        {
+         "content": [
+          {
+           "bid": "d0002",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Plan"
+            }
+           ]
+          }
+         ],
+         "header": true
+        },
+        {
+         "content": [
+          {
+           "bid": "d0003",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Note"
+            }
+           ]
+          }
+         ],
+         "header": true
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0004",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Monday"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0005",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Swimming"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0006",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "18:00"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0007",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Wednesday"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0008",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Language course"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0009",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "online"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0011",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "A code block keeps spaces and indentation:"
+      }
+     ]
+    },
+    {
+     "bid": "d0012",
+     "t": "code",
+     "lang": "python",
+     "text": "def greet(name):\n    return f\"Hello, {name}!\""
+    },
+    {
+     "bid": "d0013",
+     "t": "code",
+     "lang": "sql",
+     "text": "SELECT title FROM note WHERE notebook = 'travel';"
+    }
+   ]
+  },
+  {
+   "notebook": "start",
+   "title": "Search tips",
+   "tags": [
+    "guide"
+   ],
+   "ageDays": 2,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Search ignores case and accents: “cafe” finds “Café”."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Words match as prefixes: “moun” finds “mountain”. Put an exact phrase in quotes."
+      }
+     ]
+    },
+    {
+     "bid": "d0003",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "It works for Czech, Hungarian, Polish, Russian and Chinese too – see the Languages notebook."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "travel",
+   "title": "Trip to the lake",
+   "tags": [
+    "trip",
+    "mountains"
+   ],
+   "ageDays": 3,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "heading",
+     "level": 1,
+     "text": [
+      {
+       "s": "Mountain lake"
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Leave at 7:00 by train. The walk around the lake takes about an hour."
+      }
+     ]
+    },
+    {
+     "bid": "d0003",
+     "t": "attachment",
+     "blob": "blake3:8c1131f3632cb93fd962ac50eaba39a588af03773c551434b7aa8266d89be12c",
+     "name": "view.png",
+     "mime": "image/png",
+     "size": 1811
+    },
+    {
+     "bid": "d0008",
+     "t": "list",
+     "kind": "check",
+     "items": [
+      {
+       "bid": "d0004",
+       "checked": true,
+       "content": [
+        {
+         "bid": "d0005",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Buy tickets"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0006",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0007",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Pack the backpack"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0009",
+     "t": "attachment",
+     "blob": "blake3:4326c9e4fa0b03309740c00f63498dd230656cf23cf6756473da4b163877141a",
+     "name": "packing-list.txt",
+     "mime": "text/plain",
+     "size": 48
+    }
+   ]
+  },
+  {
+   "notebook": "travel",
+   "title": "Holiday plan",
+   "tags": [
+    "trip"
+   ],
+   "ageDays": 6,
+   "content": [
+    {
+     "bid": "d0013",
+     "t": "table",
+     "rows": [
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0001",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Day"
+            }
+           ]
+          }
+         ],
+         "header": true
+        },
+        {
+         "content": [
+          {
+           "bid": "d0002",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Place"
+            }
+           ]
+          }
+         ],
+         "header": true
+        },
+        {
+         "content": [
+          {
+           "bid": "d0003",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Stay"
+            }
+           ]
+          }
+         ],
+         "header": true
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0004",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "1"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0005",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Vienna"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0006",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "hotel by the Danube"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0007",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "2"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0008",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Salzburg"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0009",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "guesthouse"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0010",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "3"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0011",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Hallstatt"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0012",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "cabin"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0014",
+     "t": "bookmark",
+     "url": "https://example.com/map",
+     "title": "Route map"
+    }
+   ]
+  },
+  {
+   "notebook": "travel",
+   "title": "Hike to the summit",
+   "tags": [
+    "trip",
+    "mountains"
+   ],
+   "ageDays": 12,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Elevation gain 1,100 m, about 4 hours up. The hut near the top serves hot tea."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "quote",
+     "content": [
+      {
+       "bid": "d0003",
+       "t": "paragraph",
+       "text": [
+        {
+         "s": "The mountains are not going anywhere. The weather is."
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "food",
+   "title": "Potato dumplings with cheese",
+   "tags": [
+    "recipe"
+   ],
+   "ageDays": 4,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Ingredients"
+      }
+     ]
+    },
+    {
+     "bid": "d0010",
+     "t": "list",
+     "kind": "bullet",
+     "items": [
+      {
+       "bid": "d0002",
+       "content": [
+        {
+         "bid": "d0003",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "1 kg potatoes"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0004",
+       "content": [
+        {
+         "bid": "d0005",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "300 g flour"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0006",
+       "content": [
+        {
+         "bid": "d0007",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "250 g sheep cheese"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0008",
+       "content": [
+        {
+         "bid": "d0009",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "100 g bacon"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0011",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Steps"
+      }
+     ]
+    },
+    {
+     "bid": "d0020",
+     "t": "list",
+     "kind": "ordered",
+     "items": [
+      {
+       "bid": "d0012",
+       "content": [
+        {
+         "bid": "d0013",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Peel and grate the potatoes."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0014",
+       "content": [
+        {
+         "bid": "d0015",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Mix in the flour and salt."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0016",
+       "content": [
+        {
+         "bid": "d0017",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Drop the dough into boiling water."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0018",
+       "content": [
+        {
+         "bid": "d0019",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Mix with the cheese, top with bacon."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "food",
+   "title": "Apple cake",
+   "tags": [
+    "recipe",
+    "cake"
+   ],
+   "ageDays": 9,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "A quick sheet cake: "
+      },
+      {
+       "s": "4 apples",
+       "marks": [
+        "bold"
+       ]
+      },
+      {
+       "s": ", 3 eggs, 200 g sugar, 250 g flour, baking powder."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Bake 35 minutes at 180 °C."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "food",
+   "title": "Shopping list",
+   "tags": [
+    "shopping"
+   ],
+   "ageDays": 0,
+   "content": [
+    {
+     "bid": "d0009",
+     "t": "list",
+     "kind": "check",
+     "items": [
+      {
+       "bid": "d0001",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0002",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "milk"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0003",
+       "checked": true,
+       "content": [
+        {
+         "bid": "d0004",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "bread"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0005",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0006",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "eggs"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0007",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0008",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "coffee"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "work",
+   "title": "Team meeting – minutes",
+   "tags": [
+    "meeting"
+   ],
+   "ageDays": 2,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Present"
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Anna, Peter, Lucy"
+      }
+     ]
+    },
+    {
+     "bid": "d0003",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Decisions"
+      }
+     ]
+    },
+    {
+     "bid": "d0008",
+     "t": "list",
+     "kind": "bullet",
+     "items": [
+      {
+       "bid": "d0004",
+       "content": [
+        {
+         "bid": "d0005",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "The new version ships on Friday."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0006",
+       "content": [
+        {
+         "bid": "d0007",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Lucy takes over testing."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0009",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Action items"
+      }
+     ]
+    },
+    {
+     "bid": "d0014",
+     "t": "list",
+     "kind": "check",
+     "items": [
+      {
+       "bid": "d0010",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0011",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Write release notes"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0012",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0013",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Update the documentation"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "work",
+   "title": "Project Atlas – overview",
+   "tags": [
+    "project"
+   ],
+   "ageDays": 5,
+   "content": [
+    {
+     "bid": "d0013",
+     "t": "table",
+     "rows": [
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0001",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Phase"
+            }
+           ]
+          }
+         ],
+         "header": true
+        },
+        {
+         "content": [
+          {
+           "bid": "d0002",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Due"
+            }
+           ]
+          }
+         ],
+         "header": true
+        },
+        {
+         "content": [
+          {
+           "bid": "d0003",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Status"
+            }
+           ]
+          }
+         ],
+         "header": true
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0004",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Design"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0005",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "15 Mar"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0006",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "done"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0007",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Build"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0008",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "30 Jun"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0009",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "in progress"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0010",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Launch"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0011",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "1 Sep"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0012",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "planned"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0014",
+     "t": "quote",
+     "content": [
+      {
+       "bid": "d0015",
+       "t": "paragraph",
+       "text": [
+        {
+         "s": "Goal: a simple app people enjoy using."
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "work",
+   "title": "Improvement ideas",
+   "tags": [
+    "ideas"
+   ],
+   "ageDays": 8,
+   "content": [
+    {
+     "bid": "d0007",
+     "t": "list",
+     "kind": "bullet",
+     "items": [
+      {
+       "bid": "d0001",
+       "content": [
+        {
+         "bid": "d0002",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Dark mode for presentations"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0003",
+       "content": [
+        {
+         "bid": "d0004",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Shorter meetings – 30 minutes at most"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0005",
+       "content": [
+        {
+         "bid": "d0006",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "A shared glossary"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "langs",
+   "title": "Čeština",
+   "tags": [
+    "Czech"
+   ],
+   "ageDays": 3,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Příliš žluťoučký kůň úpěl ďábelské ódy."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Try searching for “zlutoucky kun”."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "langs",
+   "title": "Magyar",
+   "tags": [
+    "Hungarian"
+   ],
+   "ageDays": 3,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Árvíztűrő tükörfúrógép."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Try searching for “arvizturo”."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "langs",
+   "title": "Polski",
+   "tags": [
+    "Polish"
+   ],
+   "ageDays": 3,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Zażółć gęślą jaźń. Spotkanie w Łodzi o 10:00."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Try searching for “lodzi” – ł matches l."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "langs",
+   "title": "Русский",
+   "tags": [
+    "Russian"
+   ],
+   "ageDays": 3,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Съешь же ещё этих мягких французских булок, да выпей чаю."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Try searching for “еще” – ё matches е."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "langs",
+   "title": "中文",
+   "tags": [
+    "Chinese"
+   ],
+   "ageDays": 3,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "加密笔记很重要，同步也很方便。"
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Try searching for “笔记” – found inside the sentence."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "langs",
+   "title": "Empty note",
+   "tags": [],
+   "ageDays": 4,
+   "content": []
+  }
+ ],
+ "blobs": {
+  "blake3:8c1131f3632cb93fd962ac50eaba39a588af03773c551434b7aa8266d89be12c": "iVBORw0KGgoAAAANSUhEUgAAAUAAAAC0CAIAAABqhmJGAAAG2klEQVR42u3cN45cVxBA0VqOFqFYi1CiHShRIu+999570Xt57yi7kUqUKBeFFgYjmmaz+5tX7x/gBsMCk65blxjOAyZuPJAAihJWABQO+KYDCaAocdPBBFCUuPlgAiiKgIHKAd9yKAEURcBA5YBvPZQAihK3HU4ARREwUDng2w8ngKLE7UcSQFHijiMJoCgCBioHfOfRBFAUAQOVA77raAIoStx9LAEURcBA5YDvOZYAihL3HE8ARYl7jyeAoggYqBzwfScSQFEEDFQO+P4TCaAo8cDJBFAUAQOVA37wZAIoSjx4KgEUJR46lQCKImCgcsAPn04ARREwUDngR04ngKLEo2cSQFEEDFQO+LEzCaAo8ddff5/jsY8T/bGSy2/HfmPP8eMfJ3pizyy/HfsNjpdQL7+9+o3zHD/xSaI6F62X3y79BsfLqZff/vzGRR0/+UmiIpetl9/O/MalHD/1aaIWG9bLb09+g+MF1stvN35jveOnP020zxb18tuH39hI82eJNtk6XX778BsbOn7ms0RrDFIvv6X9Bsfq5beu37j+htvOseHffvbzRAts6Gsll9+O/QbH3dfLb8d+YwvHz32emIvt6uW3V7+xnePnv0hMzy718tul3+B4OfXy25/f2MXxC18kpmGoevntzG/s6PhfzV8mxmNzERvWy29PfmMQxy9+mRiDkerltxu/wfEy6+W3D78xoOaXvkoMxdjp8tuH3+B44fXyW9pvDO745a8SuzB9vfzW9RtjOH7l68R2zFUvv0X9Bsfq5beu3xjP8atfJzanhXr5Lec3xn5+ePWbxHomeC7it1e/MYHj175JXIoG6+W3kN/gWL381vUbk2l+/dvEflpOl98qfoNj9fJb129M7PiNbxO16uW3Zb8xveM3v8slU7Fefpv1Gxyrl9+6fmMux299l0ujer38Nug35n1+eOv7XAKNPxfxW9dvzO747e+zbzqrl9+m/AbH6uW3rt9oRPM7P2R/9Jouv+34DY7Vy29dv9GU43d/yD5YTr38zus3WnP83o9ZnaXVy++MfoNj9fJb12+06fj9H7MiS66X31n8RsvPD+//lFXo+LmI35b9RuOOP/gp20e9/M7lNzhWL791/UYJzR/+nG0iXX7n9Rscq5ffun6jkOOPfs5zXH3dNStWf5yL7uvd2/PEfhthMr877jlq/Tu992lXHDibs7CceidueC6hc/ndfc9R5Xut8z7qjBn3Xe+aPS+k4Wn8DrXnKPH/pTWfdsXBszkNi613yoYnszmX3wH3HI3/zOOyH/V/Gf+S49H3c9EV7Xma56VRbc7ld/A9R8s/t7yiT7vi0C85BuqdpeGRbM7ld4w9R5sntV29IzWs3r4bbrbeTfYcPZ3Ufg7/moMg3dkzHkrlXH5H3XN0eVVDNazevhuuUu+aPUeXJ7WfI7/mdvRa70h7HrvhrT3O5XeaPUffV7Xi6G95pai3wYa38DiX38n2HH2f1HYZd1nvZHtuv+FR/U6851jIVa049lteFvU23vAmEufyO/2eYzlX9V/Dv+el6PW5aJY9j/28tMbjXH5n2XMs56T2c/z3PI8u6519z6M2fKHENYzqd8YNxwKv6sKG1dt3w73WO3XAjZzUfk78kdItnfE5g+vpNd2pA27wqlaot+OG+653ooCbPakNM5bujBlvWODJP/JCRqq3qX2Gq1rfsHqrNHzqz9zPEuodPeBCV3XRhtVbtOGF1DtiwOVO6sKMpdtUxhs2eXqcepvdYbiqMX53jHpnbHg59Q4fcAcnVSLjxe554nrbX124qnINL3zP6h0+4C5PqsGM7XmXjLvcc7iqKg3b8y4N97rncFUlGrbnXRrueM/hpBrP2J53bLjvPYerarlhe96x4e73HE6qzYyt94r2vHW91ZcTrqrBhi1294YXsudwUk1lbJm77HnzervZSbiqdhq2xkEaXtSew1U10rAF2vPAAbuVac7L0ux5+ICdyDS3ZV32PHDALmOa87Iiex4+YAcxzW1Zjj0PHLA7mOa8LMSehw+Y/mluyyrsefiAiZ/mtizBnocPmHJAwAAEDEDAgIABCBiAgAEIGBAwAAEDEDAgYAACBiBgAAIGBAxAwAAEDEDAgIABzB3wVdc+v+LaR8/ufW1oaFhiGBZhaFh3GBZhaFh3GBZhaFh3GBZhaFh3GBZhaFh3GBZhaFh36BnJ0NAzkqGhoWckQ0NDz0iGhp6RDA0NPSMZGhp6RjI0NPSMZGjoGcnQ0NAzkqGhoWckQ0PPSBZhaOgZydDQ0DOSoaGhZyRDQ89IhoaGnpEMDQ09IxkaGnpGMjT0jGRoaOgZydDQ0DOSoeESh/8AVEJEACOg47wAAAAASUVORK5CYII=",
+  "blake3:4326c9e4fa0b03309740c00f63498dd230656cf23cf6756473da4b163877141a": "UGFja2luZyBsaXN0Ci0gaGlraW5nIGJvb3RzCi0gcmFpbiBqYWNrZXQKLSBtYXAK"
+ }
+}

@@ -15,7 +15,7 @@ type Screen =
   | { kind: "welcome"; status: Status }
   | { kind: "recovery"; key: string }
   | { kind: "unlock"; status: Status; error?: string }
-  | { kind: "main" };
+  | { kind: "main"; demo?: boolean };
 
 export function App() {
   const [api, setApi] = useState<Backend | null>(null);
@@ -23,8 +23,19 @@ export function App() {
 
   const start = useCallback(async (b: Backend) => {
     const status = await b.status();
-    if (!status.exists) return setScreen({ kind: "welcome", status });
-    if (status.unlocked) return setScreen({ kind: "main" });
+    if (status.unlocked) return setScreen({ kind: "main", demo: status.demo });
+    if (!status.exists) {
+      // Someone trying ALTAIS with the demo comes back to the demo.
+      if (status.demoExists) {
+        try {
+          await b.openDemo();
+          return setScreen({ kind: "main", demo: true });
+        } catch {
+          // fall through to the welcome screen
+        }
+      }
+      return setScreen({ kind: "welcome", status });
+    }
     if (!status.needsPassword) {
       try {
         await b.unlock({ kind: "keyStore" });
@@ -46,7 +57,14 @@ export function App() {
   if (!api || screen.kind === "loading") return <div className="center muted">{t.loading}</div>;
   switch (screen.kind) {
     case "welcome":
-      return <Welcome api={api} status={screen.status} onCreated={(key) => setScreen({ kind: "recovery", key })} />;
+      return (
+        <Welcome
+          api={api}
+          status={screen.status}
+          onCreated={(key) => setScreen({ kind: "recovery", key })}
+          onDemo={() => setScreen({ kind: "main", demo: true })}
+        />
+      );
     case "recovery":
       return <RecoveryKeyScreen recoveryKey={screen.key} onDone={() => setScreen({ kind: "main" })} />;
     case "unlock":
@@ -54,11 +72,14 @@ export function App() {
     case "main":
       return (
         <Main
+          key={screen.demo ? "demo" : "own"}
           api={api}
+          demo={!!screen.demo}
           onLock={async () => {
             await api.lock();
             void start(api);
           }}
+          onDemoRemoved={() => void start(api)}
         />
       );
   }
@@ -66,7 +87,17 @@ export function App() {
 
 // ---------------- First run ----------------
 
-function Welcome({ api, status, onCreated }: { api: Backend; status: Status; onCreated: (key: string) => void }) {
+function Welcome({
+  api,
+  status,
+  onCreated,
+  onDemo,
+}: {
+  api: Backend;
+  status: Status;
+  onCreated: (key: string) => void;
+  onDemo: () => void;
+}) {
   const [usePassword, setUsePassword] = useState(!status.hasKeystore);
   const [password, setPassword] = useState("");
   const [again, setAgain] = useState("");
@@ -117,6 +148,25 @@ function Welcome({ api, status, onCreated }: { api: Backend; status: Status; onC
       <button className="primary" disabled={busy}>
         {t.createArchive}
       </button>
+      <div className="or">{t.or}</div>
+      <button
+        type="button"
+        disabled={busy}
+        data-testid="try-demo"
+        onClick={async () => {
+          setBusy(true);
+          try {
+            await api.loadDemo(locale.startsWith("sk") ? "sk" : "en");
+            onDemo();
+          } catch (err) {
+            setError(errorText(err));
+            setBusy(false);
+          }
+        }}
+      >
+        {t.tryDemo}
+      </button>
+      <p className="muted small">{t.tryDemoHint}</p>
     </form>
   );
 }
@@ -210,7 +260,18 @@ function Unlock({ api, initialError, onUnlocked }: { api: Backend; initialError?
 
 const dateFormat = new Intl.DateTimeFormat(locale, { day: "numeric", month: "numeric", year: "numeric" });
 
-function Main({ api, onLock }: { api: Backend; onLock: () => void }) {
+function Main({
+  api,
+  demo,
+  onLock,
+  onDemoRemoved,
+}: {
+  api: Backend;
+  demo: boolean;
+  onLock: () => void;
+  onDemoRemoved: () => void;
+}) {
+  const [confirmRemove, setConfirmRemove] = useState(false);
   const [notebooks, setNotebooks] = useState<NotebookInfo[]>([]);
   const [notebook, setNotebook] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -321,12 +382,24 @@ function Main({ api, onLock }: { api: Backend; onLock: () => void }) {
           )}
         </nav>
         <div className="sidebar-bottom">
-          <button className="block" onClick={runImport} disabled={importing} data-testid="import">
-            {importing ? t.importing : t.importEvernote}
-          </button>
-          <button className="block subtle" onClick={() => setShowSettings(true)} data-testid="settings">
-            {t.settings}
-          </button>
+          {demo ? (
+            <div className="demo-banner" data-testid="demo-banner">
+              <strong>{t.demoTitle}</strong>
+              <p className="small">{t.demoText}</p>
+              <button className="primary block" onClick={() => setConfirmRemove(true)} data-testid="remove-demo">
+                {t.removeDemo}
+              </button>
+            </div>
+          ) : (
+            <>
+              <button className="block" onClick={runImport} disabled={importing} data-testid="import">
+                {importing ? t.importing : t.importEvernote}
+              </button>
+              <button className="block subtle" onClick={() => setShowSettings(true)} data-testid="settings">
+                {t.settings}
+              </button>
+            </>
+          )}
           <button className="block subtle" onClick={onLock}>
             {t.lock}
           </button>
@@ -375,6 +448,31 @@ function Main({ api, onLock }: { api: Backend; onLock: () => void }) {
 
       {outcomes && <ImportReport outcomes={outcomes} onClose={() => setOutcomes(null)} />}
       {showSettings && <Settings api={api} onClose={() => setShowSettings(false)} />}
+      {confirmRemove && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" data-testid="confirm-remove-demo">
+          <div className="modal">
+            <h2>{t.removeDemoTitle}</h2>
+            <p>{t.removeDemoText}</p>
+            <div className="row">
+              <button
+                className="primary"
+                onClick={async () => {
+                  try {
+                    await api.removeDemo();
+                    onDemoRemoved();
+                  } catch (e) {
+                    setConfirmRemove(false);
+                    setError(errorText(e));
+                  }
+                }}
+              >
+                {t.removeDemoConfirm}
+              </button>
+              <button onClick={() => setConfirmRemove(false)}>{t.cancel}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -480,3 +480,20 @@ nav {
     color: #4ac26b;
   }
 }
+
+/* Demo */
+.or {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.demo-banner {
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+.demo-banner p {
+  margin: 6px 0 10px;
+}

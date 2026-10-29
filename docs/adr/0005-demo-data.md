@@ -83,3 +83,16 @@ about 80 notes in a few notebooks. Highlights:
 - Phases: the package format and the English and Slovak packages in F1 (they
   are needed for tests); the first-run dialog, the other languages and removal
   in F2.
+
+## Status (2026-10-29)
+
+Implemented in the desktop app: the package format
+(`resources/demo/altais-demo-<lang>.json`, Slovak and English, 20 notes in
+five notebooks for now), the first-run choice "Try ALTAIS with demo data",
+the demo banner and removal with verification. The demo archive is a
+separate archive in its own folder next to the user's archive. Because its
+content is public, it is protected by a fixed password and no key is kept in
+the system, so removal deletes exactly one folder. Importing own notes and
+the password settings are not offered while the demo is open. Still to do:
+the other languages, more notes (about 80), tasks with relative due dates and
+saved searches once those features exist.

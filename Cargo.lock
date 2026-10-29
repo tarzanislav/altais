@@ -59,6 +59,7 @@ dependencies = [
  "altais-interop",
  "altais-model",
  "altais-storage",
+ "base64",
  "chrono",
  "getrandom 0.4.3",
  "serde",

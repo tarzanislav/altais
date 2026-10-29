@@ -1,0 +1,1807 @@
+{
+ "format": "altais-demo",
+ "version": 1,
+ "lang": "sk",
+ "licence": "CC0-1.0",
+ "notebooks": [
+  {
+   "key": "start",
+   "name": "Začíname s ALTAIS"
+  },
+  {
+   "key": "travel",
+   "name": "Cestovanie"
+  },
+  {
+   "key": "food",
+   "name": "Recepty"
+  },
+  {
+   "key": "work",
+   "name": "Práca"
+  },
+  {
+   "key": "langs",
+   "name": "Jazyky"
+  }
+ ],
+ "notes": [
+  {
+   "notebook": "start",
+   "title": "Vitaj v ALTAIS",
+   "tags": [
+    "návod"
+   ],
+   "ageDays": 0,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "heading",
+     "level": 1,
+     "text": [
+      {
+       "s": "Vitaj!"
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Toto sú "
+      },
+      {
+       "s": "ukážkové poznámky",
+       "marks": [
+        "bold"
+       ]
+      },
+      {
+       "s": ". Môžeš ich upravovať, hľadať v nich a skúšať všetko, čo ALTAIS vie."
+      }
+     ]
+    },
+    {
+     "bid": "d0003",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Keď budeš pripravený, zvoľ vľavo dole "
+      },
+      {
+       "s": "Odstrániť ukážku",
+       "marks": [
+        "italic"
+       ]
+      },
+      {
+       "s": " a začni s vlastnými poznámkami. Z ukážky v programe nič neostane."
+      }
+     ]
+    },
+    {
+     "bid": "d0004",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Čo vyskúšať"
+      }
+     ]
+    },
+    {
+     "bid": "d0013",
+     "t": "list",
+     "kind": "check",
+     "items": [
+      {
+       "bid": "d0005",
+       "checked": true,
+       "content": [
+        {
+         "bid": "d0006",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Otvoriť poznámku a upraviť ju"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0007",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0008",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Vyhľadať slovo bez diakritiky, napríklad „vylet“"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0009",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0010",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Vytvoriť nový zošit"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0011",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0012",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Pridať prílohu tlačidlom 📎"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0014",
+     "t": "quote",
+     "content": [
+      {
+       "bid": "d0015",
+       "t": "paragraph",
+       "text": [
+        {
+         "s": "Poznámky sú uložené šifrovane na tvojom počítači."
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "start",
+   "title": "Formátovanie textu",
+   "tags": [
+    "návod"
+   ],
+   "ageDays": 0,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "heading",
+     "level": 1,
+     "text": [
+      {
+       "s": "Nadpis 1"
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Nadpis 2"
+      }
+     ]
+    },
+    {
+     "bid": "d0003",
+     "t": "heading",
+     "level": 3,
+     "text": [
+      {
+       "s": "Nadpis 3"
+      }
+     ]
+    },
+    {
+     "bid": "d0004",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Text môže byť "
+      },
+      {
+       "s": "tučný",
+       "marks": [
+        "bold"
+       ]
+      },
+      {
+       "s": ", "
+      },
+      {
+       "s": "kurzíva",
+       "marks": [
+        "italic"
+       ]
+      },
+      {
+       "s": ", "
+      },
+      {
+       "s": "zvýraznený",
+       "marks": [
+        "highlight"
+       ]
+      },
+      {
+       "s": " alebo "
+      },
+      {
+       "s": "kód",
+       "marks": [
+        "code"
+       ]
+      },
+      {
+       "s": "."
+      }
+     ]
+    },
+    {
+     "bid": "d0005",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Klávesové skratky: Ctrl+B tučné, Ctrl+I kurzíva, Ctrl+U podčiarknuté, Ctrl+Z späť."
+      }
+     ]
+    },
+    {
+     "bid": "d0006",
+     "t": "divider"
+    },
+    {
+     "bid": "d0007",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Emoji a symboly fungujú tiež: ☀️ 🏔️ ✓ € § ©"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "start",
+   "title": "Zoznamy a úlohy",
+   "tags": [
+    "návod"
+   ],
+   "ageDays": 1,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Odrážky s vnorením:"
+      }
+     ]
+    },
+    {
+     "bid": "d0011",
+     "t": "list",
+     "kind": "bullet",
+     "items": [
+      {
+       "bid": "d0002",
+       "content": [
+        {
+         "bid": "d0003",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Ovocie"
+          }
+         ]
+        },
+        {
+         "bid": "d0008",
+         "t": "list",
+         "kind": "bullet",
+         "items": [
+          {
+           "bid": "d0004",
+           "content": [
+            {
+             "bid": "d0005",
+             "t": "paragraph",
+             "text": [
+              {
+               "s": "jablká"
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "bid": "d0006",
+           "content": [
+            {
+             "bid": "d0007",
+             "t": "paragraph",
+             "text": [
+              {
+               "s": "hrušky"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0009",
+       "content": [
+        {
+         "bid": "d0010",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Zelenina"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0012",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Číslovaný zoznam:"
+      }
+     ]
+    },
+    {
+     "bid": "d0019",
+     "t": "list",
+     "kind": "ordered",
+     "items": [
+      {
+       "bid": "d0013",
+       "content": [
+        {
+         "bid": "d0014",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Prvý krok"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0015",
+       "content": [
+        {
+         "bid": "d0016",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Druhý krok"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0017",
+       "content": [
+        {
+         "bid": "d0018",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Tretí krok"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0020",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Zoznam úloh – klikni na štvorček:"
+      }
+     ]
+    },
+    {
+     "bid": "d0025",
+     "t": "list",
+     "kind": "check",
+     "items": [
+      {
+       "bid": "d0021",
+       "checked": true,
+       "content": [
+        {
+         "bid": "d0022",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Hotová úloha"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0023",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0024",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Úloha na neskôr"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "start",
+   "title": "Tabuľky a kód",
+   "tags": [
+    "návod"
+   ],
+   "ageDays": 1,
+   "content": [
+    {
+     "bid": "d0010",
+     "t": "table",
+     "rows": [
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0001",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Deň"
+            }
+           ]
+          }
+         ],
+         "header": true
+        },
+        {
+         "content": [
+          {
+           "bid": "d0002",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Plán"
+            }
+           ]
+          }
+         ],
+         "header": true
+        },
+        {
+         "content": [
+          {
+           "bid": "d0003",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Poznámka"
+            }
+           ]
+          }
+         ],
+         "header": true
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0004",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Pondelok"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0005",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Plávanie"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0006",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "18:00"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0007",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Streda"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0008",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Jazyk"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0009",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "online"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0011",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Blok kódu zachová medzery a odsadenie:"
+      }
+     ]
+    },
+    {
+     "bid": "d0012",
+     "t": "code",
+     "lang": "python",
+     "text": "def pozdrav(meno):\n    return f\"Ahoj, {meno}!\""
+    },
+    {
+     "bid": "d0013",
+     "t": "code",
+     "lang": "sql",
+     "text": "SELECT title FROM note WHERE notebook = 'travel';"
+    }
+   ]
+  },
+  {
+   "notebook": "start",
+   "title": "Hľadanie bez diakritiky",
+   "tags": [
+    "návod"
+   ],
+   "ageDays": 2,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Hľadanie ignoruje veľké písmená a diakritiku: „strbske pleso“ nájde „Štrbské Pleso“."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Slová sa hľadajú ako začiatky slov: „vyl“ nájde „výlet“. Presnú frázu daj do úvodzoviek."
+      }
+     ]
+    },
+    {
+     "bid": "d0003",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Funguje to aj pre češtinu, maďarčinu, poľštinu, ruštinu a čínštinu – pozri zošit Jazyky."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "travel",
+   "title": "Výlet na Štrbské Pleso",
+   "tags": [
+    "výlet",
+    "hory"
+   ],
+   "ageDays": 3,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "heading",
+     "level": 1,
+     "text": [
+      {
+       "s": "Štrbské Pleso"
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Odchod o 7:00, vlak z Popradu. Okruh okolo plesa trvá asi hodinu."
+      }
+     ]
+    },
+    {
+     "bid": "d0003",
+     "t": "attachment",
+     "blob": "blake3:8c1131f3632cb93fd962ac50eaba39a588af03773c551434b7aa8266d89be12c",
+     "name": "vyhlad.png",
+     "mime": "image/png",
+     "size": 1811
+    },
+    {
+     "bid": "d0008",
+     "t": "list",
+     "kind": "check",
+     "items": [
+      {
+       "bid": "d0004",
+       "checked": true,
+       "content": [
+        {
+         "bid": "d0005",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Kúpiť lístky"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0006",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0007",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Zbaliť batoh"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0009",
+     "t": "attachment",
+     "blob": "blake3:d50cf9c4342eb9d95e688788fe29eddb631f17424178cd1e296ada2389dcdc0c",
+     "name": "zoznam-veci.txt",
+     "mime": "text/plain",
+     "size": 60
+    }
+   ]
+  },
+  {
+   "notebook": "travel",
+   "title": "Plán dovolenky",
+   "tags": [
+    "výlet"
+   ],
+   "ageDays": 6,
+   "content": [
+    {
+     "bid": "d0013",
+     "t": "table",
+     "rows": [
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0001",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Deň"
+            }
+           ]
+          }
+         ],
+         "header": true
+        },
+        {
+         "content": [
+          {
+           "bid": "d0002",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Miesto"
+            }
+           ]
+          }
+         ],
+         "header": true
+        },
+        {
+         "content": [
+          {
+           "bid": "d0003",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Ubytovanie"
+            }
+           ]
+          }
+         ],
+         "header": true
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0004",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "1"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0005",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Bratislava"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0006",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "hotel pri Dunaji"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0007",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "2"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0008",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Banská Štiavnica"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0009",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "penzión"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0010",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "3"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0011",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Vysoké Tatry"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0012",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "chata"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0014",
+     "t": "bookmark",
+     "url": "https://example.com/map",
+     "title": "Mapa trasy"
+    }
+   ]
+  },
+  {
+   "notebook": "travel",
+   "title": "Výstup na Rysy",
+   "tags": [
+    "výlet",
+    "hory"
+   ],
+   "ageDays": 12,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Prevýšenie 1 100 m, čas výstupu asi 4 hodiny. Chata pod Rysmi má najvyššie položenú reštauráciu."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "quote",
+     "content": [
+      {
+       "bid": "d0003",
+       "t": "paragraph",
+       "text": [
+        {
+         "s": "Hory sa nikam nesťahujú. Počasie áno."
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "food",
+   "title": "Bryndzové halušky",
+   "tags": [
+    "recept"
+   ],
+   "ageDays": 4,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Suroviny"
+      }
+     ]
+    },
+    {
+     "bid": "d0010",
+     "t": "list",
+     "kind": "bullet",
+     "items": [
+      {
+       "bid": "d0002",
+       "content": [
+        {
+         "bid": "d0003",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "1 kg zemiakov"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0004",
+       "content": [
+        {
+         "bid": "d0005",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "300 g hladkej múky"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0006",
+       "content": [
+        {
+         "bid": "d0007",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "250 g bryndze"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0008",
+       "content": [
+        {
+         "bid": "d0009",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "100 g slaniny"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0011",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Postup"
+      }
+     ]
+    },
+    {
+     "bid": "d0020",
+     "t": "list",
+     "kind": "ordered",
+     "items": [
+      {
+       "bid": "d0012",
+       "content": [
+        {
+         "bid": "d0013",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Zemiaky ošúp a nastrúhaj."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0014",
+       "content": [
+        {
+         "bid": "d0015",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Primiešaj múku a soľ."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0016",
+       "content": [
+        {
+         "bid": "d0017",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Halušky hádž do vriacej vody."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0018",
+       "content": [
+        {
+         "bid": "d0019",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Zmiešaj s bryndzou a posyp slaninkou."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "food",
+   "title": "Jablkový koláč",
+   "tags": [
+    "recept",
+    "koláč"
+   ],
+   "ageDays": 9,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Rýchly koláč na plech: "
+      },
+      {
+       "s": "4 jablká",
+       "marks": [
+        "bold"
+       ]
+      },
+      {
+       "s": ", 3 vajcia, 200 g cukru, 250 g múky, prášok do pečiva."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Pečieme 35 minút pri 180 °C."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "food",
+   "title": "Nákupný zoznam",
+   "tags": [
+    "nákup"
+   ],
+   "ageDays": 0,
+   "content": [
+    {
+     "bid": "d0009",
+     "t": "list",
+     "kind": "check",
+     "items": [
+      {
+       "bid": "d0001",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0002",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "mlieko"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0003",
+       "checked": true,
+       "content": [
+        {
+         "bid": "d0004",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "chlieb"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0005",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0006",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "vajcia"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0007",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0008",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "káva"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "work",
+   "title": "Porada tímu – zápis",
+   "tags": [
+    "porada"
+   ],
+   "ageDays": 2,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Prítomní"
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Jana, Peter, Lucia"
+      }
+     ]
+    },
+    {
+     "bid": "d0003",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Rozhodnutia"
+      }
+     ]
+    },
+    {
+     "bid": "d0008",
+     "t": "list",
+     "kind": "bullet",
+     "items": [
+      {
+       "bid": "d0004",
+       "content": [
+        {
+         "bid": "d0005",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Nová verzia vyjde v piatok."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0006",
+       "content": [
+        {
+         "bid": "d0007",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Testovanie preberá Lucia."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0009",
+     "t": "heading",
+     "level": 2,
+     "text": [
+      {
+       "s": "Úlohy"
+      }
+     ]
+    },
+    {
+     "bid": "d0014",
+     "t": "list",
+     "kind": "check",
+     "items": [
+      {
+       "bid": "d0010",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0011",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Pripraviť poznámky k vydaniu"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0012",
+       "checked": false,
+       "content": [
+        {
+         "bid": "d0013",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Aktualizovať dokumentáciu"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "work",
+   "title": "Projekt Atlas – prehľad",
+   "tags": [
+    "projekt"
+   ],
+   "ageDays": 5,
+   "content": [
+    {
+     "bid": "d0013",
+     "t": "table",
+     "rows": [
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0001",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Fáza"
+            }
+           ]
+          }
+         ],
+         "header": true
+        },
+        {
+         "content": [
+          {
+           "bid": "d0002",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Termín"
+            }
+           ]
+          }
+         ],
+         "header": true
+        },
+        {
+         "content": [
+          {
+           "bid": "d0003",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Stav"
+            }
+           ]
+          }
+         ],
+         "header": true
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0004",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Návrh"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0005",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "15. 3."
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0006",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "hotové"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0007",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Vývoj"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0008",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "30. 6."
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0009",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "prebieha"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "content": [
+          {
+           "bid": "d0010",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "Spustenie"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0011",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "1. 9."
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "content": [
+          {
+           "bid": "d0012",
+           "t": "paragraph",
+           "text": [
+            {
+             "s": "plán"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "bid": "d0014",
+     "t": "quote",
+     "content": [
+      {
+       "bid": "d0015",
+       "t": "paragraph",
+       "text": [
+        {
+         "s": "Cieľ: jednoduchá aplikácia, ktorú ľudia radi používajú."
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "work",
+   "title": "Nápady na zlepšenie",
+   "tags": [
+    "nápady"
+   ],
+   "ageDays": 8,
+   "content": [
+    {
+     "bid": "d0007",
+     "t": "list",
+     "kind": "bullet",
+     "items": [
+      {
+       "bid": "d0001",
+       "content": [
+        {
+         "bid": "d0002",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Tmavý režim pre prezentácie"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0003",
+       "content": [
+        {
+         "bid": "d0004",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Kratšie porady – najviac 30 minút"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "bid": "d0005",
+       "content": [
+        {
+         "bid": "d0006",
+         "t": "paragraph",
+         "text": [
+          {
+           "s": "Spoločný slovník pojmov"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "langs",
+   "title": "Čeština",
+   "tags": [
+    "čeština"
+   ],
+   "ageDays": 3,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Příliš žluťoučký kůň úpěl ďábelské ódy."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Skús hľadať „zlutoucky kun“."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "langs",
+   "title": "Magyar",
+   "tags": [
+    "magyar"
+   ],
+   "ageDays": 3,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Árvíztűrő tükörfúrógép."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Skús hľadať „arvizturo“."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "langs",
+   "title": "Polski",
+   "tags": [
+    "polski"
+   ],
+   "ageDays": 3,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Zażółć gęślą jaźń. Spotkanie w Łodzi o 10:00."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Skús hľadať „lodzi“ – ł sa hľadá ako l."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "langs",
+   "title": "Русский",
+   "tags": [
+    "русский"
+   ],
+   "ageDays": 3,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Съешь же ещё этих мягких французских булок, да выпей чаю."
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Skús hľadať „еще“ – ё sa hľadá ako е."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "langs",
+   "title": "中文",
+   "tags": [
+    "中文"
+   ],
+   "ageDays": 3,
+   "content": [
+    {
+     "bid": "d0001",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "加密笔记很重要，同步也很方便。"
+      }
+     ]
+    },
+    {
+     "bid": "d0002",
+     "t": "paragraph",
+     "text": [
+      {
+       "s": "Skús hľadať „笔记“ – nájde sa aj uprostred vety."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "notebook": "langs",
+   "title": "Prázdna poznámka",
+   "tags": [],
+   "ageDays": 4,
+   "content": []
+  }
+ ],
+ "blobs": {
+  "blake3:8c1131f3632cb93fd962ac50eaba39a588af03773c551434b7aa8266d89be12c": "iVBORw0KGgoAAAANSUhEUgAAAUAAAAC0CAIAAABqhmJGAAAG2klEQVR42u3cN45cVxBA0VqOFqFYi1CiHShRIu+999570Xt57yi7kUqUKBeFFgYjmmaz+5tX7x/gBsMCk65blxjOAyZuPJAAihJWABQO+KYDCaAocdPBBFCUuPlgAiiKgIHKAd9yKAEURcBA5YBvPZQAihK3HU4ARREwUDng2w8ngKLE7UcSQFHijiMJoCgCBioHfOfRBFAUAQOVA77raAIoStx9LAEURcBA5YDvOZYAihL3HE8ARYl7jyeAoggYqBzwfScSQFEEDFQO+P4TCaAo8cDJBFAUAQOVA37wZAIoSjx4KgEUJR46lQCKImCgcsAPn04ARREwUDngR04ngKLEo2cSQFEEDFQO+LEzCaAo8ddff5/jsY8T/bGSy2/HfmPP8eMfJ3pizyy/HfsNjpdQL7+9+o3zHD/xSaI6F62X3y79BsfLqZff/vzGRR0/+UmiIpetl9/O/MalHD/1aaIWG9bLb09+g+MF1stvN35jveOnP020zxb18tuH39hI82eJNtk6XX778BsbOn7ms0RrDFIvv6X9Bsfq5beu37j+htvOseHffvbzRAts6Gsll9+O/QbH3dfLb8d+YwvHz32emIvt6uW3V7+xnePnv0hMzy718tul3+B4OfXy25/f2MXxC18kpmGoevntzG/s6PhfzV8mxmNzERvWy29PfmMQxy9+mRiDkerltxu/wfEy6+W3D78xoOaXvkoMxdjp8tuH3+B44fXyW9pvDO745a8SuzB9vfzW9RtjOH7l68R2zFUvv0X9Bsfq5beu3xjP8atfJzanhXr5Lec3xn5+ePWbxHomeC7it1e/MYHj175JXIoG6+W3kN/gWL381vUbk2l+/dvEflpOl98qfoNj9fJb129M7PiNbxO16uW3Zb8xveM3v8slU7Fefpv1Gxyrl9+6fmMux299l0ujer38Nug35n1+eOv7XAKNPxfxW9dvzO747e+zbzqrl9+m/AbH6uW3rt9oRPM7P2R/9Jouv+34DY7Vy29dv9GU43d/yD5YTr38zus3WnP83o9ZnaXVy++MfoNj9fJb12+06fj9H7MiS66X31n8RsvPD+//lFXo+LmI35b9RuOOP/gp20e9/M7lNzhWL791/UYJzR/+nG0iXX7n9Rscq5ffun6jkOOPfs5zXH3dNStWf5yL7uvd2/PEfhthMr877jlq/Tu992lXHDibs7CceidueC6hc/ndfc9R5Xut8z7qjBn3Xe+aPS+k4Wn8DrXnKPH/pTWfdsXBszkNi613yoYnszmX3wH3HI3/zOOyH/V/Gf+S49H3c9EV7Xma56VRbc7ld/A9R8s/t7yiT7vi0C85BuqdpeGRbM7ld4w9R5sntV29IzWs3r4bbrbeTfYcPZ3Ufg7/moMg3dkzHkrlXH5H3XN0eVVDNazevhuuUu+aPUeXJ7WfI7/mdvRa70h7HrvhrT3O5XeaPUffV7Xi6G95pai3wYa38DiX38n2HH2f1HYZd1nvZHtuv+FR/U6851jIVa049lteFvU23vAmEufyO/2eYzlX9V/Dv+el6PW5aJY9j/28tMbjXH5n2XMs56T2c/z3PI8u6519z6M2fKHENYzqd8YNxwKv6sKG1dt3w73WO3XAjZzUfk78kdItnfE5g+vpNd2pA27wqlaot+OG+653ooCbPakNM5bujBlvWODJP/JCRqq3qX2Gq1rfsHqrNHzqz9zPEuodPeBCV3XRhtVbtOGF1DtiwOVO6sKMpdtUxhs2eXqcepvdYbiqMX53jHpnbHg59Q4fcAcnVSLjxe554nrbX124qnINL3zP6h0+4C5PqsGM7XmXjLvcc7iqKg3b8y4N97rncFUlGrbnXRrueM/hpBrP2J53bLjvPYerarlhe96x4e73HE6qzYyt94r2vHW91ZcTrqrBhi1294YXsudwUk1lbJm77HnzervZSbiqdhq2xkEaXtSew1U10rAF2vPAAbuVac7L0ux5+ICdyDS3ZV32PHDALmOa87Iiex4+YAcxzW1Zjj0PHLA7mOa8LMSehw+Y/mluyyrsefiAiZ/mtizBnocPmHJAwAAEDEDAgIABCBiAgAEIGBAwAAEDEDAgYAACBiBgAAIGBAxAwAAEDEDAgIABzB3wVdc+v+LaR8/ufW1oaFhiGBZhaFh3GBZhaFh3GBZhaFh3GBZhaFh3GBZhaFh3GBZhaFh36BnJ0NAzkqGhoWckQ0NDz0iGhp6RDA0NPSMZGhp6RjI0NPSMZGjoGcnQ0NAzkqGhoWckQ0PPSBZhaOgZydDQ0DOSoaGhZyRDQ89IhoaGnpEMDQ09IxkaGnpGMjT0jGRoaOgZydDQ0DOSoeESh/8AVEJEACOg47wAAAAASUVORK5CYII=",
+  "blake3:d50cf9c4342eb9d95e688788fe29eddb631f17424178cd1e296ada2389dcdc0c": "Wm96bmFtIHZlY8OtIG5hIHbDvWxldAotIHBldm7DoSBvYnV2Ci0gcHLFoWlwbMOhxaHFpQotIG1hcGEK"
+ }
+}
