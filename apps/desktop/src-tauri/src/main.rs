@@ -8,7 +8,8 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex, MutexGuard};
 
 use altais_core::{
-    Core, CoreError, ImportOutcome, NoteData, NoteEdit, NoteInfo, NotebookInfo, Secret, Status,
+    AttachmentInfo, Core, CoreError, ImportOutcome, NoteData, NoteEdit, NoteInfo, NotebookInfo,
+    Secret, Status,
 };
 use altais_storage::{KeyStore, OsKeyStore};
 use tauri::{Manager, State};
