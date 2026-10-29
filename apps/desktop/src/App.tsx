@@ -221,6 +221,7 @@ function Main({ api, onLock }: { api: Backend; onLock: () => void }) {
   const [outcomes, setOutcomes] = useState<ImportOutcome[] | null>(null);
   const [error, setError] = useState("");
   const [reload, setReload] = useState(0);
+  const [showSettings, setShowSettings] = useState(false);
 
   const refreshNotebooks = useCallback(() => api.notebooks().then(setNotebooks), [api]);
   useEffect(() => {
@@ -323,6 +324,9 @@ function Main({ api, onLock }: { api: Backend; onLock: () => void }) {
           <button className="block" onClick={runImport} disabled={importing} data-testid="import">
             {importing ? t.importing : t.importEvernote}
           </button>
+          <button className="block subtle" onClick={() => setShowSettings(true)} data-testid="settings">
+            {t.settings}
+          </button>
           <button className="block subtle" onClick={onLock}>
             {t.lock}
           </button>
@@ -370,6 +374,140 @@ function Main({ api, onLock }: { api: Backend; onLock: () => void }) {
       </main>
 
       {outcomes && <ImportReport outcomes={outcomes} onClose={() => setOutcomes(null)} />}
+      {showSettings && <Settings api={api} onClose={() => setShowSettings(false)} />}
+    </div>
+  );
+}
+
+function Settings({ api, onClose }: { api: Backend; onClose: () => void }) {
+  const [status, setStatus] = useState<Status | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [password, setPassword] = useState("");
+  const [again, setAgain] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [recoveryKey, setRecoveryKey] = useState<string | null>(null);
+  const [savedKey, setSavedKey] = useState(false);
+
+  useEffect(() => {
+    void api.status().then(setStatus);
+  }, [api]);
+
+  async function run(action: () => Promise<Status | void>, done: string) {
+    setError("");
+    setMessage("");
+    try {
+      const next = await action();
+      if (next) setStatus(next);
+      setMessage(done);
+    } catch (e) {
+      setError(errorText(e));
+    }
+  }
+
+  if (recoveryKey) {
+    return (
+      <div className="modal-backdrop" role="dialog" aria-modal="true" data-testid="settings-dialog">
+        <div className="modal">
+          <h2>{t.newRecoveryKeyTitle}</h2>
+          <p>{t.newRecoveryKeyText}</p>
+          <p className="recovery-key" data-testid="new-recovery-key">
+            {recoveryKey}
+          </p>
+          <label className="check">
+            <input type="checkbox" checked={savedKey} onChange={(e) => setSavedKey(e.target.checked)} />
+            {t.recoverySaved}
+          </label>
+          <button className="primary" disabled={!savedKey} onClick={() => setRecoveryKey(null)}>
+            {t.continue}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="modal-backdrop" role="dialog" aria-modal="true" data-testid="settings-dialog">
+      <div className="modal settings">
+        <h2>{t.settings}</h2>
+        {status && (
+          <>
+            <p className="muted small">
+              {t.archiveFolder}: <code>{status.dir}</code>
+            </p>
+            <h3>{t.password}</h3>
+            <p data-testid="password-state">{status.hasPassword ? t.passwordOn : t.passwordOff}</p>
+            {status.hasPassword && !status.hasKeystore && <p className="muted small">{t.passwordRequired}</p>}
+            {editing ? (
+              <form
+                className="stack"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (password !== again) return setError(t.passwordsDiffer);
+                  await run(async () => {
+                    const next = await api.setPassword(password);
+                    setEditing(false);
+                    setPassword("");
+                    setAgain("");
+                    return next;
+                  }, t.passwordSet);
+                }}
+              >
+                <label>
+                  {t.newPassword}
+                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoFocus />
+                </label>
+                <label>
+                  {t.passwordAgain}
+                  <input type="password" value={again} onChange={(e) => setAgain(e.target.value)} />
+                </label>
+                <div className="row">
+                  <button className="primary" disabled={!password}>
+                    {t.savePassword}
+                  </button>
+                  <button type="button" onClick={() => setEditing(false)}>
+                    {t.cancel}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="row">
+                <button onClick={() => setEditing(true)}>{status.hasPassword ? t.changePassword : t.setPassword}</button>
+                {status.hasPassword && status.hasKeystore && (
+                  <button onClick={() => run(() => api.removePassword(), t.passwordRemoved)}>{t.removePassword}</button>
+                )}
+              </div>
+            )}
+            <h3>{t.recoveryKey}</h3>
+            <p className="muted small">{t.recoveryKeyHint}</p>
+            <div className="row">
+              <button
+                onClick={async () => {
+                  setError("");
+                  try {
+                    setRecoveryKey(await api.newRecoveryKey());
+                    setSavedKey(false);
+                    setMessage(t.recoveryReplaced);
+                  } catch (e) {
+                    setError(errorText(e));
+                  }
+                }}
+              >
+                {t.createNewRecoveryKey}
+              </button>
+            </div>
+          </>
+        )}
+        {message && (
+          <p className="ok" data-testid="settings-message">
+            {message}
+          </p>
+        )}
+        {error && <p className="error">{error}</p>}
+        <button className="primary" onClick={onClose}>
+          {t.close}
+        </button>
+      </div>
     </div>
   );
 }

@@ -105,3 +105,38 @@ test("pictures show in the note; attachments can be saved and added", async ({ p
   await expect(editor.locator(".attachment-file", { hasText: "zoznam.txt" })).toBeVisible();
   await expect(page.getByTestId("save-state")).toHaveText("Uložené");
 });
+
+test("settings: set, change and remove the password; replace the recovery key", async ({ page }) => {
+  await createArchive(page);
+  await page.getByTestId("settings").click();
+  const dialog = page.getByTestId("settings-dialog");
+  await expect(dialog.getByTestId("password-state")).toContainText("Heslo nie je nastavené");
+
+  await dialog.getByRole("button", { name: "Nastaviť heslo" }).click();
+  await dialog.getByLabel("Nové heslo").fill("Lomnický štít");
+  await dialog.getByLabel("Heslo ešte raz").fill("Lomnicky stit");
+  await dialog.getByRole("button", { name: "Uložiť heslo" }).click();
+  await expect(dialog).toContainText("Heslá sa nezhodujú.");
+  await dialog.getByLabel("Heslo ešte raz").fill("Lomnický štít");
+  await dialog.getByRole("button", { name: "Uložiť heslo" }).click();
+  await expect(dialog.getByTestId("settings-message")).toHaveText("Heslo je nastavené.");
+  await expect(dialog.getByTestId("password-state")).toContainText("chránený heslom");
+
+  // A new recovery key must be confirmed as saved.
+  await dialog.getByRole("button", { name: "Vytvoriť nový záchranný kľúč" }).click();
+  await expect(dialog.getByTestId("new-recovery-key")).toContainText("ALTAIS-");
+  const next = dialog.getByRole("button", { name: "Pokračovať" });
+  await expect(next).toBeDisabled();
+  await dialog.getByLabel("Záchranný kľúč mám bezpečne uložený").check();
+  await next.click();
+
+  await dialog.getByRole("button", { name: "Zavrieť" }).click();
+  await page.getByRole("button", { name: "Zamknúť" }).click();
+  await page.getByLabel("Heslo").fill("Lomnický štít");
+  await page.getByRole("button", { name: "Otvoriť" }).click();
+  await expect(page.getByTestId("sidebar")).toBeVisible();
+
+  await page.getByTestId("settings").click();
+  await dialog.getByRole("button", { name: "Zrušiť heslo" }).click();
+  await expect(dialog.getByTestId("password-state")).toContainText("Heslo nie je nastavené");
+});

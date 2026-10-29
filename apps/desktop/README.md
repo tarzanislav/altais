@@ -17,7 +17,9 @@ What it does now:
   with a report of what was imported only partly;
 - attachments: pictures are shown in the note, other files as a card; every
   attachment can be saved with "Save as…", and files can be added with 📎;
-- moving notes to the trash.
+- moving notes to the trash;
+- settings: set, change or remove the password, and create a new recovery
+  key (the old one stops working; the new one must be confirmed as saved).
 
 The archive lives in `%APPDATA%\io.github.tarzanislav.altais\archive`.
 

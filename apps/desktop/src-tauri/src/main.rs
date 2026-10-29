@@ -96,6 +96,21 @@ fn import_enex(state: State<'_, AppState>, paths: Vec<PathBuf>) -> Reply<Vec<Imp
     state.core().import_enex(&paths)
 }
 
+#[tauri::command(async)]
+fn set_password(state: State<'_, AppState>, password: String) -> Reply<Status> {
+    state.core().set_password(password)
+}
+
+#[tauri::command(async)]
+fn remove_password(state: State<'_, AppState>) -> Reply<Status> {
+    state.core().remove_password()
+}
+
+#[tauri::command(async)]
+fn new_recovery_key(state: State<'_, AppState>) -> Reply<String> {
+    state.core().new_recovery_key()
+}
+
 /// Attachment content as raw bytes (an ArrayBuffer in the interface, not JSON).
 #[tauri::command(async)]
 fn attachment(state: State<'_, AppState>, blob: String) -> Reply<tauri::ipc::Response> {
@@ -140,7 +155,10 @@ fn main() {
             import_enex,
             attachment,
             save_attachment,
-            add_attachment
+            add_attachment,
+            set_password,
+            remove_password,
+            new_recovery_key
         ])
         .run(tauri::generate_context!())
         .expect("ALTAIS could not start");
