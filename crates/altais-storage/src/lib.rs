@@ -1,12 +1,14 @@
 //! The encrypted local archive of ALTAIS.
 //!
-//! An archive is a folder with two files:
+//! An archive is a folder with two files and a folder:
 //!
 //! - `archive.db`: a SQLCipher database (SQLite encrypted with AES-256 and
 //!   HMAC-SHA512 page authentication) holding notebooks, notes, tags and
 //!   attachments;
 //! - `keys.json`: encrypted copies of the database key (see [`keys`] and
-//!   ADR-0008).
+//!   ADR-0008);
+//! - `blobs/`: attachment content, one encrypted file per content (see
+//!   [`blobstore`] and ADR-0009).
 //!
 //! ```no_run
 //! use std::sync::Arc;
@@ -21,6 +23,7 @@
 //! ```
 
 mod archive;
+pub mod blobstore;
 mod error;
 pub mod fold;
 pub mod keys;

@@ -65,8 +65,10 @@ in one place completes it everywhere.
   two-character word is found inside a sentence. Words match as prefixes;
   quoted text and Chinese words match as written; the title counts five times
   as much as the body.
-- Attachments: content-addressed (BLAKE3), split with FastCDC, encrypted with
-  a random per-file key. Originals are never modified.
+- Attachments: content-addressed (BLAKE3); locally one encrypted file per
+  content under `blobs/` (XChaCha20-Poly1305, keyed file names, keys derived
+  from the archive key; [ADR-0009](adr/0009-attachment-files.md)). For sync,
+  split with FastCDC into encrypted chunks. Originals are never modified.
 - A local edit, its encrypted envelope in the outbox and the index dirty flag
   are written in **one transaction**. "Saved on this device" is shown only
   after the commit.
