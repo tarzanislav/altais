@@ -510,7 +510,11 @@ function NoteView({
       if (cancelled || !mount.current) return;
       title.current = note.title;
       setTitleValue(note.title);
-      editor.current = createNoteEditor(mount.current, note.content, schedule);
+      editor.current = createNoteEditor(mount.current, note.content, schedule, {
+        load: (blob) => api.attachment(blob),
+        save: (blob, name) => api.saveAttachment(blob, name),
+        labels: { saveAs: t.saveAs, cannotLoad: t.cannotLoadAttachment },
+      });
       setLoaded(true);
     });
     return () => {
@@ -540,6 +544,18 @@ function NoteView({
             </button>
           ))}
         </div>
+        <button
+          title={t.addAttachment}
+          aria-label={t.addAttachment}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={async () => {
+            const info = await api.addAttachment();
+            if (info) editor.current?.insertAttachment(info);
+          }}
+          data-testid="add-attachment"
+        >
+          📎
+        </button>
         <span className={saveState === "error" ? "save-state error" : "save-state"} data-testid="save-state">
           {status}
         </span>

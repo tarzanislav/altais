@@ -393,3 +393,54 @@ nav {
 .outcome p {
   margin: 0;
 }
+
+/* Attachments */
+.ProseMirror .attachment {
+  margin: 8px 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--fg);
+  border-style: solid;
+}
+.ProseMirror .attachment.ProseMirror-selectednode {
+  outline: 2px solid var(--accent);
+}
+.attachment-image img {
+  display: block;
+  max-width: 100%;
+  max-height: 60vh;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+.attachment-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.attachment-icon {
+  font-size: 1.6rem;
+}
+.attachment-caption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  font-size: 0.9rem;
+}
+.attachment-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.attachment-size {
+  color: var(--muted);
+}
+.attachment-save {
+  margin-left: auto;
+  padding: 2px 8px;
+  font-size: 0.85rem;
+}
+.attachment-missing {
+  color: var(--error);
+  margin-bottom: 6px;
+}

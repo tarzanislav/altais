@@ -43,6 +43,13 @@ export interface ImportOutcome {
   stoppedEarly: string | null;
 }
 
+export interface AttachmentInfo {
+  blob: string;
+  name: string;
+  mime: string;
+  size: number;
+}
+
 /** An error from the core: `code` is stable and translated by the interface. */
 export interface CoreError {
   code: string;
@@ -68,13 +75,19 @@ export interface Backend {
   trashNote(id: string): Promise<void>;
   /** Asks the user for ENEX files and imports them; null if cancelled. */
   importEnex(): Promise<ImportOutcome[] | null>;
+  /** The content of an attachment. */
+  attachment(blob: string): Promise<Uint8Array>;
+  /** Asks where to save an attachment and writes it; false if cancelled. */
+  saveAttachment(blob: string, name: string): Promise<boolean>;
+  /** Asks for a file and stores it as an attachment; null if cancelled. */
+  addAttachment(): Promise<AttachmentInfo | null>;
 }
 
 // ---------------- Tauri ----------------
 
 async function tauriBackend(): Promise<Backend> {
   const { invoke } = await import("@tauri-apps/api/core");
-  const { open } = await import("@tauri-apps/plugin-dialog");
+  const { open, save } = await import("@tauri-apps/plugin-dialog");
   return {
     status: () => invoke("status"),
     create: (password) => invoke("create_archive", { password }),
@@ -98,6 +111,20 @@ async function tauriBackend(): Promise<Backend> {
       const paths = Array.isArray(picked) ? picked : [picked];
       return invoke("import_enex", { paths });
     },
+    async attachment(blob) {
+      return new Uint8Array(await invoke<ArrayBuffer>("attachment", { blob }));
+    },
+    async saveAttachment(blob, name) {
+      const path = await save({ defaultPath: name });
+      if (!path) return false;
+      await invoke("save_attachment", { blob, path });
+      return true;
+    },
+    async addAttachment() {
+      const path = await open({ multiple: false, directory: false });
+      if (!path || Array.isArray(path)) return null;
+      return invoke("add_attachment", { path });
+    },
   };
 }
 
@@ -115,6 +142,8 @@ export function memoryBackend(): Backend {
   let recovery = "";
   const notebooks = new Map<string, string>();
   const notes = new Map<string, NoteData & { trashed: boolean }>();
+  const blobs = new Map<string, Uint8Array>();
+  const saved: string[] = [];
   let counter = 0;
   const id = () => `0192b6e1-2d3c-7f40-8a51-${(++counter).toString(16).padStart(12, "0")}`;
   const now = () => new Date().toISOString();
@@ -219,7 +248,34 @@ export function memoryBackend(): Backend {
       notebooks.set(nid, "Ukážka z Evernote");
       add(example.title, nid, example.content);
       add("Druhá poznámka", nid, [{ t: "paragraph", bid: "p0001", text: [{ s: "Zoznam úloh na víkend" }] }]);
-      return [{ file: "ukazka.enex", notebook: "Ukážka z Evernote", stored: 2, partial: [], attachments: 0, stoppedEarly: null }];
+      const png = Uint8Array.from(atob(SAMPLE_PNG), (c) => c.charCodeAt(0));
+      const blob = "blake3:" + "ab".repeat(32);
+      blobs.set(blob, png);
+      add("Fotka z výletu", nid, [
+        { t: "paragraph", bid: "p0001", text: [{ s: "Výhľad z Rysov:" }] },
+        { t: "attachment", bid: "a0001", blob, name: "rysy.png", mime: "image/png", size: png.length },
+        { t: "attachment", bid: "a0002", blob, name: "trasa.gpx", mime: "application/octet-stream", size: png.length },
+      ]);
+      return [{ file: "ukazka.enex", notebook: "Ukážka z Evernote", stored: 3, partial: [], attachments: 1, stoppedEarly: null }];
+    },
+    async attachment(blob) {
+      guard();
+      const data = blobs.get(blob);
+      if (!data) throw err("missing_attachment", "the attachment is not in the archive");
+      return data;
+    },
+    async saveAttachment(blob, name) {
+      guard();
+      saved.push(`${name}:${blob}`);
+      (window as unknown as { savedAttachments: string[] }).savedAttachments = saved;
+      return true;
+    },
+    async addAttachment() {
+      guard();
+      const data = new TextEncoder().encode("Zoznam vecí na výlet");
+      const blob = "blake3:" + "cd".repeat(32);
+      blobs.set(blob, data);
+      return { blob, name: "zoznam.txt", mime: "text/plain", size: data.length };
     },
   };
 }
@@ -231,3 +287,6 @@ export function backend(): Promise<Backend> {
   backendPromise ??= "__TAURI_INTERNALS__" in window ? tauriBackend() : Promise.resolve(memoryBackend());
   return backendPromise;
 }
+
+/** A small blue PNG used by the in-memory backend's sample import. */
+const SAMPLE_PNG = "iVBORw0KGgoAAAANSUhEUgAAACgAAAAYCAIAAAAH5iiXAAAAK0lEQVR4nGPUj9/MMBCAaUBsHbV41OJRi0ctHrV41OJRi0ctHrV41GKaAABSywFxu8WDeQAAAABJRU5ErkJggg==";

@@ -5,7 +5,7 @@
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use altais_model::{Block, Document, ObjectId};
+use altais_model::{BlobRef, Block, Document, ObjectId};
 use altais_storage::{Archive, KeyStore, RecoveryKey, StorageError, Unlock};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
@@ -149,6 +149,58 @@ pub struct NoteEdit {
     pub title: String,
     /// New content as ADM blocks.
     pub content: Vec<Value>,
+}
+
+/// A stored attachment, as the editor inserts it.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AttachmentInfo {
+    /// Content address.
+    pub blob: String,
+    /// File name.
+    pub name: String,
+    /// MIME type guessed from the file name.
+    pub mime: String,
+    /// Size in bytes.
+    pub size: u64,
+}
+
+/// MIME type from a file name's extension (common types; anything else is
+/// `application/octet-stream`).
+pub fn mime_for(name: &str) -> &'static str {
+    let ext = name
+        .rsplit_once('.')
+        .map(|(_, e)| e.to_ascii_lowercase())
+        .unwrap_or_default();
+    match ext.as_str() {
+        "png" => "image/png",
+        "jpg" | "jpeg" => "image/jpeg",
+        "gif" => "image/gif",
+        "webp" => "image/webp",
+        "bmp" => "image/bmp",
+        "svg" => "image/svg+xml",
+        "heic" => "image/heic",
+        "pdf" => "application/pdf",
+        "txt" => "text/plain",
+        "md" => "text/markdown",
+        "csv" => "text/csv",
+        "html" | "htm" => "text/html",
+        "doc" => "application/msword",
+        "docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "xls" => "application/vnd.ms-excel",
+        "xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "ppt" => "application/vnd.ms-powerpoint",
+        "pptx" => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "odt" => "application/vnd.oasis.opendocument.text",
+        "ods" => "application/vnd.oasis.opendocument.spreadsheet",
+        "zip" => "application/zip",
+        "mp3" => "audio/mpeg",
+        "m4a" => "audio/mp4",
+        "wav" => "audio/wav",
+        "mp4" => "video/mp4",
+        "mov" => "video/quicktime",
+        _ => "application/octet-stream",
+    }
 }
 
 fn parse_id(id: &str) -> Result<ObjectId> {
@@ -384,6 +436,40 @@ impl Core {
     /// Moves a note to the trash.
     pub fn trash_note(&self, id: &str) -> Result<()> {
         Ok(self.archive()?.trash_note(parse_id(id)?)?)
+    }
+
+    /// The content of an attachment.
+    pub fn attachment(&self, blob: &str) -> Result<Vec<u8>> {
+        let blob: BlobRef = blob
+            .parse()
+            .map_err(|_| CoreError::new("bad_id", format!("not a content address: {blob}")))?;
+        self.archive()?.blob(&blob)?.ok_or_else(|| {
+            CoreError::new("missing_attachment", "the attachment is not in the archive")
+        })
+    }
+
+    /// Writes an attachment to a file the user chose.
+    pub fn save_attachment(&self, blob: &str, path: &Path) -> Result<()> {
+        let data = self.attachment(blob)?;
+        std::fs::write(path, data)
+            .map_err(|e| CoreError::new("cannot_write_file", format!("{}: {e}", path.display())))
+    }
+
+    /// Stores a file as an attachment; the editor then inserts the returned block data.
+    pub fn add_attachment(&self, path: &Path) -> Result<AttachmentInfo> {
+        let data = std::fs::read(path)
+            .map_err(|e| CoreError::new("cannot_read_file", format!("{}: {e}", path.display())))?;
+        let name = path
+            .file_name()
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_else(|| "file".into());
+        let blob = self.archive()?.put_blob(&data)?;
+        Ok(AttachmentInfo {
+            blob: blob.to_string(),
+            mime: mime_for(&name).to_owned(),
+            size: data.len() as u64,
+            name,
+        })
     }
 
     /// Imports Evernote exports, one notebook per file (named after the file).

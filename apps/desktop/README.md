@@ -15,6 +15,8 @@ What it does now:
   tables, code, Word paste; notes save themselves 0.6 s after the last change;
 - import of Evernote exports (`.enex`, several at once, one notebook per file)
   with a report of what was imported only partly;
+- attachments: pictures are shown in the note, other files as a card; every
+  attachment can be saved with "Save as…", and files can be added with 📎;
 - moving notes to the trash.
 
 The archive lives in `%APPDATA%\io.github.tarzanislav.altais\archive`.

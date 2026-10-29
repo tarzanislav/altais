@@ -8,7 +8,8 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex, MutexGuard};
 
 use altais_core::{
-    Core, CoreError, ImportOutcome, NoteData, NoteEdit, NoteInfo, NotebookInfo, Secret, Status,
+    AttachmentInfo, Core, CoreError, ImportOutcome, NoteData, NoteEdit, NoteInfo, NotebookInfo,
+    Secret, Status,
 };
 use altais_storage::{KeyStore, OsKeyStore};
 use tauri::{Manager, State};
@@ -95,6 +96,22 @@ fn import_enex(state: State<'_, AppState>, paths: Vec<PathBuf>) -> Reply<Vec<Imp
     state.core().import_enex(&paths)
 }
 
+/// Attachment content as raw bytes (an ArrayBuffer in the interface, not JSON).
+#[tauri::command(async)]
+fn attachment(state: State<'_, AppState>, blob: String) -> Reply<tauri::ipc::Response> {
+    Ok(tauri::ipc::Response::new(state.core().attachment(&blob)?))
+}
+
+#[tauri::command(async)]
+fn save_attachment(state: State<'_, AppState>, blob: String, path: PathBuf) -> Reply<()> {
+    state.core().save_attachment(&blob, &path)
+}
+
+#[tauri::command(async)]
+fn add_attachment(state: State<'_, AppState>, path: PathBuf) -> Reply<AttachmentInfo> {
+    state.core().add_attachment(&path)
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -120,7 +137,10 @@ fn main() {
             new_note,
             save_note,
             trash_note,
-            import_enex
+            import_enex,
+            attachment,
+            save_attachment,
+            add_attachment
         ])
         .run(tauri::generate_context!())
         .expect("ALTAIS could not start");

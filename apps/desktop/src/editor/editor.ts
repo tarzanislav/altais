@@ -12,6 +12,9 @@ import { type AdmBlock, admBlocksToDoc, docToAdmBlocks } from "./adm";
 import { bidsPlugin, fixBids } from "./bids";
 import { cleanPastedHtml } from "./paste";
 import { schema } from "./schema";
+import { type AttachmentHandler, attachmentView } from "./attachment-view";
+
+export type { AttachmentHandler };
 
 const n = schema.nodes;
 const m = schema.marks;
@@ -102,11 +105,18 @@ export interface NoteEditor {
   /** The current content as ADM blocks. */
   content(): AdmBlock[];
   run(name: CommandName): void;
+  /** Inserts a stored attachment at the cursor. */
+  insertAttachment(info: { blob: string; name: string; mime: string; size: number }): void;
   destroy(): void;
 }
 
 /** Creates an editor for ADM content; `onChange` runs after every change of the text. */
-export function createNoteEditor(mount: HTMLElement, blocks: AdmBlock[], onChange: () => void): NoteEditor {
+export function createNoteEditor(
+  mount: HTMLElement,
+  blocks: AdmBlock[],
+  onChange: () => void,
+  attachments: AttachmentHandler,
+): NoteEditor {
   let state = EditorState.create({
     doc: admBlocksToDoc(blocks),
     plugins: [checkStatePlugin, bidsPlugin, history(), altaisKeymap, keymap(baseKeymap), columnResizing(), tableEditing(), checklistPlugin],
@@ -118,6 +128,7 @@ export function createNoteEditor(mount: HTMLElement, blocks: AdmBlock[], onChang
   const view: EditorView = new EditorView(mount, {
     state,
     transformPastedHTML: cleanPastedHtml,
+    nodeViews: { attachment: (node) => attachmentView(node, attachments) },
     attributes: { spellcheck: "true", "aria-label": "Note text" },
     dispatchTransaction(tr) {
       view.updateState(view.state.apply(tr));
@@ -129,6 +140,11 @@ export function createNoteEditor(mount: HTMLElement, blocks: AdmBlock[], onChang
     content: () => docToAdmBlocks(view.state.doc),
     run(name) {
       commands[name](view.state, view.dispatch, view);
+      view.focus();
+    },
+    insertAttachment(info) {
+      const node = n.attachment.create({ bid: null, ...info });
+      view.dispatch(view.state.tr.replaceSelectionWith(node).scrollIntoView());
       view.focus();
     },
     destroy: () => view.destroy(),
