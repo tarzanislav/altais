@@ -435,10 +435,20 @@ nav {
 .attachment-size {
   color: var(--muted);
 }
-.attachment-save {
+.attachment-actions {
   margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+.attachment-open,
+.attachment-save {
   padding: 2px 8px;
   font-size: 0.85rem;
+}
+.attachment-problem {
+  color: var(--error);
+  font-size: 0.85rem;
+  margin-top: 4px;
 }
 .attachment-missing {
   color: var(--error);

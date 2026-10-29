@@ -77,6 +77,7 @@ const sk = {
   removeDemoConfirm: "Odstrániť ukážku",
   lock: "Zamknúť",
   saveAs: "Uložiť ako…",
+  openAttachment: "Otvoriť",
   addAttachment: "Pridať prílohu",
   cannotLoadAttachment: "Prílohu sa nepodarilo načítať.",
   tools: {
@@ -113,6 +114,8 @@ const sk = {
     cannot_write_file: "Súbor sa nedá uložiť.",
     missing_attachment: "Príloha v archíve chýba.",
     damaged_attachment: "Súbor prílohy chýba alebo je poškodený.",
+    unsafe_to_open: "Tento súbor by sa spustil ako program, preto ho ALTAIS neotvorí. Môžeš ho uložiť.",
+    cannot_open_file: "Súbor sa nepodarilo otvoriť.",
     invalid_note: "Poznámka obsahuje neplatné údaje.",
     unknown: "Niečo sa pokazilo.",
   } as Record<string, string>,
@@ -195,6 +198,7 @@ const en: Texts = {
   removeDemoConfirm: "Remove demo",
   lock: "Lock",
   saveAs: "Save as…",
+  openAttachment: "Open",
   addAttachment: "Add attachment",
   cannotLoadAttachment: "The attachment could not be loaded.",
   tools: {
@@ -231,6 +235,8 @@ const en: Texts = {
     cannot_write_file: "The file cannot be written.",
     missing_attachment: "The attachment is missing from the archive.",
     damaged_attachment: "The attachment's file is missing or damaged.",
+    unsafe_to_open: "This file would run as a program, so ALTAIS does not open it. You can save it.",
+    cannot_open_file: "The file could not be opened.",
     invalid_note: "The note contains invalid data.",
     unknown: "Something went wrong.",
   },

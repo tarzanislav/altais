@@ -3,6 +3,7 @@
 // browser (development, tests) an in-memory stand-in answers instead.
 
 import type { AdmBlock } from "./editor/adm";
+import { canOpen } from "./editor/attachment-view";
 
 export interface Status {
   dir: string;
@@ -82,6 +83,8 @@ export interface Backend {
   attachment(blob: string): Promise<Uint8Array>;
   /** Asks where to save an attachment and writes it; false if cancelled. */
   saveAttachment(blob: string, name: string): Promise<boolean>;
+  /** Opens an attachment in its default program (not for programs and scripts). */
+  openAttachment(blob: string, name: string): Promise<void>;
   /** Asks for a file and stores it as an attachment; null if cancelled. */
   addAttachment(): Promise<AttachmentInfo | null>;
   /** Loads the demo package ("sk" or "en") into the separate demo archive and opens it. */
@@ -137,6 +140,9 @@ async function tauriBackend(): Promise<Backend> {
       await invoke("save_attachment", { blob, path });
       return true;
     },
+    async openAttachment(blob, name) {
+      await invoke("open_attachment", { blob, name });
+    },
     async addAttachment() {
       const path = await open({ multiple: false, directory: false });
       if (!path || Array.isArray(path)) return null;
@@ -164,6 +170,7 @@ export function memoryBackend(): Backend {
   let demoExists = false;
   const blobs = new Map<string, Uint8Array>();
   const saved: string[] = [];
+  const opened: string[] = [];
   let counter = 0;
   const id = () => `0192b6e1-2d3c-7f40-8a51-${(++counter).toString(16).padStart(12, "0")}`;
   const now = () => new Date().toISOString();
@@ -339,6 +346,7 @@ export function memoryBackend(): Backend {
         { t: "paragraph", bid: "p0001", text: [{ s: "Výhľad z Rysov:" }] },
         { t: "attachment", bid: "a0001", blob, name: "rysy.png", mime: "image/png", size: png.length },
         { t: "attachment", bid: "a0002", blob, name: "trasa.gpx", mime: "application/octet-stream", size: png.length },
+        { t: "attachment", bid: "a0003", blob, name: "instalacia.exe", mime: "application/octet-stream", size: png.length },
       ]);
       return [{ file: "ukazka.enex", notebook: "Ukážka z Evernote", stored: 3, partial: [], attachments: 1, stoppedEarly: null }];
     },
@@ -353,6 +361,13 @@ export function memoryBackend(): Backend {
       saved.push(`${name}:${blob}`);
       (window as unknown as { savedAttachments: string[] }).savedAttachments = saved;
       return true;
+    },
+    async openAttachment(blob, name) {
+      guard();
+      if (!canOpen(name)) throw err("unsafe_to_open", `${name} could run as a program`);
+      if (!blobs.has(blob)) throw err("missing_attachment", "the attachment is not in the archive");
+      opened.push(name);
+      (window as unknown as { openedAttachments: string[] }).openedAttachments = opened;
     },
     async addAttachment() {
       guard();

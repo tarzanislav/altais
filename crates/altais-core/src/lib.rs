@@ -13,6 +13,7 @@ use serde_json::Value;
 
 mod demo;
 pub mod import;
+pub mod open_copy;
 
 pub use import::ImportOutcome;
 
@@ -253,6 +254,8 @@ pub struct Core {
     archive: Option<Archive>,
     /// Whether `archive` is the demo archive.
     demo: bool,
+    /// Folder for temporary copies of opened attachments ([`open_copy`]).
+    open_copies: Option<PathBuf>,
 }
 
 impl Core {
@@ -263,7 +266,41 @@ impl Core {
             keystore,
             archive: None,
             demo: false,
+            open_copies: None,
         }
+    }
+
+    /// Where temporary copies of opened attachments go; anything left there
+    /// from an earlier run is deleted.
+    pub fn set_open_copy_dir(&mut self, dir: PathBuf) {
+        open_copy::clear(&dir);
+        self.open_copies = Some(dir);
+    }
+
+    /// Deletes the temporary copies of opened attachments.
+    pub fn clear_open_copies(&self) {
+        if let Some(dir) = &self.open_copies {
+            open_copy::clear(dir);
+        }
+    }
+
+    /// Decrypts an attachment into a temporary file for opening it in its
+    /// default program. Programs and scripts are refused (`unsafe_to_open`):
+    /// they can only be saved.
+    pub fn open_copy(&self, blob: &str, name: &str) -> Result<PathBuf> {
+        if !open_copy::safe_to_open(name) {
+            return Err(CoreError::new(
+                "unsafe_to_open",
+                format!("{name} could run as a program; save it instead"),
+            ));
+        }
+        let dir = self
+            .open_copies
+            .as_ref()
+            .ok_or_else(|| CoreError::new("cannot_write_file", "no folder for temporary copies"))?;
+        let data = self.attachment(blob)?;
+        open_copy::write(dir, name, &data)
+            .map_err(|e| CoreError::new("cannot_write_file", format!("{}: {e}", dir.display())))
     }
 
     /// Folder of the demo archive: next to the user's archive, never inside it.
@@ -394,6 +431,7 @@ impl Core {
 
     /// Closes the archive.
     pub fn lock(&mut self) {
+        self.clear_open_copies();
         self.archive = None;
         self.demo = false;
     }

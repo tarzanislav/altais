@@ -749,7 +749,9 @@ function NoteView({
       editor.current = createNoteEditor(mount.current, note.content, schedule, {
         load: (blob) => api.attachment(blob),
         save: (blob, name) => api.saveAttachment(blob, name),
-        labels: { saveAs: t.saveAs, cannotLoad: t.cannotLoadAttachment },
+        open: (blob, name) => api.openAttachment(blob, name),
+        describeError: errorText,
+        labels: { saveAs: t.saveAs, open: t.openAttachment, cannotLoad: t.cannotLoadAttachment },
       });
       setLoaded(true);
     });
