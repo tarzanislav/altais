@@ -116,6 +116,7 @@ export function createNoteEditor(
   blocks: AdmBlock[],
   onChange: () => void,
   attachments: AttachmentHandler,
+  readOnly = false,
 ): NoteEditor {
   let state = EditorState.create({
     doc: admBlocksToDoc(blocks),
@@ -128,6 +129,7 @@ export function createNoteEditor(
   const view: EditorView = new EditorView(mount, {
     state,
     transformPastedHTML: cleanPastedHtml,
+    editable: () => !readOnly,
     nodeViews: { attachment: (node) => attachmentView(node, attachments) },
     attributes: { spellcheck: "true", "aria-label": "Note text" },
     dispatchTransaction(tr) {

@@ -1,5 +1,7 @@
 //! Opening, creating and using an archive.
 
+use std::cell::RefCell;
+use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -70,6 +72,9 @@ pub struct Archive {
     keystore: Option<Arc<dyn KeyStore>>,
     kdf: KdfParams,
     blobs: BlobStore,
+    /// Content stored in this session; never collected as unused, because
+    /// the note it was added to may not be saved yet.
+    fresh_blobs: RefCell<HashSet<String>>,
 }
 
 impl std::fmt::Debug for Archive {
@@ -112,7 +117,7 @@ fn open_database(path: &Path, key: &DbKey) -> Result<Connection, StorageError> {
         return Err(StorageError::CannotDecrypt);
     }
     conn.execute_batch(
-        "PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;",
+        "PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA secure_delete = ON;",
     )?;
     let previous = schema::migrate(&mut conn)?;
     if previous > 0 && previous < schema::SEARCH_INDEX_VERSION {
@@ -258,6 +263,7 @@ impl Archive {
                 keystore,
                 kdf,
                 blobs,
+                fresh_blobs: RefCell::default(),
             },
             recovery,
         ))
@@ -296,6 +302,7 @@ impl Archive {
             keystore,
             kdf: PASSWORD_KDF,
             blobs,
+            fresh_blobs: RefCell::default(),
         };
         archive.move_blobs_to_files()?;
         Ok(archive)
@@ -573,12 +580,27 @@ impl Archive {
 
     /// Notes of a notebook (or all notes with `None`), newest first.
     pub fn notes(&self, notebook: Option<ObjectId>) -> Result<Vec<NoteSummary>, StorageError> {
-        let mut stmt = self.conn.prepare(
+        self.summaries(
             "SELECT id, title, notebook, updated FROM note
              WHERE deleted IS NULL AND (?1 IS NULL OR notebook = ?1)
              ORDER BY updated DESC",
-        )?;
-        let rows = stmt.query_map([notebook.map(|n| n.to_string())], |r| {
+            notebook.map(|n| n.to_string()),
+        )
+    }
+
+    /// Notes in the trash, most recently trashed first.
+    pub fn trashed_notes(&self) -> Result<Vec<NoteSummary>, StorageError> {
+        self.summaries(
+            "SELECT id, title, notebook, updated FROM note
+             WHERE deleted IS NOT NULL AND ?1 IS NULL
+             ORDER BY deleted DESC",
+            None,
+        )
+    }
+
+    fn summaries(&self, sql: &str, arg: Option<String>) -> Result<Vec<NoteSummary>, StorageError> {
+        let mut stmt = self.conn.prepare(sql)?;
+        let rows = stmt.query_map([arg], |r| {
             Ok((
                 r.get::<_, String>(0)?,
                 r.get::<_, String>(1)?,
@@ -596,6 +618,73 @@ impl Archive {
             })
         })
         .collect()
+    }
+
+    /// Deletes a note in the trash for good, with its search entry, and then
+    /// the content no note uses any more. A note not in the trash is left
+    /// alone (returns false).
+    pub fn delete_note(&mut self, id: ObjectId) -> Result<bool, StorageError> {
+        let deleted = self.delete_where("id = ?1 AND deleted IS NOT NULL", Some(id.to_string()))?;
+        if deleted > 0 {
+            self.collect_garbage()?;
+        }
+        Ok(deleted > 0)
+    }
+
+    /// Deletes every note in the trash for good; returns how many.
+    pub fn empty_trash(&mut self) -> Result<usize, StorageError> {
+        let deleted = self.delete_where("deleted IS NOT NULL AND ?1 IS NULL", None)?;
+        self.collect_garbage()?;
+        Ok(deleted)
+    }
+
+    fn delete_where(
+        &mut self,
+        condition: &str,
+        arg: Option<String>,
+    ) -> Result<usize, StorageError> {
+        let tx = self.conn.transaction()?;
+        tx.execute(
+            &format!(
+                "DELETE FROM note_fts WHERE rowid IN (SELECT rowid FROM note WHERE {condition})"
+            ),
+            [&arg],
+        )?;
+        // Tags and attachment rows go with the note (ON DELETE CASCADE).
+        let deleted = tx.execute(&format!("DELETE FROM note WHERE {condition}"), [&arg])?;
+        tx.execute(
+            "DELETE FROM tag WHERE id NOT IN (SELECT tag FROM note_tag)",
+            [],
+        )?;
+        tx.commit()?;
+        Ok(deleted)
+    }
+
+    /// Deletes stored content that no note (not even one in the trash) uses,
+    /// except content stored in this session. Returns how many.
+    pub fn collect_garbage(&self) -> Result<usize, StorageError> {
+        let unused: Vec<String> = {
+            let mut stmt = self
+                .conn
+                .prepare("SELECT hash FROM blob WHERE hash NOT IN (SELECT blob FROM attachment)")?;
+            stmt.query_map([], |r| r.get(0))?
+                .collect::<Result<_, _>>()?
+        };
+        let fresh = self.fresh_blobs.borrow();
+        let mut removed = 0;
+        for hex in unused.iter().filter(|h| !fresh.contains(*h)) {
+            // The record first: a crash in between leaves an unused file,
+            // never a record without its file.
+            self.conn
+                .execute("DELETE FROM blob WHERE hash = ?1", [hex])?;
+            self.blobs.remove(&hash_bytes(hex)?)?;
+            removed += 1;
+        }
+        // Move the deleted pages out of the write-ahead log into the
+        // database, where secure_delete has overwritten them.
+        self.conn
+            .query_row("PRAGMA wal_checkpoint(TRUNCATE)", [], |_| Ok(()))?;
+        Ok(removed)
     }
 
     /// Names of the tags of a note, sorted.
@@ -617,6 +706,7 @@ impl Archive {
         let hash = blake3::hash(data);
         self.blobs.put(hash.as_bytes(), data)?;
         let hex = hash.to_hex();
+        self.fresh_blobs.borrow_mut().insert(hex.to_string());
         self.conn.execute(
             "INSERT INTO blob (hash, size, data) VALUES (?1, ?2, X'') ON CONFLICT(hash) DO NOTHING",
             params![hex.as_str(), data.len() as i64],

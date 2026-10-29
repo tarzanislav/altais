@@ -86,6 +86,20 @@ cannotLoadAttachment = Nie udało się wczytać załącznika.
 language = Język
 languageAuto = Jak w systemie
 languageHint = Zmiana zostanie zastosowana po ponownym uruchomieniu ALTAIS.
+trashTitle = Kosz
+trashEmpty = Kosz jest pusty
+emptyTrash = Opróżnij kosz
+emptyTrashTitle = Opróżnić kosz?
+emptyTrashText = { $count ->
+        [one] { $count } notatka zostanie trwale usunięta wraz z załącznikami, których nie używa inna notatka. Tego nie można cofnąć.
+        [few] { $count } notatki zostaną trwale usunięte wraz z załącznikami, których nie używa inna notatka. Tego nie można cofnąć.
+       *[other] { $count } notatek zostanie trwale usuniętych wraz z załącznikami, których nie używa inna notatka. Tego nie można cofnąć.
+    }
+inTrash = Ta notatka jest w koszu.
+restore = Przywróć
+deleteForever = Usuń trwale
+deleteForeverTitle = Usunąć notatkę trwale?
+deleteForeverText = Notatka zostanie usunięta wraz z załącznikami, których nie używa inna notatka. Tego nie można cofnąć.
 
 ## tools
 
@@ -126,4 +140,5 @@ error-damaged-attachment = Plik załącznika nie istnieje lub jest uszkodzony.
 error-unsafe-to-open = Ten plik uruchomiłby się jako program, dlatego ALTAIS go nie otworzy. Możesz go zapisać.
 error-cannot-open-file = Nie udało się otworzyć pliku.
 error-invalid-note = Notatka zawiera nieprawidłowe dane.
+error-not-in-trash = Trwale można usunąć tylko notatki z kosza.
 error-unknown = Coś poszło nie tak.

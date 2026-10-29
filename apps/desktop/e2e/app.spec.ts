@@ -197,3 +197,45 @@ test.describe("system language", () => {
     await expect(page.getByRole("heading", { name: "Добро пожаловать в ALTAIS" })).toBeVisible();
   });
 });
+
+test("trash: restore a note, delete one for good, empty the trash", async ({ page }) => {
+  await createArchive(page);
+  await page.getByTestId("import").click();
+  await page.getByTestId("import-report").getByRole("button", { name: "Zavrieť" }).click();
+  const list = page.getByTestId("note-list");
+  const sidebar = page.getByTestId("sidebar");
+
+  for (const title of [/Plán výletu na Štrbské Pleso/, /Druhá poznámka/, /Fotka z výletu/]) {
+    await list.getByRole("button", { name: title }).click();
+    await page.getByRole("button", { name: "Do koša" }).click();
+  }
+  await expect(list).toContainText("Žiadne poznámky");
+  await expect(page.getByTestId("trash")).toContainText("3");
+
+  // In the trash a note can be read but not edited, and restored.
+  await page.getByTestId("trash").click();
+  await list.getByRole("button", { name: /Druhá poznámka/ }).click();
+  await expect(page.getByTestId("trash-banner")).toContainText("Poznámka je v koši.");
+  await expect(page.getByTestId("editor").locator("[contenteditable='true']")).toHaveCount(0);
+  await page.getByTestId("trash-banner").getByRole("button", { name: "Obnoviť" }).click();
+  await expect(list.getByRole("button", { name: /Druhá poznámka/ })).toHaveCount(0);
+  await expect(page.getByTestId("trash")).toContainText("2");
+
+  // Delete one for good, after confirming.
+  await list.getByRole("button", { name: /Fotka z výletu/ }).click();
+  await page.getByTestId("trash-banner").getByRole("button", { name: "Odstrániť natrvalo" }).click();
+  const confirm = page.getByTestId("confirm-delete");
+  await expect(confirm).toContainText("Vrátiť sa to nedá.");
+  await confirm.getByRole("button", { name: "Odstrániť natrvalo" }).click();
+  await expect(list.getByRole("button", { name: /Fotka z výletu/ })).toHaveCount(0);
+
+  // Empty the rest.
+  await page.getByTestId("empty-trash").click();
+  await expect(page.getByTestId("confirm-empty-trash")).toContainText("1 poznámka sa zmaže natrvalo");
+  await page.getByTestId("confirm-empty-trash").getByRole("button", { name: "Vysypať kôš" }).click();
+  await expect(list).toContainText("Kôš je prázdny");
+  await expect(page.getByTestId("empty-trash")).toHaveCount(0);
+
+  await sidebar.getByRole("button", { name: "Všetky poznámky" }).click();
+  await expect(list.getByRole("button", { name: /Druhá poznámka/ })).toBeVisible();
+});

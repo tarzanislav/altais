@@ -49,5 +49,8 @@ whole file again.
   attachments (Evernote allows at most 200 MB per note). Splitting into
   chunks (FastCDC) with per-chunk encryption comes with sync (F3), where it
   also enables resumable transfer; the format byte allows a second format.
-- Content no longer referred to by any note is not deleted yet; cleaning it
-  up comes with emptying the trash.
+- Content no longer referred to by any note (not even one in the trash) is
+  deleted when a note is deleted for good or the trash is emptied; content
+  stored in the current session is kept, because the note it was added to
+  may not be saved yet. Deleted database pages are overwritten
+  (`secure_delete`) and the write-ahead log is checkpointed.

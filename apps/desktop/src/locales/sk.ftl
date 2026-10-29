@@ -88,6 +88,20 @@ cannotLoadAttachment = Prílohu sa nepodarilo načítať.
 language = Jazyk
 languageAuto = Podľa systému
 languageHint = Zmena sa prejaví po opätovnom spustení ALTAIS.
+trashTitle = Kôš
+trashEmpty = Kôš je prázdny
+emptyTrash = Vysypať kôš
+emptyTrashTitle = Vysypať kôš?
+emptyTrashText = { $count ->
+        [one] { $count } poznámka sa zmaže natrvalo aj s prílohami, ktoré nepoužíva iná poznámka. Vrátiť sa to nedá.
+        [few] { $count } poznámky sa zmažú natrvalo aj s prílohami, ktoré nepoužíva iná poznámka. Vrátiť sa to nedá.
+       *[other] { $count } poznámok sa zmaže natrvalo aj s prílohami, ktoré nepoužíva iná poznámka. Vrátiť sa to nedá.
+    }
+inTrash = Poznámka je v koši.
+restore = Obnoviť
+deleteForever = Odstrániť natrvalo
+deleteForeverTitle = Odstrániť poznámku natrvalo?
+deleteForeverText = Poznámka sa zmaže aj s prílohami, ktoré nepoužíva iná poznámka. Vrátiť sa to nedá.
 
 ## tools
 
@@ -128,5 +142,6 @@ error-damaged-attachment = Súbor prílohy chýba alebo je poškodený.
 error-unsafe-to-open = Tento súbor by sa spustil ako program, preto ho ALTAIS neotvorí. Môžeš ho uložiť.
 error-cannot-open-file = Súbor sa nepodarilo otvoriť.
 error-invalid-note = Poznámka obsahuje neplatné údaje.
+error-not-in-trash = Natrvalo sa dajú odstrániť iba poznámky v koši.
 error-unknown = Niečo sa pokazilo.
 

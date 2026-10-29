@@ -59,6 +59,11 @@ button.primary {
   border-color: var(--accent);
   font-weight: 600;
 }
+button.danger {
+  color: var(--error);
+  border-color: var(--error);
+  font-weight: 600;
+}
 button.subtle {
   background: transparent;
   border-color: transparent;
@@ -506,4 +511,28 @@ nav {
 }
 .demo-banner p {
   margin: 6px 0 10px;
+}
+
+/* Trash */
+.trash-nav {
+  margin-top: 12px;
+}
+.trash-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.trash-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.trash-banner span {
+  margin-right: auto;
+  color: var(--muted);
 }

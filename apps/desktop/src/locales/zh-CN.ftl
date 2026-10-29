@@ -78,6 +78,16 @@ cannotLoadAttachment = 无法加载附件。
 language = 语言
 languageAuto = 跟随系统
 languageHint = 更改将在 ALTAIS 重新启动后生效。
+trashTitle = 废纸篓
+trashEmpty = 废纸篓是空的
+emptyTrash = 清空废纸篓
+emptyTrashTitle = 清空废纸篓？
+emptyTrashText = { $count } 条笔记将被永久删除，未被其他笔记使用的附件也会一并删除。此操作无法撤销。
+inTrash = 这条笔记在废纸篓中。
+restore = 恢复
+deleteForever = 永久删除
+deleteForeverTitle = 永久删除这条笔记？
+deleteForeverText = 笔记将被删除，未被其他笔记使用的附件也会一并删除。此操作无法撤销。
 
 ## tools
 
@@ -118,4 +128,5 @@ error-damaged-attachment = 附件文件缺失或已损坏。
 error-unsafe-to-open = 此文件会作为程序运行，因此 ALTAIS 不会打开它。你可以将其保存。
 error-cannot-open-file = 无法打开文件。
 error-invalid-note = 笔记包含无效数据。
+error-not-in-trash = 只有废纸篓中的笔记才能永久删除。
 error-unknown = 出现了问题。

@@ -301,3 +301,29 @@ fn a_damaged_demo_package_leaves_nothing_behind() {
     );
     assert!(!core.demo_dir().exists());
 }
+
+#[test]
+fn trash_restore_and_empty() {
+    let dir = TempDir::new("trash");
+    let keystore: Arc<dyn KeyStore> = Arc::new(OsKeyStore::mock());
+    let mut core = Core::new(dir.0.clone(), Some(keystore));
+    core.create(None).unwrap();
+    let a = core.new_note(None).unwrap();
+    let b = core.new_note(None).unwrap();
+    core.trash_note(&a.id).unwrap();
+    core.trash_note(&b.id).unwrap();
+    assert_eq!(core.trash().unwrap().len(), 2);
+    assert!(core.notes(None).unwrap().is_empty());
+    // A note in the trash can still be read.
+    assert_eq!(core.note(&a.id).unwrap().id, a.id);
+
+    core.restore_note(&a.id).unwrap();
+    assert_eq!(core.notes(None).unwrap().len(), 1);
+    assert_eq!(core.delete_note(&a.id).unwrap_err().code, "not_in_trash");
+
+    core.delete_note(&b.id).unwrap();
+    assert_eq!(core.note(&b.id).unwrap_err().code, "not_found");
+    core.trash_note(&a.id).unwrap();
+    assert_eq!(core.empty_trash().unwrap(), 1);
+    assert!(core.trash().unwrap().is_empty());
+}
