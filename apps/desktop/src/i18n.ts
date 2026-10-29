@@ -1,251 +1,142 @@
-// Interface texts. Slovak and English for now; the other languages
-// (ADR-0004) follow with Project Fluent.
+// Interface texts with Project Fluent (ADR-0004). The texts are in
+// `locales/<language>.ftl`; Slovak is the source, every other file has the
+// same messages (checked by `i18n.test.ts`). A message missing in a language
+// falls back to English, then to Slovak.
 
-const sk = {
-  appName: "ALTAIS",
-  loading: "Načítava sa…",
-  welcomeTitle: "Vitaj v ALTAIS",
-  welcomeText:
-    "Poznámky budú uložené v šifrovanom archíve na tomto počítači. Kľúč k nemu si bezpečne zapamätá Windows, takže heslo nie je potrebné. Heslo si môžeš zapnúť aj teraz.",
-  archiveFolder: "Priečinok archívu",
-  usePassword: "Chrániť archív aj heslom",
-  passwordRequired: "Tento systém si kľúč zapamätať nevie, preto je heslo povinné.",
-  password: "Heslo",
-  passwordAgain: "Heslo ešte raz",
-  passwordsDiffer: "Heslá sa nezhodujú.",
-  createArchive: "Vytvoriť archív",
-  recoveryTitle: "Tvoj záchranný kľúč",
-  recoveryText:
-    "Týmto kľúčom otvoríš archív na inom počítači alebo keď zabudneš heslo. Zapíš si ho alebo vytlač a ulož na bezpečné miesto. Ukáže sa iba teraz.",
-  copy: "Kopírovať",
-  copied: "Skopírované",
-  recoverySaved: "Záchranný kľúč mám bezpečne uložený",
-  continue: "Pokračovať",
-  unlockTitle: "Otvoriť archív",
-  unlockWithPassword: "Heslom",
-  unlockWithRecovery: "Záchranným kľúčom",
-  recoveryKey: "Záchranný kľúč",
-  open: "Otvoriť",
-  allNotes: "Všetky poznámky",
-  notebooks: "Zošity",
-  newNotebook: "Nový zošit",
-  notebookName: "Názov zošita",
-  create: "Vytvoriť",
-  cancel: "Zrušiť",
-  importEvernote: "Import z Evernote",
-  importing: "Importuje sa…",
-  importDone: "Import dokončený",
-  importSummary: (notes: number, attachments: number, notebook: string) =>
-    `${notes} poznámok a ${attachments} príloh do zošita „${notebook}“`,
-  partlyImported: "Čiastočne importované:",
-  stoppedEarly: "Súbor sa nedal dočítať do konca:",
-  close: "Zavrieť",
-  search: "Hľadať…",
-  noNotes: "Žiadne poznámky",
-  noResults: "Nič sa nenašlo",
-  newNote: "Nová poznámka",
-  untitled: "Bez názvu",
-  titlePlaceholder: "Názov",
-  saving: "Ukladá sa…",
-  saved: "Uložené",
-  saveFailed: "Uloženie zlyhalo",
-  trash: "Do koša",
-  selectNote: "Vyber poznámku alebo vytvor novú.",
-  settings: "Nastavenia",
-  passwordOn: "Archív je chránený heslom. Pri otvorení si ho ALTAIS vypýta.",
-  passwordOff: "Heslo nie je nastavené. Kľúč k archívu bezpečne uchováva Windows.",
-  setPassword: "Nastaviť heslo",
-  changePassword: "Zmeniť heslo",
-  removePassword: "Zrušiť heslo",
-  newPassword: "Nové heslo",
-  savePassword: "Uložiť heslo",
-  passwordSet: "Heslo je nastavené.",
-  passwordRemoved: "Heslo je zrušené. Kľúč opäť uchováva Windows.",
-  recoveryKeyHint: "Ak si starý záchranný kľúč stratil, vytvor nový. Starý tým prestane fungovať.",
-  createNewRecoveryKey: "Vytvoriť nový záchranný kľúč",
-  newRecoveryKeyTitle: "Nový záchranný kľúč",
-  newRecoveryKeyText: "Starý záchranný kľúč už nefunguje. Zapíš si nový a ulož ho na bezpečné miesto. Ukáže sa iba teraz.",
-  recoveryReplaced: "Záchranný kľúč bol vymenený.",
-  or: "alebo",
-  tryDemo: "Vyskúšať s ukážkovými dátami",
-  tryDemoHint: "Ukážka sa uloží oddelene od tvojich poznámok a dá sa kedykoľvek úplne odstrániť.",
-  demoTitle: "Ukážkové dáta",
-  demoText: "Skúšaš ALTAIS na ukážkových poznámkach. Keď budeš pripravený, ukážku odstráň a začni s vlastnými.",
-  removeDemo: "Odstrániť ukážku a začať",
-  removeDemoTitle: "Odstrániť ukážku?",
-  removeDemoText: "Ukážkové poznámky aj ich súbory sa úplne zmažú. Z ukážky v programe nič neostane a tvoje vlastné poznámky to neovplyvní.",
-  removeDemoConfirm: "Odstrániť ukážku",
-  lock: "Zamknúť",
-  saveAs: "Uložiť ako…",
-  openAttachment: "Otvoriť",
-  addAttachment: "Pridať prílohu",
-  cannotLoadAttachment: "Prílohu sa nepodarilo načítať.",
-  tools: {
-    bold: "Tučné (Ctrl+B)",
-    italic: "Kurzíva (Ctrl+I)",
-    underline: "Podčiarknuté (Ctrl+U)",
-    strike: "Prečiarknuté",
-    code: "Kód",
-    paragraph: "Odsek",
-    heading1: "Nadpis 1",
-    heading2: "Nadpis 2",
-    heading3: "Nadpis 3",
-    bulletList: "Odrážky",
-    orderedList: "Číslovaný zoznam",
-    checkList: "Zoznam úloh",
-    undo: "Späť (Ctrl+Z)",
-    redo: "Znova (Ctrl+Y)",
-  },
-  errors: {
-    wrong_password: "Nesprávne heslo.",
-    wrong_recovery_key: "Tento záchranný kľúč nepatrí k tomuto archívu.",
-    bad_recovery_key: "Toto nie je platný záchranný kľúč. Skontroluj preklepy.",
-    key_not_on_this_computer: "Kľúč k archívu nie je uložený na tomto počítači. Použi heslo alebo záchranný kľúč.",
-    cannot_decrypt: "Archív sa nedá dešifrovať: súbor je poškodený alebo nepatrí k súboru kľúčov.",
-    newer_version: "Archív vytvorila novšia verzia ALTAIS. Aktualizuj program.",
-    empty_name: "Zadaj názov.",
-    demo_only: "V ukážke to nie je dostupné.",
-    damaged_demo_package: "Balík ukážkových dát je poškodený.",
-    missing_demo_package: "Balík ukážkových dát chýba.",
-    cannot_remove_demo: "Ukážku sa nepodarilo odstrániť.",
-    empty_password: "Heslo nesmie byť prázdne.",
-    no_protection: "Bez hesla môže archív chrániť iba Windows; na tomto systéme to nejde.",
-    cannot_read_file: "Súbor sa nedá prečítať.",
-    cannot_write_file: "Súbor sa nedá uložiť.",
-    missing_attachment: "Príloha v archíve chýba.",
-    damaged_attachment: "Súbor prílohy chýba alebo je poškodený.",
-    unsafe_to_open: "Tento súbor by sa spustil ako program, preto ho ALTAIS neotvorí. Môžeš ho uložiť.",
-    cannot_open_file: "Súbor sa nepodarilo otvoriť.",
-    invalid_note: "Poznámka obsahuje neplatné údaje.",
-    unknown: "Niečo sa pokazilo.",
-  } as Record<string, string>,
+import { FluentBundle, FluentResource, type FluentVariable } from "@fluent/bundle";
+import { negotiateLanguages } from "@fluent/langneg";
+
+import cs from "./locales/cs.ftl?raw";
+import en from "./locales/en.ftl?raw";
+import hu from "./locales/hu.ftl?raw";
+import pl from "./locales/pl.ftl?raw";
+import ru from "./locales/ru.ftl?raw";
+import sk from "./locales/sk.ftl?raw";
+import zh from "./locales/zh-CN.ftl?raw";
+
+export const SOURCES: Record<string, string> = { sk, cs, en, hu, pl, ru, "zh-CN": zh };
+
+/** Languages of the interface, each named in itself. */
+export const LANGUAGES: { code: string; name: string }[] = [
+  { code: "sk", name: "Slovenčina" },
+  { code: "cs", name: "Čeština" },
+  { code: "en", name: "English" },
+  { code: "hu", name: "Magyar" },
+  { code: "pl", name: "Polski" },
+  { code: "ru", name: "Русский" },
+  { code: "zh-CN", name: "简体中文" },
+];
+
+/** Locale for dates and sorting. */
+const LOCALES: Record<string, string> = {
+  sk: "sk-SK",
+  cs: "cs-CZ",
+  en: "en-GB",
+  hu: "hu-HU",
+  pl: "pl-PL",
+  ru: "ru-RU",
+  "zh-CN": "zh-CN",
 };
 
-type Texts = typeof sk;
+/** Messages without variables, read as `t.<id>`. */
+const MESSAGES = [
+  "appName", "loading", "welcomeTitle", "welcomeText", "archiveFolder", "usePassword", "passwordRequired",
+  "password", "passwordAgain", "passwordsDiffer", "createArchive", "recoveryTitle", "recoveryText", "copy",
+  "copied", "recoverySaved", "continue", "unlockTitle", "unlockWithPassword", "unlockWithRecovery",
+  "recoveryKey", "open", "allNotes", "notebooks", "newNotebook", "notebookName", "create", "cancel",
+  "importEvernote", "importing", "importDone", "partlyImported", "stoppedEarly", "close", "search", "noNotes",
+  "noResults", "newNote", "untitled", "titlePlaceholder", "saving", "saved", "saveFailed", "trash",
+  "selectNote", "settings", "passwordOn", "passwordOff", "setPassword", "changePassword", "removePassword",
+  "newPassword", "savePassword", "passwordSet", "passwordRemoved", "recoveryKeyHint", "createNewRecoveryKey",
+  "newRecoveryKeyTitle", "newRecoveryKeyText", "recoveryReplaced", "or", "tryDemo", "tryDemoHint",
+  "demoTitle", "demoText", "removeDemo", "removeDemoTitle", "removeDemoText", "removeDemoConfirm", "lock",
+  "saveAs", "openAttachment", "addAttachment", "cannotLoadAttachment", "language", "languageAuto",
+  "languageHint",
+] as const;
 
-const en: Texts = {
-  ...sk,
-  loading: "Loading…",
-  welcomeTitle: "Welcome to ALTAIS",
-  welcomeText:
-    "Your notes are kept in an encrypted archive on this computer. Windows keeps its key safely, so no password is needed. You can add a password now if you like.",
-  archiveFolder: "Archive folder",
-  usePassword: "Also protect the archive with a password",
-  passwordRequired: "This system cannot keep the key, so a password is required.",
-  password: "Password",
-  passwordAgain: "Password again",
-  passwordsDiffer: "The passwords differ.",
-  createArchive: "Create archive",
-  recoveryTitle: "Your recovery key",
-  recoveryText:
-    "This key opens the archive on another computer or if you forget the password. Write it down or print it and keep it safe. It is shown only now.",
-  copy: "Copy",
-  copied: "Copied",
-  recoverySaved: "I have saved the recovery key",
-  continue: "Continue",
-  unlockTitle: "Open the archive",
-  unlockWithPassword: "Password",
-  unlockWithRecovery: "Recovery key",
-  recoveryKey: "Recovery key",
-  open: "Open",
-  allNotes: "All notes",
-  notebooks: "Notebooks",
-  newNotebook: "New notebook",
-  notebookName: "Notebook name",
-  create: "Create",
-  cancel: "Cancel",
-  importEvernote: "Import from Evernote",
-  importing: "Importing…",
-  importDone: "Import finished",
-  importSummary: (notes, attachments, notebook) => `${notes} notes and ${attachments} attachments into “${notebook}”`,
-  partlyImported: "Partly imported:",
-  stoppedEarly: "The file could not be read to the end:",
-  close: "Close",
-  search: "Search…",
-  noNotes: "No notes",
-  noResults: "Nothing found",
-  newNote: "New note",
-  untitled: "Untitled",
-  titlePlaceholder: "Title",
-  saving: "Saving…",
-  saved: "Saved",
-  saveFailed: "Saving failed",
-  trash: "Move to trash",
-  selectNote: "Select a note or create a new one.",
-  settings: "Settings",
-  passwordOn: "The archive is protected by a password. ALTAIS asks for it when opening.",
-  passwordOff: "No password is set. Windows keeps the archive key safe.",
-  setPassword: "Set a password",
-  changePassword: "Change password",
-  removePassword: "Remove password",
-  newPassword: "New password",
-  savePassword: "Save password",
-  passwordSet: "The password is set.",
-  passwordRemoved: "The password is removed. Windows keeps the key again.",
-  recoveryKeyHint: "If you lost the old recovery key, create a new one. The old one then stops working.",
-  createNewRecoveryKey: "Create a new recovery key",
-  newRecoveryKeyTitle: "New recovery key",
-  newRecoveryKeyText: "The old recovery key no longer works. Write down the new one and keep it safe. It is shown only now.",
-  recoveryReplaced: "The recovery key was replaced.",
-  or: "or",
-  tryDemo: "Try ALTAIS with demo data",
-  tryDemoHint: "The demo is kept apart from your notes and can be removed completely at any time.",
-  demoTitle: "Demo data",
-  demoText: "You are trying ALTAIS with demo notes. When you are ready, remove the demo and start with your own.",
-  removeDemo: "Remove demo and start",
-  removeDemoTitle: "Remove the demo?",
-  removeDemoText: "The demo notes and their files are deleted completely. Nothing of the demo stays in the app, and your own notes are not affected.",
-  removeDemoConfirm: "Remove demo",
-  lock: "Lock",
-  saveAs: "Save as…",
-  openAttachment: "Open",
-  addAttachment: "Add attachment",
-  cannotLoadAttachment: "The attachment could not be loaded.",
-  tools: {
-    bold: "Bold (Ctrl+B)",
-    italic: "Italic (Ctrl+I)",
-    underline: "Underline (Ctrl+U)",
-    strike: "Strikethrough",
-    code: "Code",
-    paragraph: "Paragraph",
-    heading1: "Heading 1",
-    heading2: "Heading 2",
-    heading3: "Heading 3",
-    bulletList: "Bulleted list",
-    orderedList: "Numbered list",
-    checkList: "Checklist",
-    undo: "Undo (Ctrl+Z)",
-    redo: "Redo (Ctrl+Y)",
-  },
-  errors: {
-    wrong_password: "Wrong password.",
-    wrong_recovery_key: "This recovery key does not belong to this archive.",
-    bad_recovery_key: "This is not a valid recovery key. Check for typos.",
-    key_not_on_this_computer: "The archive key is not stored on this computer. Use the password or the recovery key.",
-    cannot_decrypt: "The archive cannot be decrypted: the file is damaged or does not match the key file.",
-    newer_version: "A newer version of ALTAIS created this archive. Please update.",
-    empty_name: "Enter a name.",
-    demo_only: "Not available in the demo.",
-    damaged_demo_package: "The demo package is damaged.",
-    missing_demo_package: "The demo package is missing.",
-    cannot_remove_demo: "The demo could not be removed.",
-    empty_password: "The password must not be empty.",
-    no_protection: "Without a password only Windows can protect the archive; not possible on this system.",
-    cannot_read_file: "The file cannot be read.",
-    cannot_write_file: "The file cannot be written.",
-    missing_attachment: "The attachment is missing from the archive.",
-    damaged_attachment: "The attachment's file is missing or damaged.",
-    unsafe_to_open: "This file would run as a program, so ALTAIS does not open it. You can save it.",
-    cannot_open_file: "The file could not be opened.",
-    invalid_note: "The note contains invalid data.",
-    unknown: "Something went wrong.",
-  },
+export type Message = (typeof MESSAGES)[number];
+
+export type Texts = Record<Message, string> & {
+  importSummary(notes: number, attachments: number, notebook: string): string;
+  /** Editor toolbar, by tool name. */
+  tools: Record<string, string>;
+  /** Error messages, by error code from the core. */
+  errors: Record<string, string>;
 };
 
-const lang = (navigator.language || "sk").toLowerCase();
-/** Slovak for Slovak and Czech systems (until Czech has its own texts), English otherwise. */
-export const t: Texts = lang.startsWith("sk") || lang.startsWith("cs") ? sk : en;
-export const locale = t === sk ? "sk-SK" : "en-GB";
+const STORAGE_KEY = "altais.language";
+
+/** The language chosen in Settings, or null to follow the system. */
+export function chosenLanguage(): string | null {
+  try {
+    const value = localStorage.getItem(STORAGE_KEY);
+    return value && value in SOURCES ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Remembers the language (null: follow the system); applies after reload. */
+export function chooseLanguage(code: string | null): void {
+  try {
+    if (code) localStorage.setItem(STORAGE_KEY, code);
+    else localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Without storage the system language is used.
+  }
+}
+
+/** The interface language for the system's preferred languages. Czech and
+ * Slovak users understand each other's language, so each falls back to the
+ * other before English. */
+export function pickLanguage(requested: readonly string[]): string {
+  const [best] = negotiateLanguages(requested, Object.keys(SOURCES), {
+    strategy: "matching",
+    defaultLocale: "en",
+  });
+  return best ?? "en";
+}
+
+export function makeBundles(lang: string): FluentBundle[] {
+  const chain = [lang, lang === "cs" ? "sk" : lang === "sk" ? "cs" : "en", "en", "sk"];
+  return [...new Set(chain)].map((code) => {
+    // No bidirectional isolation marks: none of the languages is written right to left.
+    const bundle = new FluentBundle(LOCALES[code], { useIsolating: false });
+    bundle.addResource(new FluentResource(SOURCES[code]));
+    return bundle;
+  });
+}
+
+export function format(bundles: FluentBundle[], id: string, args?: Record<string, FluentVariable>): string | undefined {
+  for (const bundle of bundles) {
+    const message = bundle.getMessage(id);
+    if (message?.value) return bundle.formatPattern(message.value, args);
+  }
+  return undefined;
+}
+
+export function makeTexts(lang: string): Texts {
+  const bundles = makeBundles(lang);
+  const texts = {} as Record<string, unknown>;
+  for (const id of MESSAGES) texts[id] = format(bundles, id) ?? id;
+  texts.importSummary = (notes: number, attachments: number, notebook: string) =>
+    format(bundles, "importSummary", { notes, attachments, notebook }) ?? "";
+  const lookup = (prefix: string) =>
+    new Proxy({} as Record<string, string>, {
+      get: (_, key) => (typeof key === "string" ? format(bundles, `${prefix}-${key.replace(/_/g, "-")}`) : undefined),
+    });
+  texts.tools = lookup("tool");
+  texts.errors = lookup("error");
+  return texts as Texts;
+}
+
+const systemLanguages = typeof navigator !== "undefined" ? navigator.languages ?? [navigator.language] : [];
+
+/** The interface language in use. */
+export const language = chosenLanguage() ?? pickLanguage(systemLanguages.length ? systemLanguages : ["sk"]);
+export const t: Texts = makeTexts(language);
+export const locale = LOCALES[language];
+if (typeof document !== "undefined") document.documentElement.lang = language;
 
 export function errorText(e: unknown): string {
   if (typeof e === "object" && e !== null && "code" in e) {

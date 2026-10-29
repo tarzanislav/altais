@@ -8,7 +8,7 @@ import {
   backend,
 } from "./api";
 import { type CommandName, createNoteEditor, type NoteEditor } from "./editor/editor";
-import { errorText, locale, t } from "./i18n";
+import { chooseLanguage, chosenLanguage, errorText, language, LANGUAGES, locale, t } from "./i18n";
 
 type Screen =
   | { kind: "loading" }
@@ -156,7 +156,7 @@ function Welcome({
         onClick={async () => {
           setBusy(true);
           try {
-            await api.loadDemo(locale.startsWith("sk") ? "sk" : "en");
+            await api.loadDemo(language === "sk" || language === "cs" ? "sk" : "en");
             onDemo();
           } catch (err) {
             setError(errorText(err));
@@ -596,6 +596,24 @@ function Settings({ api, onClose }: { api: Backend; onClose: () => void }) {
             </div>
           </>
         )}
+        <h3>{t.language}</h3>
+        <select
+          data-testid="language"
+          aria-label={t.language}
+          defaultValue={chosenLanguage() ?? ""}
+          onChange={(e) => {
+            chooseLanguage(e.target.value || null);
+            setError("");
+            setMessage(t.languageHint);
+          }}
+        >
+          <option value="">{t.languageAuto}</option>
+          {LANGUAGES.map((l) => (
+            <option key={l.code} value={l.code} lang={l.code}>
+              {l.name}
+            </option>
+          ))}
+        </select>
         {message && (
           <p className="ok" data-testid="settings-message">
             {message}

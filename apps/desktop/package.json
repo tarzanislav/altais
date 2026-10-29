@@ -15,6 +15,8 @@
     "licenses": "node ../../scripts/check-npm-licenses.mjs"
   },
   "dependencies": {
+    "@fluent/bundle": "0.19.1",
+    "@fluent/langneg": "0.7.0",
     "@tauri-apps/api": "2.12.4",
     "@tauri-apps/plugin-dialog": "2.8.3",
     "prosemirror-commands": "1.7.2",
