@@ -53,6 +53,10 @@ pub enum StorageError {
         /// Content address.
         blob: String,
     },
+    /// The file holding an attachment's content is missing, damaged or does
+    /// not belong to this archive.
+    #[error("the content of an attachment is missing or damaged ({0})")]
+    DamagedBlob(String),
     /// The database was written by a newer version of ALTAIS.
     #[error(
         "the archive was created by a newer version of ALTAIS (schema {found}, this version knows {known})"

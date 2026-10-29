@@ -60,6 +60,7 @@ impl From<StorageError> for CoreError {
             StorageError::CannotDecrypt => "cannot_decrypt",
             StorageError::InvalidNote(_) => "invalid_note",
             StorageError::MissingBlob { .. } => "missing_attachment",
+            StorageError::DamagedBlob(_) => "damaged_attachment",
             StorageError::NewerSchema { .. } => "newer_version",
             _ => "storage",
         };

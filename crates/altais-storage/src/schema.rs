@@ -63,6 +63,11 @@ const MIGRATIONS: &[&str] = &[
         tokenize = 'unicode61'
     );
     "#,
+    // 3: attachment content lives in encrypted files under `blobs/`
+    //    (ADR-0009); `blob.data` is empty once moved. The version number
+    //    makes older ALTAIS refuse the archive instead of finding empty
+    //    attachments. The move itself happens when the archive is opened.
+    "SELECT 1;",
 ];
 
 /// Schema version that introduced the search index; archives migrated from

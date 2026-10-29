@@ -8,6 +8,7 @@ use altais_model::{BlobRef, Block, Document, KnownBlock, ObjectId};
 use chrono::{DateTime, Utc};
 use rusqlite::{Connection, OptionalExtension, params};
 
+use crate::blobstore::BlobStore;
 use crate::keys::{DbKey, KeyFile, KeyStore, PASSWORD_KDF, RecoveryKey};
 use crate::{KdfParams, StorageError, fold, schema, text};
 
@@ -68,6 +69,7 @@ pub struct Archive {
     key: DbKey,
     keystore: Option<Arc<dyn KeyStore>>,
     kdf: KdfParams,
+    blobs: BlobStore,
 }
 
 impl std::fmt::Debug for Archive {
@@ -246,6 +248,7 @@ impl Archive {
         // The key file first: a database without it could never be opened.
         write_atomically(&dir.join(KEY_FILE), &keys.to_json())?;
         let conn = open_database(&dir.join(DB_FILE), &key)?;
+        let blobs = BlobStore::new(dir, &key);
         Ok((
             Self {
                 conn,
@@ -254,6 +257,7 @@ impl Archive {
                 key,
                 keystore,
                 kdf,
+                blobs,
             },
             recovery,
         ))
@@ -283,14 +287,18 @@ impl Archive {
             Unlock::Recovery(recovery) => keys.unlock_with_recovery(recovery)?,
         };
         let conn = open_database(&dir.join(DB_FILE), &key)?;
-        Ok(Self {
+        let blobs = BlobStore::new(dir, &key);
+        let archive = Self {
             conn,
             dir: dir.to_owned(),
             keys,
             key,
             keystore,
             kdf: PASSWORD_KDF,
-        })
+            blobs,
+        };
+        archive.move_blobs_to_files()?;
+        Ok(archive)
     }
 
     /// Folder of the archive.
@@ -603,25 +611,81 @@ impl Archive {
     // ---------------- Attachment content ----------------
 
     /// Stores content and returns its address; storing the same content
-    /// twice keeps one copy.
+    /// twice keeps one copy. The content goes into an encrypted file
+    /// (ADR-0009); the database only records that it exists.
     pub fn put_blob(&self, data: &[u8]) -> Result<BlobRef, StorageError> {
-        let hex = blake3::hash(data).to_hex();
+        let hash = blake3::hash(data);
+        self.blobs.put(hash.as_bytes(), data)?;
+        let hex = hash.to_hex();
         self.conn.execute(
-            "INSERT INTO blob (hash, size, data) VALUES (?1, ?2, ?3) ON CONFLICT(hash) DO NOTHING",
-            params![hex.as_str(), data.len() as i64, data],
+            "INSERT INTO blob (hash, size, data) VALUES (?1, ?2, X'') ON CONFLICT(hash) DO NOTHING",
+            params![hex.as_str(), data.len() as i64],
         )?;
         BlobRef::try_from(format!("blake3:{hex}")).map_err(|e| StorageError::Data(e.to_string()))
     }
 
-    /// Stored content by its address.
+    /// Stored content by its address; an error if its file is missing or
+    /// damaged.
     pub fn blob(&self, blob: &BlobRef) -> Result<Option<Vec<u8>>, StorageError> {
-        Ok(self
+        let Some(size) = self
             .conn
-            .query_row("SELECT data FROM blob WHERE hash = ?1", [blob.hex()], |r| {
-                r.get(0)
+            .query_row("SELECT size FROM blob WHERE hash = ?1", [blob.hex()], |r| {
+                r.get::<_, i64>(0)
             })
-            .optional()?)
+            .optional()?
+        else {
+            return Ok(None);
+        };
+        let hash = hash_bytes(blob.hex())?;
+        match self.blobs.get(&hash)? {
+            Some(data) if data.len() as i64 == size => Ok(Some(data)),
+            _ => Err(StorageError::DamagedBlob(blob.to_string())),
+        }
     }
+
+    /// Moves content still kept in the database (archives from before
+    /// ADR-0009) into encrypted files, one at a time, so an interrupted move
+    /// simply continues on the next opening.
+    fn move_blobs_to_files(&self) -> Result<(), StorageError> {
+        let pending: Vec<String> = {
+            let mut stmt = self
+                .conn
+                .prepare("SELECT hash FROM blob WHERE length(data) > 0")?;
+            stmt.query_map([], |r| r.get(0))?
+                .collect::<Result<_, _>>()?
+        };
+        if pending.is_empty() {
+            return Ok(());
+        }
+        for hex in &pending {
+            let data: Vec<u8> =
+                self.conn
+                    .query_row("SELECT data FROM blob WHERE hash = ?1", [hex], |r| r.get(0))?;
+            let hash = hash_bytes(hex)?;
+            if blake3::hash(&data).as_bytes() != &hash {
+                return Err(StorageError::DamagedBlob(format!("blake3:{hex}")));
+            }
+            self.blobs.put(&hash, &data)?;
+            // Only after the file is safely on disk.
+            self.conn
+                .execute("UPDATE blob SET data = X'' WHERE hash = ?1", [hex])?;
+        }
+        // Give the freed space back and leave no old pages behind.
+        self.conn.execute_batch("VACUUM;")?;
+        Ok(())
+    }
+}
+
+fn hash_bytes(hex: &str) -> Result<[u8; 32], StorageError> {
+    let bad = || StorageError::Data(format!("bad content address {hex}"));
+    if hex.len() != 64 {
+        return Err(bad());
+    }
+    let mut out = [0u8; 32];
+    for (i, byte) in out.iter_mut().enumerate() {
+        *byte = u8::from_str_radix(&hex[2 * i..2 * i + 2], 16).map_err(|_| bad())?;
+    }
+    Ok(out)
 }
 
 #[cfg(test)]
@@ -656,6 +720,56 @@ mod tests {
         let archive = Archive::open(&dir, Some(keystore), Unlock::KeyStore).unwrap();
         let hits = archive.search("stary", 10).unwrap();
         assert_eq!(hits.len(), 1);
+        drop(archive);
+        let _ = fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn attachments_kept_in_the_database_move_into_files_on_open() {
+        let mut bytes = [0u8; 8];
+        getrandom::fill(&mut bytes).unwrap();
+        let suffix: String = bytes.iter().map(|b| format!("{b:02x}")).collect();
+        let dir = std::env::temp_dir().join(format!("altais-move-{suffix}"));
+        let keystore: Arc<dyn KeyStore> = Arc::new(OsKeyStore::mock());
+        let fast = KdfParams {
+            memory_kib: 1024,
+            iterations: 1,
+            parallelism: 1,
+        };
+        let (archive, _) =
+            Archive::create_with_kdf(&dir, Some(keystore.clone()), None, fast).unwrap();
+        // An archive from before ADR-0009: content in the database.
+        let data = b"stara priloha".to_vec();
+        let hex = blake3::hash(&data).to_hex();
+        archive
+            .conn
+            .execute(
+                "INSERT INTO blob (hash, size, data) VALUES (?1, ?2, ?3)",
+                params![hex.as_str(), data.len() as i64, data],
+            )
+            .unwrap();
+        archive
+            .conn
+            .execute_batch("PRAGMA user_version = 2;")
+            .unwrap();
+        drop(archive);
+
+        let archive = Archive::open(&dir, Some(keystore), Unlock::KeyStore).unwrap();
+        let left: i64 = archive
+            .conn
+            .query_row("SELECT sum(length(data)) FROM blob", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(left, 0);
+        assert!(archive.blobs.contains(blake3::hash(&data).as_bytes()));
+        let blob: BlobRef = format!("blake3:{hex}").parse().unwrap();
+        assert_eq!(archive.blob(&blob).unwrap().unwrap(), data);
+
+        // A deleted file is reported, not silently empty.
+        fs::remove_file(archive.blobs.path_of(blake3::hash(&data).as_bytes())).unwrap();
+        assert!(matches!(
+            archive.blob(&blob),
+            Err(StorageError::DamagedBlob(_))
+        ));
         drop(archive);
         let _ = fs::remove_dir_all(dir);
     }
