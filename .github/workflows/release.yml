@@ -1,12 +1,15 @@
 name: Release
 
-# Pushing a tag v<version> (matching the app's version) builds the Windows
-# installer from that commit and publishes it as a pre-release with its
-# SHA-256 checksum. Approved by the author on 2026-11-16.
+# Builds the Windows installer and publishes it as a pre-release with its
+# SHA-256 checksum. Start it either by pushing a tag v<version> (matching the
+# app's version), or with "Run workflow" on GitHub (Actions → Release): that
+# releases the current main as v<version> from tauri.conf.json and creates
+# the tag. Approved by the author on 2026-11-16.
 
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -32,14 +35,24 @@ jobs:
       - name: The tag matches the app's version
         run: |
           version=$(node -p "require('./src-tauri/tauri.conf.json').version")
-          if [ "$GITHUB_REF_NAME" != "v$version" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME does not match the app's version $version (tauri.conf.json)"
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            if [ "$GITHUB_REF" != refs/heads/main ]; then
+              echo "::error::Releases are made from main only"
+              exit 1
+            fi
+            tag="v$version"
+          else
+            tag="$GITHUB_REF_NAME"
+          fi
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          if [ "$tag" != "v$version" ]; then
+            echo "::error::Tag $tag does not match the app's version $version (tauri.conf.json)"
             exit 1
           fi
           test "$(node -p "require('./package.json').version")" = "$version"
           grep -q "^version = \"$version\"" src-tauri/Cargo.toml
       - name: Release notes exist
-        run: test -s "../../docs/releases/$GITHUB_REF_NAME.md"
+        run: test -s "../../docs/releases/$TAG.md"
       - name: Install Rust
         run: |
           rustup toolchain install stable --profile minimal
@@ -70,9 +83,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" dist/*.exe dist/SHA256SUMS.txt \
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            # Creates the tag on exactly the commit that was built.
+            where=(--target "$GITHUB_SHA")
+          else
+            where=(--verify-tag)
+          fi
+          gh release create "$TAG" dist/*.exe dist/SHA256SUMS.txt \
             --repo "$GITHUB_REPOSITORY" \
-            --title "ALTAIS $GITHUB_REF_NAME" \
-            --notes-file "docs/releases/$GITHUB_REF_NAME.md" \
+            --title "ALTAIS $TAG" \
+            --notes-file "docs/releases/$TAG.md" \
             --prerelease \
-            --verify-tag
+            "${where[@]}"
