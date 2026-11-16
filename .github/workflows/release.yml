@@ -26,13 +26,16 @@ jobs:
       contents: write # create the release
     defaults:
       run:
-        shell: bash
+        # PowerShell, as in CI: under Git Bash the vendored OpenSSL is
+        # configured with Git's Perl, which cannot build it. Steps that are
+        # shell scripts say `shell: bash` themselves.
         working-directory: apps/desktop
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: The tag matches the app's version
+        shell: bash
         run: |
           version=$(node -p "require('./src-tauri/tauri.conf.json').version")
           if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
@@ -52,6 +55,7 @@ jobs:
           test "$(node -p "require('./package.json').version")" = "$version"
           grep -q "^version = \"$version\"" src-tauri/Cargo.toml
       - name: Release notes exist
+        shell: bash
         run: test -s "../../docs/releases/$TAG.md"
       - name: Install Rust
         run: |
@@ -72,6 +76,7 @@ jobs:
       - name: Build the installer
         run: npx tauri build --ci
       - name: Checksum
+        shell: bash
         run: |
           mkdir -p ../../dist
           cp src-tauri/target/release/bundle/nsis/*.exe ../../dist/
@@ -79,6 +84,7 @@ jobs:
           sha256sum *.exe > SHA256SUMS.txt
           cat SHA256SUMS.txt
       - name: Publish the pre-release
+        shell: bash
         working-directory: .
         env:
           GH_TOKEN: ${{ github.token }}
