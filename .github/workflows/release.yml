@@ -1,0 +1,78 @@
+name: Release
+
+# Pushing a tag v<version> (matching the app's version) builds the Windows
+# installer from that commit and publishes it as a pre-release with its
+# SHA-256 checksum. Approved by the author on 2026-11-16.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    name: Windows installer
+    runs-on: windows-latest
+    permissions:
+      contents: write # create the release
+    defaults:
+      run:
+        shell: bash
+        working-directory: apps/desktop
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: The tag matches the app's version
+        run: |
+          version=$(node -p "require('./src-tauri/tauri.conf.json').version")
+          if [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match the app's version $version (tauri.conf.json)"
+            exit 1
+          fi
+          test "$(node -p "require('./package.json').version")" = "$version"
+          grep -q "^version = \"$version\"" src-tauri/Cargo.toml
+      - name: Release notes exist
+        run: test -s "../../docs/releases/$GITHUB_REF_NAME.md"
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+      # No build cache: a release is built from scratch.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Install exactly what the lock file lists
+        run: npm ci --ignore-scripts
+      - name: Licences
+        run: npm run licenses
+      - name: Known vulnerabilities
+        run: npm audit --audit-level=high
+      - name: Unit tests
+        run: npm test
+      - name: Build the installer
+        run: npx tauri build --ci
+      - name: Checksum
+        run: |
+          mkdir -p ../../dist
+          cp src-tauri/target/release/bundle/nsis/*.exe ../../dist/
+          cd ../../dist
+          sha256sum *.exe > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+      - name: Publish the pre-release
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/*.exe dist/SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "ALTAIS $GITHUB_REF_NAME" \
+            --notes-file "docs/releases/$GITHUB_REF_NAME.md" \
+            --prerelease \
+            --verify-tag
