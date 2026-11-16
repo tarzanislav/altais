@@ -18,18 +18,18 @@
     "loro-prosemirror": "0.4.4",
     "prosemirror-commands": "1.7.2",
     "prosemirror-keymap": "1.2.3",
-    "prosemirror-model": "1.25.12",
-    "prosemirror-schema-list": "1.5.1",
+    "prosemirror-model": "1.25.13",
+    "prosemirror-schema-list": "1.6.0",
     "prosemirror-state": "1.4.4",
     "prosemirror-tables": "1.8.5",
-    "prosemirror-transform": "1.12.4",
-    "prosemirror-view": "1.42.7"
+    "prosemirror-transform": "1.12.5",
+    "prosemirror-view": "1.42.9"
   },
   "devDependencies": {
-    "@playwright/test": "1.64.1",
+    "@playwright/test": "1.65.0",
     "ajv": "8.20.0",
     "typescript": "7.0.2",
-    "vite": "8.3.5",
-    "vitest": "5.0.5"
+    "vite": "8.3.6",
+    "vitest": "5.1.0"
   }
 }
